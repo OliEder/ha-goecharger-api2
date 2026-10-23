@@ -403,8 +403,24 @@ actions:
       - condition: template
         value_template: '{{ not charger_target_valid }}'
     then:
+      # A misconfiguration repeats on every 5 second tick. "stop ... error: true"
+      # would write an error to the log each time, so the problem is shown in a
+      # notification instead (replaced, at most once per minute) and the run ends
+      # quietly. The trace still shows the stop reason.
+      - if:
+          - condition: template
+            value_template: '{{ now().second < 5 }}'
+        then:
+          - action: persistent_notification.create
+            data:
+              notification_id: "goecharger_pv_target_{{ this.entity_id }}"
+              title: "go-eCharger PV surplus: invalid target charger"
+              message: >
+                No data is sent. Select Car connected entities that belong
+                to the selected target go-eCharger integration entry, or clear
+                the target. Device and area targets are not supported with an
+                explicit target charger.
       - stop: "Select Car connected entities belonging to the target go-eCharger integration entry."
-        error: true
   - choose:
       # Daylight, car connected: real data every 5 seconds
       - conditions:
@@ -461,6 +477,9 @@ actions:
                           - condition: template
                             value_template: '{{ invalid_data_policy == "notify" }}'
                         sequence:
+                          # At most once per minute; the notification keeps its id
+                          - condition: template
+                            value_template: '{{ now().second < 5 }}'
                           - action: persistent_notification.create
                             data:
                               notification_id: "goecharger_pv_invalid_data_{{ this.entity_id }}"
@@ -502,3 +521,6 @@ actions:
               {{ dict(payload, configid=charger_config_entry) if charger_config_entry else payload }}
 
 mode: single
+# A slow charger call (e.g. via cloud) can overrun the 5 second tick. The next tick
+# is then dropped; without this, HA logs an "Already running" warning every time.
+max_exceeded: silent

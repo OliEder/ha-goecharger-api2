@@ -73,3 +73,25 @@ def test_no_extra_calls(daylight, connected, second):
 
 def test_night_thirty_second_tick():
     assert len(BlueprintRun(daylight=False, second=30).run()) == 1
+
+
+def invalid_target_run(second):
+    return BlueprintRun(target="entry_a", second=second,
+                        inputs={"car_connected_entity": {"entity_id": ["binary_sensor.car_b"]}})
+
+
+def test_invalid_target_is_not_logged_as_error():
+    run = invalid_target_run(second=0)
+    assert run.run() == [] and run.stopped and run.stop_error is False
+
+
+@pytest.mark.parametrize("second,expected", [(0, 1), (4, 1), (5, 0), (30, 0), (55, 0)])
+def test_invalid_target_notifies_at_most_once_per_minute(second, expected):
+    run = invalid_target_run(second)
+    run.run()
+    assert len(run.notifications) == expected
+
+
+def test_valid_target_creates_no_notification():
+    run = BlueprintRun(target="entry_a", inputs={"car_connected_entity": {"entity_id": ["binary_sensor.car_a"]}})
+    assert len(run.run()) == 1 and run.notifications == []

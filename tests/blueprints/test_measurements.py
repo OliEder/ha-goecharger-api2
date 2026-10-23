@@ -277,3 +277,10 @@ def test_night_does_not_touch_helper():
                        daylight=False, second=0, now_ts=NOW)
     run.run()
     assert run.helper_writes == []
+
+
+@pytest.mark.parametrize("second,expected", [(0, 1), (4, 1), (5, 0), (30, 0), (55, 0)])
+def test_policy_notify_is_throttled_to_once_per_minute(second, expected):
+    run = BlueprintRun(inputs={"invalid_data_policy": "notify"}, states={"sensor.grid": "unavailable"},
+                       second=second)
+    assert run.run() == [] and len(run.notifications) == expected

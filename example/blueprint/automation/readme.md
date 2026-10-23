@@ -45,7 +45,9 @@ uses its first registered charger, so select an explicit target for multiple cha
 
 With an explicit target, select individual Car connected entities belonging to
 that same integration entry. Mixed chargers, device/area targets and a removed
-or invalid entry stop the automation with an error visible in its trace.
+or invalid entry stop the run without sending data. This is shown in a persistent
+notification (at most once per minute) and in the automation trace. It is
+deliberately not logged as an error, because it would repeat every 5 seconds.
 The blueprint does not silently fall back to another charger.
 
 ### Car Connected
@@ -108,7 +110,7 @@ Disabling battery transmission ignores any selected battery entities and also
 sends zero. An enabled, selected but unavailable battery skips the update.
 At least one PV entity is required. The multiplier must be finite and positive.
 
-The failed condition is visible in the automation trace. Transmission resumes
+The skipped update is visible in the automation trace. Transmission resumes
 on the next daylight tick with valid measurements and a connected car. Night
 and sunset zeros remain independent of measurement validity.
 

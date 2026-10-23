@@ -78,6 +78,7 @@ class BlueprintRun:
         self.notifications = []
         self.helper_writes = []
         self.stopped = None
+        self.stop_error = False
 
     @staticmethod
     def as_timestamp(value, default=None):
@@ -143,6 +144,7 @@ class BlueprintRun:
                         break
             elif "stop" in action:
                 self.stopped = action["stop"]
+                self.stop_error = action.get("error", False)
             elif "condition" in action:
                 if not self.condition(action):
                     self.stopped = action.get("alias", "condition failed")
