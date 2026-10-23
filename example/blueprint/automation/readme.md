@@ -46,8 +46,9 @@ uses its first registered charger, so select an explicit target for multiple cha
 With an explicit target, select individual Car connected entities belonging to
 that same integration entry. Mixed chargers, device/area targets and a removed
 or invalid entry stop the run without sending data. This is shown in a persistent
-notification (at most once per minute) and in the automation trace. It is
-deliberately not logged as an error, because it would repeat every 5 seconds.
+notification (at most once per minute, closed again once the target is valid)
+and in the automation trace. It is deliberately not logged as an error,
+because it would repeat every 5 seconds.
 The blueprint does not silently fall back to another charger.
 
 ### Car Connected
@@ -139,7 +140,7 @@ sent:
 | Option | Behaviour |
 |--------|-----------|
 | Send zero values (default) | Send `pgrid=0`, `ppv=0`, `pakku=0` (with the selected `configid`). The charger stops relying on stale surplus and drops to its minimum or stops, depending on its PV settings. |
-| Skip update and notify | Skip the update and create a persistent notification, about once a minute. The charger keeps its last values and may charge from the grid meanwhile. |
+| Skip update and notify | Skip the update and create a persistent notification, about once a minute. The notification is closed again once measurements are valid. The charger keeps its last values and may charge from the grid meanwhile. |
 | Keep last values | Skip the update silently. Same risk as above, without a message. Choose this only if continued charging on old values is wanted. |
 
 Valid measurements resume normal transmission on the next daylight tick.
@@ -174,6 +175,7 @@ already triggers it. To tolerate short dropouts, add a grace period.
 2. Select it as **Grace period helper** in the automation. Use one helper per
    automation.
 3. Set the **Grace period (seconds)**; default 60, minimum 30.
+4. **Recommended:** exclude the helper from the recorder, see below.
 
 How it works:
 
@@ -182,8 +184,12 @@ How it works:
   time is older than half the grace period (about every 30 seconds at the
   default), not every 5 seconds.
 - While measurements are invalid, nothing is sent until the stored time is
-  older than the grace period. After that, the selected reaction runs on every
-  5 second tick until valid data returns.
+  older than the grace period. Because the helper is only refreshed every half
+  grace period, the stored time can already be up to half a grace period old
+  when the data turns invalid. The reaction therefore starts after **between
+  half and the full grace period** without valid data (15 to 30 seconds at the
+  minimum of 30, 30 to 60 seconds at the default). After that, the selected
+  reaction runs on every 5 second tick until valid data returns.
 - During the grace period nothing is sent, so the charger works with its last
   values. Keep it short: a long grace period delays the protection against
   charging on stale values by the same time.
@@ -195,6 +201,23 @@ How it works:
   be old after a night or when the car was disconnected. The first invalid
   sample right after such a gap therefore reacts immediately, because the
   grace period is already over.
+
+**Exclude the helper from the recorder.** It is only needed as a current value.
+With the default of 60 seconds it is written about every 30 seconds during
+daylight, roughly 1,400 times on a sunny day, and every write becomes useless
+history in the database. Add this to `configuration.yaml`, with the entity ID
+of your helper, and restart Home Assistant:
+
+```yaml
+recorder:
+  exclude:
+    entities:
+      - input_datetime.pv_blueprint_last_valid_data
+```
+
+The helper must be of type *Date and time*. Its `timestamp` attribute is used
+for the age, because it follows the time zone configured in Home Assistant. A
+date-only or time-only helper gives a wrong age and is rewritten on every tick.
 
 The go-eCharger calculates its `pvopt_*` averages from the last values it has received, no matter how old they are. Without the zero values, a car that is (re)connected at night can start charging at sunrise on the basis of the previous day's surplus, even though the PV generation has not started yet.
 

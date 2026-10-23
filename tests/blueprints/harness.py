@@ -7,6 +7,7 @@ Template results use literal parsing as HA does for dict/bool/number results.
 
 import ast
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import logging
 import math
 from numbers import Number
@@ -19,6 +20,9 @@ from jinja2.sandbox import SandboxedEnvironment
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
+# Time zone configured in the simulated Home Assistant. The test process may run in
+# another one (e.g. a container without TZ); the blueprint must not depend on that.
+HA_TZ = ZoneInfo("Europe/Berlin")
 BLUEPRINT = ROOT / "example/blueprint/automation/go-echarger-pv-surplus-data.yaml"
 
 
@@ -70,28 +74,30 @@ class BlueprintRun:
             config_entry_attr=lambda entry, attr: self.entries.get(entry) if attr == "domain" else None,
             is_number=is_number,
             now=lambda: SimpleNamespace(second=second, timestamp=lambda: self.now_ts),
-            as_timestamp=self.as_timestamp,
+            state_attr=self.state_attr,
             this=SimpleNamespace(entity_id="automation.pv_surplus"),
         )
         self.variables = {}
         self.calls = []
         self.notifications = []
+        self.dismissed = []
         self.helper_writes = []
         self.stopped = None
         self.stop_error = False
 
-    @staticmethod
-    def as_timestamp(value, default=None):
-        # HA parses "YYYY-MM-DD HH:MM:SS" as local time; unparsable -> default.
+    def state_attr(self, entity, attribute):
+        """`timestamp` of a date+time input_datetime: time zone aware, like HA's attribute."""
+        if attribute != "timestamp":
+            return None
         try:
-            return datetime.fromisoformat(value).timestamp()
-        except (ValueError, TypeError):
-            return default
+            return datetime.fromisoformat(self.states[entity]).replace(tzinfo=HA_TZ).timestamp()
+        except (KeyError, ValueError, TypeError):
+            return None
 
     @staticmethod
     def stamp(timestamp):
-        """State string of a date+time input_datetime for a timestamp."""
-        return datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M:%S")
+        """State string of a date+time input_datetime (HA time zone) for a timestamp."""
+        return datetime.fromtimestamp(timestamp, HA_TZ).strftime("%Y-%m-%d %H:%M:%S")
 
     def expand(self, entities):
         if isinstance(entities, str):
@@ -158,6 +164,8 @@ class BlueprintRun:
             elif action.get("action") == "input_datetime.set_datetime":
                 self.helper_writes.append({"entity_id": self.render(action["target"]["entity_id"]),
                                            **self.render(action["data"])})
+            elif action.get("action") == "persistent_notification.dismiss":
+                self.dismissed.append(self.render(action["data"])["notification_id"])
             elif action.get("action") == "persistent_notification.create":
                 self.notifications.append(self.render(action["data"]))
             else:

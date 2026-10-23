@@ -110,16 +110,26 @@ blueprint:
 
 
         The blueprint stores the time of the last valid measurement in this
-        helper. With a helper, the reaction only starts when no valid
-        measurement has been seen for longer than the grace period. This avoids
+        helper. With a helper, the reaction starts only after measurements have
+        been invalid for between half and the full grace period (the helper is
+        refreshed every half grace period, so the stored time can already be
+        up to half a grace period old when the data turns invalid). This avoids
         reacting to short dropouts, for example when an integration reloads.
 
 
         The helper is written about every half grace period while measurements
-        are valid, not on every 5 second tick, to keep database writes low. If
-        the helper is empty or unknown, the grace period counts as expired.
-        Without valid data since HA started with an empty helper, the reaction
-        therefore starts immediately.
+        are valid, not on every 5 second tick. If the helper is empty or
+        unknown, the grace period counts as expired. Without valid data since
+        HA started with an empty helper, the reaction therefore starts
+        immediately.
+
+
+        RECOMMENDED: exclude this helper from the recorder. It is only needed
+        as a current value, and with the default of 60 seconds it is written
+        about 1,400 times on a sunny day, which fills the database with
+        useless history. In configuration.yaml add, with the entity ID of your
+        helper (then restart or reload the recorder configuration):
+        recorder: exclude: entities: [input_datetime.your_helper]
       default: ""
       selector:
         entity:
@@ -129,9 +139,10 @@ blueprint:
       name: Grace period (seconds)
       description: >
         Only used when a Grace period helper is selected. Time without valid
-        measurements that is tolerated before the reaction starts. Shorter
-        than 30 seconds is not supported, because the helper is refreshed
-        about every half grace period.
+        measurements that is tolerated before the reaction starts. Because
+        the helper is refreshed about every half grace period, the real
+        tolerance lies between half and the full value. Shorter than 30
+        seconds is not supported for that reason.
       default: 60
       selector:
         number:
@@ -428,19 +439,26 @@ variables:
   pakku_watts: '{{ (pakku_value | float(0)) * (multiplier | float(0)) }}'
 
   # Seconds since the last valid measurement was stored in the optional helper.
-  # An empty or unknown helper parses to 0 and therefore counts as very old.
+  # The helper's `timestamp` attribute is time zone aware. Parsing its state string
+  # would use the time zone of the HA process, which can differ from the configured
+  # one (e.g. a container without TZ) and shift the age by hours. A missing helper
+  # state or attribute gives 0 and therefore counts as very old.
   helper_age: >
-    {{ (now().timestamp() - as_timestamp(states(last_valid_helper), 0))
+    {{ (now().timestamp() - (state_attr(last_valid_helper, 'timestamp') | float(0)))
       if last_valid_helper else 0 }}
   # Without helper there is no grace period: the reaction starts immediately.
+  # A negative age (helper in the future) is not trusted and counts as expired.
   grace_expired: >
     {{ not last_valid_helper
+      or (helper_age | float(0)) < 0
       or (helper_age | float(0)) > (invalid_data_grace | float(60)) }}
-  # Refresh at half the grace period: age stays below the grace period while
-  # data is valid, and the helper is written far less often than every tick.
+  # Refresh at half the grace period, so the helper is written far less often than
+  # every tick. The stored time is therefore up to half a grace period old when data
+  # turns invalid: the reaction starts after between half and the full grace period.
   helper_refresh_due: >
     {{ last_valid_helper != ""
-      and (helper_age | float(0)) > (invalid_data_grace | float(60)) / 2 }}
+      and ((helper_age | float(0)) < 0
+        or (helper_age | float(0)) > (invalid_data_grace | float(60)) / 2) }}
 
 triggers:
   - trigger: time_pattern
@@ -473,6 +491,15 @@ actions:
                 the target. Device and area targets are not supported with an
                 explicit target charger.
       - stop: "Select Car connected entities belonging to the target go-eCharger integration entry."
+    # Close the notification once the target is valid again (once a minute)
+    else:
+      - if:
+          - condition: template
+            value_template: '{{ charger_config_entry | length > 0 and now().second < 5 }}'
+        then:
+          - action: persistent_notification.dismiss
+            data:
+              notification_id: "goecharger_pv_target_{{ this.entity_id }}"
   - choose:
       # Daylight, car connected: real data every 5 seconds
       - conditions:
@@ -508,6 +535,14 @@ actions:
                       entity_id: '{{ last_valid_helper }}'
                     data:
                       timestamp: '{{ now().timestamp() | int }}'
+              # Close the notification of the "notify" reaction once data is valid again
+              - if:
+                  - condition: template
+                    value_template: '{{ invalid_data_policy == "notify" and now().second < 5 }}'
+                then:
+                  - action: persistent_notification.dismiss
+                    data:
+                      notification_id: "goecharger_pv_invalid_data_{{ this.entity_id }}"
             else:
               - if:
                   - condition: template
@@ -518,7 +553,7 @@ actions:
                       - alias: "Invalid measurement: send zero values"
                         conditions:
                           - condition: template
-                            value_template: '{{ invalid_data_policy == "zero" }}'
+                            value_template: '{{ invalid_data_policy not in ["notify", "keep"] }}'
                         sequence:
                           - action: goecharger_api2.set_pv_data
                             data: >

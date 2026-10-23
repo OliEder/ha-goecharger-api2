@@ -1,6 +1,9 @@
 """Input failures must not become plausible surplus or incomplete power sums."""
 from collections import Counter
 
+import os
+import time
+
 import pytest
 
 from harness import BlueprintRun
@@ -372,3 +375,74 @@ def test_overflowing_battery_total_falls_under_the_general_reaction():
     run = BlueprintRun(inputs={"power_multiplier": 1000, "battery_entities": ["sensor.battery"]},
                        states={"sensor.battery": "1e308"})
     assert run.run() == [{"pgrid": 0, "ppv": 0, "pakku": 0}]
+
+
+@pytest.fixture
+def process_time_zone():
+    """Run with another process time zone than the simulated HA one (Europe/Berlin)."""
+    def use(zone):
+        os.environ["TZ"] = zone
+        time.tzset()
+    saved = os.environ.get("TZ")
+    yield use
+    if saved is None:
+        os.environ.pop("TZ", None)
+    else:
+        os.environ["TZ"] = saved
+    time.tzset()
+
+
+@pytest.mark.parametrize("zone", ["UTC", "America/New_York", "Asia/Tokyo", "Europe/Berlin"])
+@pytest.mark.parametrize("age,expired", [(10, False), (59, False), (61, True)])
+def test_grace_period_does_not_depend_on_the_process_time_zone(process_time_zone, zone, age, expired):
+    process_time_zone(zone)
+    run = grace_run(age=age)
+    assert run.run() == ([{"pgrid": 0, "ppv": 0, "pakku": 0}] if expired else [])
+
+
+@pytest.mark.parametrize("zone", ["UTC", "America/New_York", "Asia/Tokyo"])
+@pytest.mark.parametrize("age,writes", [(10, 0), (31, 1)])
+def test_helper_refresh_does_not_depend_on_the_process_time_zone(process_time_zone, zone, age, writes):
+    process_time_zone(zone)
+    run = BlueprintRun(inputs={"last_valid_helper": HELPER, "invalid_data_grace": 60},
+                       states={HELPER: BlueprintRun.stamp(NOW - age)}, now_ts=NOW)
+    run.run()
+    assert len(run.helper_writes) == writes
+
+
+def test_helper_in_the_future_counts_as_expired():
+    assert grace_run(age=-3600).run() == [{"pgrid": 0, "ppv": 0, "pakku": 0}]
+
+
+def test_helper_in_the_future_is_rewritten():
+    run = BlueprintRun(inputs={"last_valid_helper": HELPER}, states={HELPER: BlueprintRun.stamp(NOW + 3600)},
+                       now_ts=NOW)
+    run.run()
+    assert len(run.helper_writes) == 1
+
+
+@pytest.mark.parametrize("policy", ["Zero", "ZERO", "something_else", ""])
+def test_unknown_policy_value_falls_back_to_zero(policy):
+    run = BlueprintRun(inputs={"invalid_data_policy": policy}, states={"sensor.grid": "unavailable"})
+    assert run.run() == [{"pgrid": 0, "ppv": 0, "pakku": 0}]
+
+
+@pytest.mark.parametrize("second,expected", [(0, 1), (4, 1), (5, 0), (30, 0)])
+def test_notify_notification_is_dismissed_once_data_is_valid(second, expected):
+    run = BlueprintRun(inputs={"invalid_data_policy": "notify"}, second=second)
+    run.run()
+    assert len(run.dismissed) == expected
+    assert all(i.endswith("automation.pv_surplus") for i in run.dismissed)
+
+
+@pytest.mark.parametrize("policy", ["zero", "keep"])
+def test_no_dismiss_call_for_other_policies(policy):
+    run = BlueprintRun(inputs={"invalid_data_policy": policy}, second=0)
+    run.run()
+    assert run.dismissed == []
+
+
+def test_notification_stays_while_data_is_invalid():
+    run = BlueprintRun(inputs={"invalid_data_policy": "notify"}, states={"sensor.grid": "unavailable"})
+    run.run()
+    assert run.dismissed == [] and len(run.notifications) == 1

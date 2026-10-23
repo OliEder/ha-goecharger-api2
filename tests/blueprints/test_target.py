@@ -95,3 +95,24 @@ def test_invalid_target_notifies_at_most_once_per_minute(second, expected):
 def test_valid_target_creates_no_notification():
     run = BlueprintRun(target="entry_a", inputs={"car_connected_entity": {"entity_id": ["binary_sensor.car_a"]}})
     assert len(run.run()) == 1 and run.notifications == []
+
+
+@pytest.mark.parametrize("second,expected", [(0, 1), (4, 1), (5, 0), (30, 0)])
+def test_target_notification_is_dismissed_once_target_is_valid(second, expected):
+    run = BlueprintRun(target="entry_a", second=second,
+                       inputs={"car_connected_entity": {"entity_id": ["binary_sensor.car_a"]}})
+    assert len(run.run()) == 1
+    assert len(run.dismissed) == expected
+    assert all(i.startswith("goecharger_pv_target_") for i in run.dismissed)
+
+
+def test_no_target_means_nothing_to_dismiss():
+    run = BlueprintRun(second=0)
+    run.run()
+    assert run.dismissed == []
+
+
+def test_invalid_target_does_not_dismiss():
+    run = invalid_target_run(second=0)
+    run.run()
+    assert run.dismissed == [] and len(run.notifications) == 1
