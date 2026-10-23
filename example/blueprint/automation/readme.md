@@ -109,7 +109,8 @@ grid inputs are ignored.
 
 An empty battery selection means no battery measurement and still sends zero.
 Disabling battery transmission ignores any selected battery entities and also
-sends zero. An enabled, selected but unavailable battery skips the update.
+sends zero. An enabled, selected but unavailable battery is handled as
+described under *Battery sensor unavailable* below.
 At least one PV entity is required. The multiplier must be finite and positive.
 
 The skipped update is visible in the automation trace. Transmission resumes
@@ -138,6 +139,21 @@ sent:
 
 Valid measurements resume normal transmission on the next daylight tick.
 Night and sunset zero values are independent of this setting.
+
+#### Battery sensor unavailable
+
+A missing battery reading should not stop PV surplus charging. By default
+(**Battery sensor unavailable = Send battery 0**) the blueprint sends
+`pakku=0` and keeps all other values real. If any selected battery entity is
+unusable, the whole battery value is 0; the remaining entities are not summed,
+because a partial sum would be wrong.
+
+With `pakku=0` the charger assumes the battery is neither charging nor
+discharging. If your battery charges or discharges with high power, the surplus
+the charger sees can be too high or too low until the sensor returns. In that
+case choose **Treat as invalid measurement**: the outage is then handled like
+any other invalid measurement, with the reaction chosen above (zero values by
+default). The setting has no effect when battery transmission is disabled.
 
 #### Optional grace period
 

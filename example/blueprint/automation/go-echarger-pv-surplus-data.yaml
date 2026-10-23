@@ -19,6 +19,9 @@ blueprint:
     notify, or skip the update silently. Skipping leaves the charger on its last received
     values and does NOT stop it. For a short outage tolerance, additionally select a *Grace
     period helper* (see below). The age of numeric measurements is not checked.
+    A missing battery reading is handled separately (*Battery sensor unavailable*): by
+    default only the battery value is sent as 0 and charging continues with real PV and
+    grid data.
 
     The zero values keep the go-eCharger from working with stale `pvopt_*` averages. The
     charger calculates these averages from the last values it has received, no matter how
@@ -274,6 +277,35 @@ blueprint:
       selector:
         boolean:
 
+    battery_unavailable_policy:
+      name: Battery sensor unavailable
+      description: >
+        What to do in daylight while a selected battery entity is unavailable,
+        unknown or not numeric. Only used when battery transmission is enabled.
+
+
+        Send battery 0 (default): the battery value is sent as 0, all other data
+        stays real. Charging from PV surplus continues. If any selected battery
+        entity is invalid, the whole battery value is 0; the remaining entities
+        are not summed. With 0 the charger assumes the battery is neither
+        charging nor discharging. If your battery often charges or discharges
+        with high power, the surplus the charger sees can then be too high or
+        too low until the sensor is back.
+
+
+        Treat as invalid: handle it like any other invalid measurement, using
+        the setting Reaction to invalid daylight measurements (zero values by
+        default).
+      default: zero
+      selector:
+        select:
+          mode: dropdown
+          options:
+            - label: Send battery 0, keep other data (recommended)
+              value: zero
+            - label: Treat as invalid measurement
+              value: invalid
+
 variables:
   charger_config_entry: !input charger_config_entry
   invalid_data_policy: !input invalid_data_policy
@@ -309,6 +341,7 @@ variables:
   battery_enable: !input battery_enabled
   battery_list: !input battery_entities
   battery_invert_flag: !input battery_invert
+  battery_unavailable_policy: !input battery_unavailable_policy
 
   # Preserve method precedence; an incomplete selected method must not fall back.
   # No grid method selected sends pgrid 0, as in earlier versions. Phases use the
@@ -333,10 +366,21 @@ variables:
       {% set ns.samples = dict(ns.samples, **{entity: states(entity)}) if entity else ns.samples %}
     {% endfor %}
     {{ ns.samples }}
+  # Battery entities only invalidate the update when the user chose "invalid".
+  # Otherwise an unusable battery reading is sent as 0 (see pakku_value).
+  battery_ok: >
+    {% set ns = namespace(valid=true) %}
+    {% for entity in (battery_list if battery_enable else []) %}
+      {% if not entity or not is_number(power_samples.get(entity)) %}
+        {% set ns.valid = false %}
+      {% endif %}
+    {% endfor %}
+    {{ ns.valid }}
   measurements_valid: >
     {% set ns = namespace(valid=pv_list | length > 0
-      and is_number(multiplier) and multiplier | float(0) > 0) %}
-    {% for entity in grid_sources + pv_list + (battery_list if battery_enable else []) %}
+      and is_number(multiplier) and multiplier | float(0) > 0
+      and (battery_ok or battery_unavailable_policy != 'invalid')) %}
+    {% for entity in grid_sources + pv_list %}
       {% if not entity or not is_number(power_samples.get(entity)) %}
         {% set ns.valid = false %}
       {% endif %}
@@ -369,7 +413,7 @@ variables:
     {{ (ns.total * -1) if pv_invert_flag else ns.total }}
 
   pakku_value: >
-    {% if battery_enable %}
+    {% if battery_enable and battery_ok %}
       {% set ns = namespace(total=0) %}
       {% for entity in battery_list %}
         {% set ns.total = ns.total + (power_samples.get(entity) | float(0)) %}

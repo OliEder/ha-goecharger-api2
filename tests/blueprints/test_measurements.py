@@ -7,8 +7,12 @@ from harness import BlueprintRun
 
 
 def skip_run(inputs=None, **kwargs):
-    """Run with the silent-skip policy, so `[]` means "no update was sent"."""
-    return BlueprintRun(inputs={"invalid_data_policy": "keep", **(inputs or {})}, **kwargs)
+    """Strict run: a bad battery is invalid and invalid data is skipped silently.
+
+    `[]` therefore means "no update was sent" for every kind of bad source.
+    """
+    return BlueprintRun(inputs={"invalid_data_policy": "keep",
+                                "battery_unavailable_policy": "invalid", **(inputs or {})}, **kwargs)
 
 
 BAD_VALUES = ["unknown", "unavailable", "not a number", "", "NaN", "inf", "-inf", "1e999"]
@@ -316,3 +320,55 @@ def test_default_sends_zero_for_invalid_measurement(source, bad):
 
 def test_default_still_sends_real_data_when_valid():
     assert BlueprintRun().run() == [{"pgrid": -1200, "ppv": 2000, "pakku": 0}]
+
+
+@pytest.mark.parametrize("bad", BAD_VALUES)
+def test_default_battery_unavailable_sends_battery_zero_and_real_data(bad):
+    run = BlueprintRun(inputs={"battery_entities": ["sensor.battery"]},
+                       states={"sensor.battery": bad})
+    assert run.run() == [{"pgrid": -1200, "ppv": 2000, "pakku": 0}]
+    assert run.notifications == []
+
+
+def test_default_battery_policy_is_zero():
+    assert BlueprintRun().inputs["battery_unavailable_policy"] == "zero"
+
+
+def test_one_bad_battery_entity_does_not_produce_a_partial_sum():
+    run = BlueprintRun(inputs={"battery_entities": ["sensor.bat1", "sensor.bat2"]},
+                       states={"sensor.bat1": "500", "sensor.bat2": "unavailable"})
+    assert run.run()[0]["pakku"] == 0
+
+
+def test_valid_batteries_are_summed():
+    run = BlueprintRun(inputs={"battery_entities": ["sensor.bat1", "sensor.bat2"]},
+                       states={"sensor.bat1": "500", "sensor.bat2": "250"})
+    assert run.run()[0]["pakku"] == 750
+
+
+@pytest.mark.parametrize("reaction,expected", [
+    ("zero", [{"pgrid": 0, "ppv": 0, "pakku": 0}]), ("keep", []), ("notify", [])])
+def test_battery_policy_invalid_uses_the_general_reaction(reaction, expected):
+    run = BlueprintRun(inputs={"battery_entities": ["sensor.battery"], "invalid_data_policy": reaction,
+                               "battery_unavailable_policy": "invalid"},
+                       states={"sensor.battery": "unavailable"})
+    assert run.run() == expected
+
+
+def test_battery_policy_ignored_when_battery_disabled():
+    run = BlueprintRun(inputs={"battery_enabled": False, "battery_entities": ["sensor.battery"],
+                               "battery_unavailable_policy": "invalid"},
+                       states={"sensor.battery": "unavailable"})
+    assert run.run() == [{"pgrid": -1200, "ppv": 2000, "pakku": 0}]
+
+
+def test_other_sources_still_invalid_with_battery_zero_policy():
+    run = BlueprintRun(inputs={"battery_entities": ["sensor.battery"]},
+                       states={"sensor.battery": "unavailable", "sensor.pv": "unavailable"})
+    assert run.run() == [{"pgrid": 0, "ppv": 0, "pakku": 0}]
+
+
+def test_overflowing_battery_total_falls_under_the_general_reaction():
+    run = BlueprintRun(inputs={"power_multiplier": 1000, "battery_entities": ["sensor.battery"]},
+                       states={"sensor.battery": "1e308"})
+    assert run.run() == [{"pgrid": 0, "ppv": 0, "pakku": 0}]
