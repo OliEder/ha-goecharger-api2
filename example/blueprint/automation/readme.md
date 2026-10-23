@@ -107,6 +107,11 @@ An incomplete selected method does not fall back to another method. If no grid
 method is selected at all, `pgrid` is sent as 0, as in earlier versions. Unused
 grid inputs are ignored.
 
+The phase method needs three phase entities. With fewer phases (for example a
+two-phase connection), use a sensor for the total grid power with the *Single
+Entity* method instead. Earlier versions silently sent `pgrid=0` for fewer than
+three phases; now the selection is treated as an invalid measurement.
+
 An empty battery selection means no battery measurement and still sends zero.
 Disabling battery transmission ignores any selected battery entities and also
 sends zero. An enabled, selected but unavailable battery is handled as
