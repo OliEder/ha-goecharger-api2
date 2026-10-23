@@ -11,10 +11,14 @@ blueprint:
     - Night, car connected: zero values every 30 seconds.
     - At sunset: one immediate zero push, even if no car is connected.
 
-    Daylight updates are skipped if any used power source is missing, non-numeric
-    or non-finite. Disabled battery inputs are ignored. Skipping an update does
-    not command the charger to stop and does not clear its previous averages.
-    This blueprint does not verify the age of otherwise numeric measurements.
+    **Invalid measurements (daylight):** If a used power source is missing, non-numeric or
+    non-finite, the whole update is skipped. Nothing is replaced by zero. Skipping does NOT
+    stop the charger and does NOT clear its previous averages, so the charger keeps working
+    with the last values it received. Use *Reaction to invalid daylight measurements* to
+    choose what happens instead: keep the last values (default), send zero values, or
+    send a notification. By default the reaction starts immediately. For a short outage
+    tolerance, additionally select a *Grace period helper* (see below). The age of
+    numeric measurements is not checked.
 
     The zero values keep the go-eCharger from working with stale `pvopt_*` averages. The
     charger calculates these averages from the last values it has received, no matter how
@@ -53,10 +57,27 @@ blueprint:
       name: Reaction to invalid daylight measurements
       description: >
         What to do in daylight while a used power source is missing, non-numeric
-        or non-finite. "Keep" skips the update, so the charger continues with its
-        last received values. "Zero" sends 0/0/0 so the charger stops relying on
-        stale surplus. "Notify" skips the update and creates a persistent
-        notification (one per automation, replaced on every run).
+        or non-finite (for example "unavailable" after an inverter or integration
+        restart).
+
+
+        Keep: skip the update. The charger continues with the last values it
+        received, which may be outdated. This is the default and the behaviour
+        without this setting.
+
+
+        Zero: send 0/0/0, so the charger stops relying on stale surplus and
+        falls back to its minimum or stops, depending on its PV settings.
+
+
+        Notify: skip the update and create a persistent notification (one per
+        automation, replaced on every run). The charger continues with its
+        last values.
+
+
+        The reaction starts immediately unless you also select a Grace period
+        helper. Valid measurements always resume normal transmission on the
+        next daylight tick. Night and sunset zero values are not affected.
       default: keep
       selector:
         select:
@@ -68,6 +89,51 @@ blueprint:
               value: zero
             - label: Skip update and notify
               value: notify
+
+    last_valid_helper:
+      name: Grace period helper (optional)
+      description: >
+        OPTIONAL. Leave empty if you do not need a grace period; the blueprint
+        works without it and the reaction above starts immediately.
+
+
+        Select an input_datetime helper of type "Date and time" that you created
+        yourself (Settings > Devices & services > Helpers > Create helper >
+        Date and/or time > enable both Date and Time). Use one helper per
+        automation. Do not share it with anything else.
+
+
+        The blueprint stores the time of the last valid measurement in this
+        helper. With a helper, the reaction only starts when no valid
+        measurement has been seen for longer than the grace period. This avoids
+        reacting to short dropouts, for example when an integration reloads.
+
+
+        The helper is written about every half grace period while measurements
+        are valid, not on every 5 second tick, to keep database writes low. If
+        the helper is empty or unknown, the grace period counts as expired.
+        Without valid data since HA started with an empty helper, the reaction
+        therefore starts immediately.
+      default: ""
+      selector:
+        entity:
+          domain: input_datetime
+
+    invalid_data_grace:
+      name: Grace period (seconds)
+      description: >
+        Only used when a Grace period helper is selected. Time without valid
+        measurements that is tolerated before the reaction starts. Shorter
+        than 30 seconds is not supported, because the helper is refreshed
+        about every half grace period.
+      default: 60
+      selector:
+        number:
+          min: 30
+          max: 3600
+          step: 10
+          unit_of_measurement: s
+          mode: box
 
     car_connected:
       name: Car connected Entity
@@ -208,6 +274,8 @@ blueprint:
 variables:
   charger_config_entry: !input charger_config_entry
   invalid_data_policy: !input invalid_data_policy
+  last_valid_helper: !input last_valid_helper
+  invalid_data_grace: !input invalid_data_grace
   car_connected_entity: !input car_connected_entity
   charger_target_valid: >
     {% if not charger_config_entry %}
@@ -307,6 +375,21 @@ variables:
   ppv_watts: '{{ (ppv_value | float(0)) * (multiplier | float(0)) }}'
   pakku_watts: '{{ (pakku_value | float(0)) * (multiplier | float(0)) }}'
 
+  # Seconds since the last valid measurement was stored in the optional helper.
+  # An empty or unknown helper parses to 0 and therefore counts as very old.
+  helper_age: >
+    {{ (now().timestamp() - as_timestamp(states(last_valid_helper), 0))
+      if last_valid_helper else 0 }}
+  # Without helper there is no grace period: the reaction starts immediately.
+  grace_expired: >
+    {{ not last_valid_helper
+      or (helper_age | float(0)) > (invalid_data_grace | float(60)) }}
+  # Refresh at half the grace period: age stays below the grace period while
+  # data is valid, and the helper is written far less often than every tick.
+  helper_refresh_due: >
+    {{ last_valid_helper != ""
+      and (helper_age | float(0)) > (invalid_data_grace | float(60)) / 2 }}
+
 triggers:
   - trigger: time_pattern
     seconds: /5
@@ -347,29 +430,44 @@ actions:
                     ppv=(ppv_watts | float) | round(0) | int,
                     pakku=(pakku_watts | float) | round(0) | int) %}
                   {{ dict(payload, configid=charger_config_entry) if charger_config_entry else payload }}
+              # Remember the last valid measurement for the optional grace period
+              - if:
+                  - condition: template
+                    value_template: '{{ helper_refresh_due }}'
+                then:
+                  - action: input_datetime.set_datetime
+                    target:
+                      entity_id: '{{ last_valid_helper }}'
+                    data:
+                      timestamp: '{{ now().timestamp() | int }}'
             else:
-              - choose:
-                  - alias: "Invalid measurement: send zero values"
-                    conditions:
-                      - condition: template
-                        value_template: '{{ invalid_data_policy == "zero" }}'
-                    sequence:
-                      - action: goecharger_api2.set_pv_data
-                        data: >
-                          {% set payload = dict(pgrid=0, ppv=0, pakku=0) %}
-                          {{ dict(payload, configid=charger_config_entry) if charger_config_entry else payload }}
-                  - alias: "Invalid measurement: notify"
-                    conditions:
-                      - condition: template
-                        value_template: '{{ invalid_data_policy == "notify" }}'
-                    sequence:
-                      - action: persistent_notification.create
-                        data:
-                          notification_id: "goecharger_pv_invalid_data_{{ this.entity_id }}"
-                          title: "go-eCharger PV surplus: invalid measurement"
-                          message: >
-                            A used power source is unavailable or non-numeric. The
-                            charger keeps working with its last received values.
+              - if:
+                  - condition: template
+                    alias: "Grace period over (or no helper selected)"
+                    value_template: '{{ grace_expired }}'
+                then:
+                  - choose:
+                      - alias: "Invalid measurement: send zero values"
+                        conditions:
+                          - condition: template
+                            value_template: '{{ invalid_data_policy == "zero" }}'
+                        sequence:
+                          - action: goecharger_api2.set_pv_data
+                            data: >
+                              {% set payload = dict(pgrid=0, ppv=0, pakku=0) %}
+                              {{ dict(payload, configid=charger_config_entry) if charger_config_entry else payload }}
+                      - alias: "Invalid measurement: notify"
+                        conditions:
+                          - condition: template
+                            value_template: '{{ invalid_data_policy == "notify" }}'
+                        sequence:
+                          - action: persistent_notification.create
+                            data:
+                              notification_id: "goecharger_pv_invalid_data_{{ this.entity_id }}"
+                              title: "go-eCharger PV surplus: invalid measurement"
+                              message: >
+                                A used power source is unavailable or non-numeric. The
+                                charger keeps working with its last received values.
 
       # Night, car connected: zeros every 30 seconds (flushes stale averages)
       - conditions:

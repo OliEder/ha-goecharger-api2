@@ -112,11 +112,58 @@ The failed condition is visible in the automation trace. Transmission resumes
 on the next daylight tick with valid measurements and a connected car. Night
 and sunset zeros remain independent of measurement validity.
 
-**This is input validation, not a charging-stop policy.** Skipping transmission
-does not issue a Stop command or clear previous `pvopt_*` averages. Ensure your
-installation has an appropriate independent response to loss of measurement
-data. The blueprint does not check source timestamps or freshness: an old but
-numeric state passes validation. No fixed age threshold is assumed.
+**By default this is input validation, not a charging-stop policy.** Skipping
+transmission does not issue a Stop command or clear previous `pvopt_*` averages;
+the charger keeps working with the last values it received. The blueprint does
+not check source timestamps or freshness: an old but numeric state passes
+validation. Use the reaction below if the charger should react to missing data.
+
+#### Reaction to invalid daylight measurements
+
+The input **Reaction to invalid daylight measurements** decides what happens
+while a daylight update is skipped:
+
+| Option | Behaviour |
+|--------|-----------|
+| Keep last values (default) | Skip the update. The charger continues with its last values, which may be outdated. |
+| Send zero values | Send `pgrid=0`, `ppv=0`, `pakku=0` (with the selected `configid`). The charger stops relying on stale surplus. |
+| Skip update and notify | Skip the update and create a persistent notification, replaced on every run. |
+
+Valid measurements resume normal transmission on the next daylight tick.
+Night and sunset zero values are independent of this setting.
+
+#### Optional grace period
+
+Without further setup, the reaction starts with the first invalid tick. A
+single `unavailable` sample, for example while an integration reloads, then
+already triggers it. To tolerate short dropouts, add a grace period.
+
+**This is optional. The blueprint works without it.**
+
+1. Create a helper: *Settings > Devices & services > Helpers > Create helper >
+   Date and/or time*. Enable **both** *Date* and *Time*. Name it, for example,
+   `PV blueprint last valid data`.
+2. Select it as **Grace period helper** in the automation. Use one helper per
+   automation.
+3. Set the **Grace period (seconds)**; default 60, minimum 30.
+
+How it works:
+
+- While all measurements are valid, the blueprint stores the current time in
+  the helper. To keep database writes low this happens only when the stored
+  time is older than half the grace period (about every 30 seconds at the
+  default), not every 5 seconds.
+- While measurements are invalid, nothing is sent until the stored time is
+  older than the grace period. After that, the selected reaction runs on every
+  5 second tick until valid data returns.
+- With *Keep last values* the grace period has no visible effect, because
+  nothing is sent in either case.
+- An empty or unknown helper counts as expired. After creating the helper, the
+  first valid sample initialises it.
+- The helper is only written during daylight with a connected car, so it can
+  be old after a night or when the car was disconnected. The first invalid
+  sample right after such a gap therefore reacts immediately, because the
+  grace period is already over.
 
 The go-eCharger calculates its `pvopt_*` averages from the last values it has received, no matter how old they are. Without the zero values, a car that is (re)connected at night can start charging at sunrise on the basis of the previous day's surplus, even though the PV generation has not started yet.
 

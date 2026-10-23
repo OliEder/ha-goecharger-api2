@@ -199,3 +199,81 @@ def test_valid_measurements_ignore_policy(policy):
     calls = run.run()
     assert len(calls) == 1 and calls[0] != {"pgrid": 0, "ppv": 0, "pakku": 0}
     assert run.notifications == []
+
+
+HELPER = "input_datetime.pv_last_valid"
+NOW = 1_000_000_000.0
+
+
+def grace_run(age, policy="zero", grace=60, helper_state=None, **kwargs):
+    """Invalid grid with a helper whose last valid sample is `age` seconds old."""
+    state = helper_state if helper_state is not None else BlueprintRun.stamp(NOW - age)
+    return BlueprintRun(inputs={"invalid_data_policy": policy, "last_valid_helper": HELPER,
+                                "invalid_data_grace": grace},
+                        states={"sensor.grid": "unavailable", HELPER: state}, now_ts=NOW, **kwargs)
+
+
+@pytest.mark.parametrize("policy", ["zero", "notify"])
+def test_grace_period_defers_reaction(policy):
+    run = grace_run(age=30, policy=policy)
+    assert run.run() == [] and run.notifications == []
+
+
+def test_grace_period_boundary_is_exclusive():
+    assert grace_run(age=60).run() == []
+
+
+def test_grace_period_expired_zero():
+    assert grace_run(age=61).run() == [{"pgrid": 0, "ppv": 0, "pakku": 0}]
+
+
+def test_grace_period_expired_notify():
+    run = grace_run(age=61, policy="notify")
+    assert run.run() == [] and len(run.notifications) == 1
+
+
+def test_grace_period_keep_never_reacts():
+    run = grace_run(age=100000, policy="keep")
+    assert run.run() == [] and run.notifications == []
+
+
+@pytest.mark.parametrize("state", ["unknown", "unavailable", "", "garbage"])
+def test_empty_or_unknown_helper_counts_as_expired(state):
+    assert grace_run(age=0, helper_state=state).run() == [{"pgrid": 0, "ppv": 0, "pakku": 0}]
+
+
+def test_no_helper_reacts_immediately():
+    run = BlueprintRun(inputs={"invalid_data_policy": "zero"}, states={"sensor.grid": "unavailable"})
+    assert run.run() == [{"pgrid": 0, "ppv": 0, "pakku": 0}] and run.helper_writes == []
+
+
+@pytest.mark.parametrize("age,writes", [(0, 0), (30, 0), (31, 1), (500, 1)])
+def test_helper_refresh_is_throttled_to_half_grace(age, writes):
+    run = BlueprintRun(inputs={"last_valid_helper": HELPER, "invalid_data_grace": 60},
+                       states={HELPER: BlueprintRun.stamp(NOW - age)}, now_ts=NOW)
+    assert len(run.run()) == 1
+    assert run.helper_writes == ([{"entity_id": HELPER, "timestamp": int(NOW)}] if writes else [])
+
+
+def test_empty_helper_is_initialised_on_first_valid_sample():
+    run = BlueprintRun(inputs={"last_valid_helper": HELPER}, states={HELPER: "unknown"}, now_ts=NOW)
+    run.run()
+    assert run.helper_writes == [{"entity_id": HELPER, "timestamp": int(NOW)}]
+
+
+def test_invalid_data_never_refreshes_helper():
+    run = grace_run(age=500)
+    run.run()
+    assert run.helper_writes == []
+
+
+def test_no_helper_never_writes():
+    run = BlueprintRun()
+    assert len(run.run()) == 1 and run.helper_writes == []
+
+
+def test_night_does_not_touch_helper():
+    run = BlueprintRun(inputs={"last_valid_helper": HELPER}, states={HELPER: "unknown"},
+                       daylight=False, second=0, now_ts=NOW)
+    run.run()
+    assert run.helper_writes == []

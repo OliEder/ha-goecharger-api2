@@ -6,6 +6,7 @@ Template results use literal parsing as HA does for dict/bool/number results.
 """
 
 import ast
+from datetime import datetime
 import logging
 import math
 from numbers import Number
@@ -42,7 +43,7 @@ def is_number(value):
 
 class BlueprintRun:
     def __init__(self, inputs=None, states=None, target="", connected="on",
-                 registry=None, entries=None, daylight=True, second=0, trigger="tick"):
+                 registry=None, entries=None, daylight=True, second=0, trigger="tick", now_ts=1_000_000_000.0):
         self.document = yaml.load(BLUEPRINT.read_text(encoding="utf-8"), Loader=Loader)
         self.inputs = {}
         for name, value in self.document["blueprint"]["input"].items():
@@ -60,7 +61,7 @@ class BlueprintRun:
             "binary_sensor.car_a": "entry_a", "binary_sensor.car_b": "entry_b"}
         self.entries = entries if entries is not None else {
             "entry_a": "goecharger_api2", "entry_b": "goecharger_api2"}
-        self.daylight, self.trigger = daylight, trigger
+        self.daylight, self.trigger, self.now_ts = daylight, trigger, now_ts
         self.env = SandboxedEnvironment(undefined=StrictUndefined)
         self.env.globals.update(
             states=lambda entity: self.states.get(entity, "unknown"),
@@ -68,13 +69,28 @@ class BlueprintRun:
             config_entry_id=lambda entity: self.registry.get(entity),
             config_entry_attr=lambda entry, attr: self.entries.get(entry) if attr == "domain" else None,
             is_number=is_number,
-            now=lambda: SimpleNamespace(second=second),
+            now=lambda: SimpleNamespace(second=second, timestamp=lambda: self.now_ts),
+            as_timestamp=self.as_timestamp,
             this=SimpleNamespace(entity_id="automation.pv_surplus"),
         )
         self.variables = {}
         self.calls = []
         self.notifications = []
+        self.helper_writes = []
         self.stopped = None
+
+    @staticmethod
+    def as_timestamp(value, default=None):
+        # HA parses "YYYY-MM-DD HH:MM:SS" as local time; unparsable -> default.
+        try:
+            return datetime.fromisoformat(value).timestamp()
+        except (ValueError, TypeError):
+            return default
+
+    @staticmethod
+    def stamp(timestamp):
+        """State string of a date+time input_datetime for a timestamp."""
+        return datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M:%S")
 
     def expand(self, entities):
         if isinstance(entities, str):
@@ -137,6 +153,9 @@ class BlueprintRun:
                 payload = self.render(action["data"])
                 assert isinstance(payload, dict)
                 self.calls.append(payload)
+            elif action.get("action") == "input_datetime.set_datetime":
+                self.helper_writes.append({"entity_id": self.render(action["target"]["entity_id"]),
+                                           **self.render(action["data"])})
             elif action.get("action") == "persistent_notification.create":
                 self.notifications.append(self.render(action["data"]))
             else:
