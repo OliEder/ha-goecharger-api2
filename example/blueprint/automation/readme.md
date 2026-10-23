@@ -261,6 +261,45 @@ The go-eCharger calculates its `pvopt_*` averages from the last values it has re
 3. Enable **"Allow Charge Pause"** (Ladepausen zulassen)
 4. Set **Grid Target** to negative value (e.g., -500W)
 
+## Testing
+
+The blueprint has automated regression tests in
+[`tests/blueprints`](../../../tests/blueprints). They were added together with
+the target charger selection and the measurement validation (contributed by
+MrCodeLabs) and extended for the reaction to invalid measurements, the battery
+option, the grace period, the notifications and the time zone handling.
+
+```sh
+python -m pip install -r tests/blueprints/requirements.txt
+python -m pytest tests/blueprints -q
+```
+
+The tests load the real blueprint YAML, resolve the input defaults, render the
+Jinja templates and evaluate the actions (`if`, `choose`, `stop`, conditions)
+with synthetic sensor states and entity registries. The routing tests also run
+the unchanged `set_pv_data` method of this integration against two simulated
+chargers. No hardware, credentials or network are used.
+
+What they cover:
+
+| Area | Examples |
+|---|---|
+| Target charger | Selected charger gets every update (daylight, night, sunset); mixed chargers, device and area targets, wrong integration and a removed entry are rejected; no fallback to another charger |
+| Measurement validation | `unknown`, `unavailable`, text, NaN, infinity and overflow in every used sensor; a real zero is valid; one state read per sensor and tick |
+| Grid methods | Single, consumption + feed-in, phases; precedence; incomplete selection; no method selected; more than three phases |
+| Units and arithmetic | Multiplier, inversion, rounding after conversion, invalid multiplier |
+| Reaction and battery | Zero, notify and keep; battery 0 or treated as invalid; unknown policy value falls back to zero |
+| Grace period | Boundary at the grace period; empty, unknown and future helper values; helper write throttling; independent of the time zone of the test process |
+| Notifications | Throttled to once a minute, closed again when the problem is gone |
+| Night and sunset | Zero values are independent of measurement validity |
+
+Limits: the tests use test doubles for states, registries and the action
+evaluator. They do not replace a check in a running Home Assistant. Not
+covered are the selector UI, automation traces, behaviour over several ticks in
+a real automation, WAN filtering, firmware behaviour and the physical charger.
+No claim is made that stopping transmission stops charging. More details are in
+[`tests/blueprints/README.md`](../../../tests/blueprints/README.md).
+
 ## Troubleshooting
 
 - **No data transmission**: Check entity names and availability, and that the "car connected" entity reports `on`
@@ -269,6 +308,18 @@ The go-eCharger calculates its `pvopt_*` averages from the last values it has re
 - **Car starts charging at sunrise before the PV generation has started**: Update to the latest version of the blueprint, which sends zero values at night
 - **Charging issues**: Verify go-eCharger ECO mode settings
 - **Blueprint not visible**: Ensure HA version ≥ 2024.6.0
+- **Zero values are sent in daylight, charging drops to the minimum or stops**: A used sensor is `unavailable`, `unknown` or not numeric, and the default reaction sends zero values. Open the automation trace (*Settings > Automations & Scenes*, the automation, *Traces*) and check the variables `measurements_valid` and `power_samples`: the sensor with a bad value is listed there. Fix the sensor, or add a **Grace period helper** to tolerate short dropouts
+- **Nothing is sent in daylight although a car is connected**: Check the reaction setting. With *Keep last values* or *Skip update and notify* an invalid measurement sends nothing. Also check that the trace shows `measurements_valid` as `true`, and that the sun is between sunrise and sunset
+- **Persistent notification "invalid measurement"**: The reaction is *Skip update and notify* and a used sensor is invalid. The charger keeps its last values and may charge from the grid. Fix the sensor; the notification closes itself once the data is valid again
+- **Persistent notification "invalid target charger"**: The selected **Target go-eCharger** does not match the **Car connected** entities. Select entities that belong to that integration entry, or clear the target. Device and area targets do not work with an explicit target
+- **Zero values although all sensors look fine, with the 3-phase method**: The phase method needs at least three distinct entities. With fewer phases (for example a two-phase connection) use a sensor for the total grid power with the *Single Entity* method
+- **Zero values although all sensors look fine, with consumption and feed-in**: Both entities must be selected. With only one of them the selection is incomplete and counts as invalid
+- **The charger kept charging from the grid during a sensor outage**: The reaction was *Skip update and notify* or *Keep last values*, so the charger worked with its last values. Choose *Send zero values*, and keep a grace period short
+- **The grace period reacts earlier than configured**: The reaction starts between half and the full grace period after the last valid measurement, because the helper is refreshed every half grace period
+- **The grace period seems to have no effect**: The helper must be of type *Date and time*. A date-only or time-only helper gives a wrong age and is rewritten on every tick. Also check that the reaction is not *Keep last values*, where nothing is sent either way
+- **The database grows because of the helper**: Exclude the helper from the recorder, see [Optional grace period](#optional-grace-period)
+- **Battery sensor failed and the battery value is 0**: That is the default (*Battery sensor unavailable = Send battery 0*), so charging continues. Switch to *Treat as invalid measurement* if your battery often charges or discharges with high power
+- **Warnings "Already running" in the log**: Older versions logged them whenever a slow charger call overran the 5 second tick. The blueprint now sets `max_exceeded: silent`; update to the latest version
 
 ## Changelog
 
