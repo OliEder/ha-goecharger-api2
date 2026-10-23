@@ -12,13 +12,13 @@ blueprint:
     - At sunset: one immediate zero push, even if no car is connected.
 
     **Invalid measurements (daylight):** If a used power source is missing, non-numeric or
-    non-finite, the whole update is skipped. Nothing is replaced by zero. Skipping does NOT
-    stop the charger and does NOT clear its previous averages, so the charger keeps working
-    with the last values it received. Use *Reaction to invalid daylight measurements* to
-    choose what happens instead: keep the last values (default), send zero values, or
-    send a notification. By default the reaction starts immediately. For a short outage
-    tolerance, additionally select a *Grace period helper* (see below). The age of
-    numeric measurements is not checked.
+    non-finite, the measurement is not trusted and nothing is replaced by a made-up value.
+    By default the blueprint then sends zero values, because a charger that keeps its last
+    averages can go on charging from the grid. Use *Reaction to invalid daylight
+    measurements* to choose differently: send zero values (default), skip the update and
+    notify, or skip the update silently. Skipping leaves the charger on its last received
+    values and does NOT stop it. For a short outage tolerance, additionally select a *Grace
+    period helper* (see below). The age of numeric measurements is not checked.
 
     The zero values keep the go-eCharger from working with stale `pvopt_*` averages. The
     charger calculates these averages from the last values it has received, no matter how
@@ -61,34 +61,37 @@ blueprint:
         restart).
 
 
-        Keep: skip the update. The charger continues with the last values it
-        received, which may be outdated. This is the default and the behaviour
-        without this setting.
-
-
-        Zero: send 0/0/0, so the charger stops relying on stale surplus and
-        falls back to its minimum or stops, depending on its PV settings.
+        Zero (default): send 0/0/0. The go-eCharger keeps the averages of the
+        last values it received, no matter how old they are. Without new data it
+        could go on charging with surplus that no longer exists, and so draw
+        power from the grid. Zero values make the charger drop to its minimum
+        or stop, depending on its PV settings. Night and sunset use the same
+        zero values.
 
 
         Notify: skip the update and create a persistent notification (one per
-        automation, replaced on every run). The charger continues with its
-        last values.
+        automation, replaced about once a minute). The charger continues with
+        its last values and can charge from the grid meanwhile.
+
+
+        Keep: skip the update silently. Same risk as Notify, without a message.
+        Choose this only if continued charging on old values is what you want.
 
 
         The reaction starts immediately unless you also select a Grace period
         helper. Valid measurements always resume normal transmission on the
         next daylight tick. Night and sunset zero values are not affected.
-      default: keep
+      default: zero
       selector:
         select:
           mode: dropdown
           options:
-            - label: Keep last values (skip update)
-              value: keep
-            - label: Send zero values
+            - label: Send zero values (recommended)
               value: zero
             - label: Skip update and notify
               value: notify
+            - label: Keep last values (skip update silently)
+              value: keep
 
     last_valid_helper:
       name: Grace period helper (optional)
@@ -308,13 +311,18 @@ variables:
   battery_invert_flag: !input battery_invert
 
   # Preserve method precedence; an incomplete selected method must not fall back.
+  # No grid method selected sends pgrid 0, as in earlier versions. Phases use the
+  # first three entities, as before; fewer than three, or duplicates, are invalid.
+  # An empty entity ID in the list marks the selection as invalid.
   grid_sources: >
     {% if grid_single_entity %}
       {{ [grid_single_entity] }}
     {% elif grid_consumption or grid_feedin %}
       {{ [grid_consumption, grid_feedin] }}
-    {% elif grid_phases | length == 3 and grid_phases | unique | list | length == 3 %}
-      {{ grid_phases }}
+    {% elif grid_phases | length >= 3 and grid_phases[:3] | unique | list | length == 3 %}
+      {{ grid_phases[:3] }}
+    {% elif grid_phases | length > 0 %}
+      {{ [''] }}
     {% else %}
       {{ [] }}
     {% endif %}
@@ -326,7 +334,7 @@ variables:
     {% endfor %}
     {{ ns.samples }}
   measurements_valid: >
-    {% set ns = namespace(valid=grid_sources | length > 0 and pv_list | length > 0
+    {% set ns = namespace(valid=pv_list | length > 0
       and is_number(multiplier) and multiplier | float(0) > 0) %}
     {% for entity in grid_sources + pv_list + (battery_list if battery_enable else []) %}
       {% if not entity or not is_number(power_samples.get(entity)) %}

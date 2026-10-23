@@ -6,13 +6,18 @@ import pytest
 from harness import BlueprintRun
 
 
+def skip_run(inputs=None, **kwargs):
+    """Run with the silent-skip policy, so `[]` means "no update was sent"."""
+    return BlueprintRun(inputs={"invalid_data_policy": "keep", **(inputs or {})}, **kwargs)
+
+
 BAD_VALUES = ["unknown", "unavailable", "not a number", "", "NaN", "inf", "-inf", "1e999"]
 
 
 @pytest.mark.parametrize("bad", BAD_VALUES)
 @pytest.mark.parametrize("source", ["sensor.grid", "sensor.pv", "sensor.battery"])
 def test_bad_used_source_skips_whole_update(source, bad):
-    run = BlueprintRun(inputs={"battery_entities": ["sensor.battery"]},
+    run = skip_run(inputs={"battery_entities": ["sensor.battery"]},
                        states={"sensor.battery": "0", source: bad})
     assert run.run() == []
     assert run.notifications == []
@@ -23,7 +28,7 @@ def test_bad_used_source_skips_whole_update(source, bad):
     ("battery_entities", ["sensor.missing"]),
 ])
 def test_missing_entity(input_name, value):
-    assert BlueprintRun(inputs={input_name: value}).run() == []
+    assert skip_run(inputs={input_name: value}).run() == []
 
 
 @pytest.mark.parametrize("grid", ["0", "1200", "-1200"])
@@ -40,7 +45,7 @@ def dual_inputs():
 @pytest.mark.parametrize("missing", ["sensor.import", "sensor.export"])
 def test_dual_missing_input_cannot_become_export(missing):
     states = {"sensor.import": "1500", "sensor.export": "1000", missing: "unavailable"}
-    assert BlueprintRun(inputs=dual_inputs(), states=states).run() == []
+    assert skip_run(inputs=dual_inputs(), states=states).run() == []
 
 
 def test_dual_valid():
@@ -53,7 +58,7 @@ def test_dual_valid():
 def test_incomplete_dual_does_not_fall_back_to_phases(missing):
     inputs = dict(dual_inputs(), grid_phase_entities=["sensor.l1", "sensor.l2", "sensor.l3"])
     inputs[missing] = None
-    assert BlueprintRun(inputs=inputs, states={
+    assert skip_run(inputs=inputs, states={
         "sensor.l1": "-1000", "sensor.l2": "-1000", "sensor.l3": "-1000"}).run() == []
 
 
@@ -61,16 +66,28 @@ def test_incomplete_dual_does_not_fall_back_to_phases(missing):
 def test_missing_phase_never_yields_partial_sum(missing_phase):
     states = {"sensor.l1": "-1000", "sensor.l2": "-2000", "sensor.l3": "500",
               missing_phase: "unavailable"}
-    run = BlueprintRun(inputs={"grid_single_entity": None,
+    run = skip_run(inputs={"grid_single_entity": None,
         "grid_phase_entities": ["sensor.l1", "sensor.l2", "sensor.l3"]}, states=states)
     assert run.run() == []
 
 
-@pytest.mark.parametrize("phases", [[], ["sensor.l1"], ["sensor.l1", "sensor.l2"],
-    ["sensor.l1", "sensor.l2", "sensor.l3", "sensor.l4"], ["sensor.l1"] * 3])
-def test_phase_method_requires_three_distinct_entities(phases):
-    assert BlueprintRun(inputs={"grid_single_entity": None, "grid_phase_entities": phases},
-                        states={f"sensor.l{i}": "0" for i in range(1, 5)}).run() == []
+@pytest.mark.parametrize("phases", [["sensor.l1"], ["sensor.l1", "sensor.l2"], ["sensor.l1"] * 3])
+def test_incomplete_or_duplicate_phases_are_invalid(phases):
+    assert skip_run(inputs={"grid_single_entity": None, "grid_phase_entities": phases},
+                    states={f"sensor.l{i}": "0" for i in range(1, 5)}).run() == []
+
+
+def test_no_grid_method_selected_sends_pgrid_zero():
+    payload = BlueprintRun(inputs={"grid_single_entity": None}).run()
+    assert payload == [{"pgrid": 0, "ppv": 2000, "pakku": 0}]
+
+
+def test_more_than_three_phases_use_the_first_three():
+    payload = BlueprintRun(inputs={
+        "grid_single_entity": None,
+        "grid_phase_entities": ["sensor.l1", "sensor.l2", "sensor.l3", "sensor.l4"]},
+        states={"sensor.l1": "100", "sensor.l2": "200", "sensor.l3": "300", "sensor.l4": "9999"}).run()
+    assert payload[0]["pgrid"] == 600
 
 
 def test_three_phases_and_inversion():
@@ -88,7 +105,7 @@ def test_unused_grid_inputs_do_not_block_selected_single():
 
 def test_failed_single_does_not_fall_back_to_healthy_dual():
     inputs = dict(dual_inputs(), grid_single_entity="sensor.missing")
-    assert BlueprintRun(inputs=inputs, states={"sensor.import": "0", "sensor.export": "1000"}).run() == []
+    assert skip_run(inputs=inputs, states={"sensor.import": "0", "sensor.export": "1000"}).run() == []
 
 
 @pytest.mark.parametrize("enabled,entities", [(False, ["sensor.missing"]), (True, []), (False, [])])
@@ -99,12 +116,12 @@ def test_intentionally_absent_battery(enabled, entities):
 
 @pytest.mark.parametrize("source_list", ["pv_entities", "battery_entities"])
 def test_multiple_sources_must_all_be_available(source_list):
-    assert BlueprintRun(inputs={source_list: ["sensor.first", "sensor.missing"]},
+    assert skip_run(inputs={source_list: ["sensor.first", "sensor.missing"]},
                         states={"sensor.first": "1200"}).run() == []
 
 
 def test_empty_pv_is_invalid():
-    assert BlueprintRun(inputs={"pv_entities": []}).run() == []
+    assert skip_run(inputs={"pv_entities": []}).run() == []
 
 
 def test_multiple_sources_inversion_and_kw_conversion():
@@ -125,17 +142,17 @@ def test_rounding_after_conversion():
 
 @pytest.mark.parametrize("multiplier", [0, -1, "invalid", "NaN", "inf"])
 def test_invalid_multiplier(multiplier):
-    assert BlueprintRun(inputs={"power_multiplier": multiplier}).run() == []
+    assert skip_run(inputs={"power_multiplier": multiplier}).run() == []
 
 
 @pytest.mark.parametrize("source", ["grid", "pv", "battery"])
 def test_overflow_after_unit_conversion(source):
-    assert BlueprintRun(inputs={"power_multiplier": 1000, "battery_entities": ["sensor.battery"]},
+    assert skip_run(inputs={"power_multiplier": 1000, "battery_entities": ["sensor.battery"]},
         states={"sensor.battery": "0", f"sensor.{source}": "1e308"}).run() == []
 
 
 def test_overflow_of_sum():
-    assert BlueprintRun(inputs={"pv_entities": ["sensor.first", "sensor.second"]},
+    assert skip_run(inputs={"pv_entities": ["sensor.first", "sensor.second"]},
                         states={"sensor.first": "1e308", "sensor.second": "1e308"}).run() == []
 
 
@@ -152,8 +169,8 @@ def test_night_and_sunset_zeros_survive_invalid_measurements(target, entity, tri
 
 
 def test_recovers_on_next_valid_tick():
-    assert BlueprintRun(states={"sensor.grid": "unavailable"}).run() == []
-    assert BlueprintRun(states={"sensor.grid": "-500"}).run()[0]["pgrid"] == -500
+    assert skip_run(states={"sensor.grid": "unavailable"}).run() == []
+    assert skip_run(states={"sensor.grid": "-500"}).run()[0]["pgrid"] == -500
 
 
 def test_validation_and_arithmetic_use_one_sample_per_source():
@@ -284,3 +301,18 @@ def test_policy_notify_is_throttled_to_once_per_minute(second, expected):
     run = BlueprintRun(inputs={"invalid_data_policy": "notify"}, states={"sensor.grid": "unavailable"},
                        second=second)
     assert run.run() == [] and len(run.notifications) == expected
+
+
+def test_default_policy_is_zero():
+    """A charger left on stale averages can charge from the grid, so zero is the default."""
+    assert BlueprintRun().inputs["invalid_data_policy"] == "zero"
+
+
+@pytest.mark.parametrize("source", ["sensor.grid", "sensor.pv"])
+@pytest.mark.parametrize("bad", BAD_VALUES)
+def test_default_sends_zero_for_invalid_measurement(source, bad):
+    assert BlueprintRun(states={source: bad}).run() == [{"pgrid": 0, "ppv": 0, "pakku": 0}]
+
+
+def test_default_still_sends_real_data_when_valid():
+    assert BlueprintRun().run() == [{"pgrid": -1200, "ppv": 2000, "pakku": 0}]

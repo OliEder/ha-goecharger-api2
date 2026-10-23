@@ -101,9 +101,11 @@ valid. Each used state is captured once for validation and calculation.
 Non-finite totals or unit conversion results also skip the update.
 
 The existing grid method precedence remains single entity, then consumption /
-feed-in, then phases. Both consumption and feed-in must be selected; phases
-require exactly three distinct entities. An incomplete selected method does
-not fall back to another method. Unused grid inputs are ignored.
+feed-in, then phases. Both consumption and feed-in must be selected; phases need
+at least three entities, of which the first three are used and must be distinct.
+An incomplete selected method does not fall back to another method. If no grid
+method is selected at all, `pgrid` is sent as 0, as in earlier versions. Unused
+grid inputs are ignored.
 
 An empty battery selection means no battery measurement and still sends zero.
 Disabling battery transmission ignores any selected battery entities and also
@@ -114,22 +116,25 @@ The skipped update is visible in the automation trace. Transmission resumes
 on the next daylight tick with valid measurements and a connected car. Night
 and sunset zeros remain independent of measurement validity.
 
-**By default this is input validation, not a charging-stop policy.** Skipping
-transmission does not issue a Stop command or clear previous `pvopt_*` averages;
-the charger keeps working with the last values it received. The blueprint does
-not check source timestamps or freshness: an old but numeric state passes
-validation. Use the reaction below if the charger should react to missing data.
+**Why zero is the default.** The go-eCharger calculates its `pvopt_*` averages
+from the last values it has received, no matter how old they are. If the
+blueprint merely stopped sending while a measurement is missing, the charger
+would go on with the surplus it saw last and could charge from the grid.
+Therefore invalid measurements lead to zero values by default, the same values
+the blueprint already sends at night. The blueprint does not check source
+timestamps or freshness: an old but numeric state passes validation.
 
 #### Reaction to invalid daylight measurements
 
 The input **Reaction to invalid daylight measurements** decides what happens
-while a daylight update is skipped:
+while a measurement is invalid. In all cases the real, incomplete data is never
+sent:
 
 | Option | Behaviour |
 |--------|-----------|
-| Keep last values (default) | Skip the update. The charger continues with its last values, which may be outdated. |
-| Send zero values | Send `pgrid=0`, `ppv=0`, `pakku=0` (with the selected `configid`). The charger stops relying on stale surplus. |
-| Skip update and notify | Skip the update and create a persistent notification, replaced on every run. |
+| Send zero values (default) | Send `pgrid=0`, `ppv=0`, `pakku=0` (with the selected `configid`). The charger stops relying on stale surplus and drops to its minimum or stops, depending on its PV settings. |
+| Skip update and notify | Skip the update and create a persistent notification, about once a minute. The charger keeps its last values and may charge from the grid meanwhile. |
+| Keep last values | Skip the update silently. Same risk as above, without a message. Choose this only if continued charging on old values is wanted. |
 
 Valid measurements resume normal transmission on the next daylight tick.
 Night and sunset zero values are independent of this setting.
@@ -158,6 +163,9 @@ How it works:
 - While measurements are invalid, nothing is sent until the stored time is
   older than the grace period. After that, the selected reaction runs on every
   5 second tick until valid data returns.
+- During the grace period nothing is sent, so the charger works with its last
+  values. Keep it short: a long grace period delays the protection against
+  charging on stale values by the same time.
 - With *Keep last values* the grace period has no visible effect, because
   nothing is sent in either case.
 - An empty or unknown helper counts as expired. After creating the helper, the
