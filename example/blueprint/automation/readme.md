@@ -17,6 +17,9 @@ This blueprint enables automatic PV surplus charging for go-eCharger wallboxes b
 - **Unit conversion**: Configurable multiplier for entities that report kW instead of W
 - **Day and night aware**: Real values from sunrise to sunset, zero values at night (see [Data transmission](#data-transmission))
 - **Only active with a connected car**: Nothing is sent while no car is plugged in (except one zero push at sunset)
+- **Selectable target charger**: Optional, for installations with more than one go-eCharger
+- **Safe handling of missing measurements**: A missing or invalid sensor never becomes a made-up value; the reaction is configurable (see [Invalid measurements](#invalid-measurements))
+- **Optional grace period**: Tolerates short sensor dropouts before the reaction starts
 - **User-friendly UI**: Organized input sections for easy configuration
 
 ## Installation
@@ -146,6 +149,19 @@ sent:
 Valid measurements resume normal transmission on the next daylight tick.
 Night and sunset zero values are independent of this setting.
 
+**Example.** Entities report kW (multiplier `1000`): grid consumption 0.2 kW,
+feed-in 1.0 kW, PV 3.0 kW, battery -0.5 kW (charging). The values are what the
+blueprint sends as `pgrid / ppv / pakku` in watts:
+
+| Situation | Send zero values (default) | Skip update and notify | Keep last values |
+|---|---|---|---|
+| All measurements valid | -800 / 3000 / -500 | -800 / 3000 / -500 | -800 / 3000 / -500 |
+| Feed-in sensor `unavailable` | 0 / 0 / 0 | nothing sent, notification | nothing sent |
+| PV sensor `unavailable` | 0 / 0 / 0 | nothing sent, notification | nothing sent |
+
+"Nothing sent" means the charger keeps working with the last values it
+received.
+
 #### Battery sensor unavailable
 
 A missing battery reading should not stop PV surplus charging. By default
@@ -160,6 +176,15 @@ the charger sees can be too high or too low until the sensor returns. In that
 case choose **Treat as invalid measurement**: the outage is then handled like
 any other invalid measurement, with the reaction chosen above (zero values by
 default). The setting has no effect when battery transmission is disabled.
+
+Same example, battery sensor `unavailable`:
+
+| Battery sensor unavailable | Reaction to invalid measurements | Sent as `pgrid / ppv / pakku` |
+|---|---|---|
+| Send battery 0 (default) | any | -800 / 3000 / 0 |
+| Treat as invalid measurement | Send zero values | 0 / 0 / 0 |
+| Treat as invalid measurement | Skip update and notify | nothing sent, notification |
+| Treat as invalid measurement | Keep last values | nothing sent |
 
 #### Optional grace period
 
@@ -219,6 +244,14 @@ The helper must be of type *Date and time*. Its `timestamp` attribute is used
 for the age, because it follows the time zone configured in Home Assistant. A
 date-only or time-only helper gives a wrong age and is rewritten on every tick.
 
+Example with the default grace period of 60 seconds, per tick (every 5 seconds):
+
+| Age of the time stored in the helper | Measurements valid | Measurements invalid |
+|---|---|---|
+| 0 to 30 seconds | send real data, helper not written | nothing sent (grace period) |
+| 31 to 60 seconds | send real data, helper written | nothing sent (grace period) |
+| more than 60 seconds, or helper empty | send real data, helper written | selected reaction |
+
 The go-eCharger calculates its `pvopt_*` averages from the last values it has received, no matter how old they are. Without the zero values, a car that is (re)connected at night can start charging at sunrise on the basis of the previous day's surplus, even though the PV generation has not started yet.
 
 ## go-eCharger Setup
@@ -238,6 +271,42 @@ The go-eCharger calculates its `pvopt_*` averages from the last values it has re
 - **Blueprint not visible**: Ensure HA version ≥ 2024.6.0
 
 ## Changelog
+
+### 2026-10-23
+
+**Added**
+- New optional input **Target go-eCharger**: all updates (daylight, night, sunset) go to the selected integration entry. Required for more than one charger. Empty keeps the previous default
+- New input **Reaction to invalid daylight measurements** (default: send zero values)
+- New optional inputs **Grace period helper** and **Grace period (seconds)**
+- New input **Battery sensor unavailable** (default: send battery 0)
+- Invalid target charger and invalid measurements are reported in a persistent notification, which is closed again once the problem is gone
+- Regression tests for the blueprint templates in `tests/blueprints`
+
+**Changed behaviour (upgrade notes)**
+- Missing, `unavailable`, `unknown`, non-numeric or non-finite measurements are no longer replaced by 0 inside the calculation. A used grid or PV sensor that is invalid now leads to the selected reaction, by default zero values. Before, the remaining sensors were still sent, for example a missing PV sensor gave `ppv=0` with a real `pgrid`
+- A selected but incomplete grid method is invalid and does not fall back to another method. This affects consumption without feed-in (or the other way round), fewer than three phase entities, and duplicate phase entities. Before, `pgrid=0` was sent silently. Use the *Single Entity* method with a total power sensor instead
+- Each used sensor state is read once per tick, so validation and calculation use the same values
+- An invalid target charger stops the run with a notification instead of an error in the log, and `max_exceeded: silent` avoids an "Already running" warning when a slow charger call overruns the 5 second tick
+
+**Unchanged for complete setups**
+With valid measurements the blueprint sends the same values as before, for every grid method. No grid method selected still sends `pgrid=0`, and more than three phase entities still use the first three.
+
+Example (grid consumption 0.2 kW, feed-in 1.0 kW, PV 3.0 kW, battery -0.5 kW, multiplier `1000`), sent as `pgrid / ppv / pakku`:
+
+| Setup | Earlier versions | Now (defaults) |
+|---|---|---|
+| Consumption + feed-in, all valid | -800 / 3000 / -500 | -800 / 3000 / -500 |
+| Single entity, valid | 200 / 3000 / -500 | 200 / 3000 / -500 |
+| No grid method selected | 0 / 3000 / -500 | 0 / 3000 / -500 |
+| Four phase entities | 300 / 3000 / -500 | 300 / 3000 / -500 |
+| Two phase entities | 0 / 3000 / -500 | 0 / 0 / 0 |
+| Consumption entity only | 0 / 3000 / -500 | 0 / 0 / 0 |
+| Feed-in sensor `unavailable` | 200 / 3000 / -500 | 0 / 0 / 0 |
+| PV sensor `unavailable` | -800 / 0 / -500 | 0 / 0 / 0 |
+| Battery sensor `unavailable` | -800 / 3000 / 0 | -800 / 3000 / 0 |
+
+The last four rows differ because a missing measurement is no longer treated
+as a real zero. With *Keep last values* nothing is sent in these cases.
 
 ### 2026-09-30
 - Send zero values at sunset and every 30 seconds at night while a car is connected
