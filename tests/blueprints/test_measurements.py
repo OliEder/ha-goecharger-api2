@@ -15,7 +15,7 @@ def test_bad_used_source_skips_whole_update(source, bad):
     run = BlueprintRun(inputs={"battery_entities": ["sensor.battery"]},
                        states={"sensor.battery": "0", source: bad})
     assert run.run() == []
-    assert "measurement is invalid" in run.stopped
+    assert run.notifications == []
 
 
 @pytest.mark.parametrize("input_name,value", [
@@ -169,3 +169,33 @@ def test_validation_and_arithmetic_use_one_sample_per_source():
     assert payload["pgrid"] == -1200
     assert payload["ppv"] == 4000  # Existing sum semantics are unchanged.
     assert reads == {"sensor.grid": 1, "sensor.pv": 1}
+
+
+@pytest.mark.parametrize("bad", BAD_VALUES)
+def test_policy_zero_sends_zeros(bad):
+    run = BlueprintRun(inputs={"invalid_data_policy": "zero"}, states={"sensor.grid": bad})
+    assert run.run() == [{"pgrid": 0, "ppv": 0, "pakku": 0}]
+    assert run.notifications == []
+
+
+def test_policy_zero_targets_selected_charger():
+    run = BlueprintRun(inputs={"invalid_data_policy": "zero", "charger_config_entry": "entry_a",
+                               "car_connected_entity": {"entity_id": ["binary_sensor.car_a"]}},
+                       states={"sensor.grid": "unavailable"})
+    assert run.run() == [{"pgrid": 0, "ppv": 0, "pakku": 0, "configid": "entry_a"}]
+
+
+@pytest.mark.parametrize("bad", BAD_VALUES)
+def test_policy_notify_skips_and_notifies(bad):
+    run = BlueprintRun(inputs={"invalid_data_policy": "notify"}, states={"sensor.pv": bad})
+    assert run.run() == []
+    assert len(run.notifications) == 1
+    assert run.notifications[0]["notification_id"].endswith("automation.pv_surplus")
+
+
+@pytest.mark.parametrize("policy", ["keep", "zero", "notify"])
+def test_valid_measurements_ignore_policy(policy):
+    run = BlueprintRun(inputs={"invalid_data_policy": policy})
+    calls = run.run()
+    assert len(calls) == 1 and calls[0] != {"pgrid": 0, "ppv": 0, "pakku": 0}
+    assert run.notifications == []

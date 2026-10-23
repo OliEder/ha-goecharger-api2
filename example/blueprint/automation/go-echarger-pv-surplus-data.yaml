@@ -49,6 +49,26 @@ blueprint:
         config_entry:
           integration: goecharger_api2
 
+    invalid_data_policy:
+      name: Reaction to invalid daylight measurements
+      description: >
+        What to do in daylight while a used power source is missing, non-numeric
+        or non-finite. "Keep" skips the update, so the charger continues with its
+        last received values. "Zero" sends 0/0/0 so the charger stops relying on
+        stale surplus. "Notify" skips the update and creates a persistent
+        notification (one per automation, replaced on every run).
+      default: keep
+      selector:
+        select:
+          mode: dropdown
+          options:
+            - label: Keep last values (skip update)
+              value: keep
+            - label: Send zero values
+              value: zero
+            - label: Skip update and notify
+              value: notify
+
     car_connected:
       name: Car connected Entity
       description: Entity from go-eCharger API2 integration that indicates the vehicle connection status
@@ -187,6 +207,7 @@ blueprint:
 
 variables:
   charger_config_entry: !input charger_config_entry
+  invalid_data_policy: !input invalid_data_policy
   car_connected_entity: !input car_connected_entity
   charger_target_valid: >
     {% if not charger_config_entry %}
@@ -313,18 +334,42 @@ actions:
           - condition: sun
             before: sunset
         sequence:
-          - condition: template
-            alias: "Skip daylight update when a used measurement is invalid"
-            value_template: >
-              {{ measurements_valid and is_number(pgrid_watts)
-                and is_number(ppv_watts) and is_number(pakku_watts) }}
-          - action: goecharger_api2.set_pv_data
-            data: >
-              {% set payload = dict(
-                pgrid=(pgrid_watts | float) | round(0) | int,
-                ppv=(ppv_watts | float) | round(0) | int,
-                pakku=(pakku_watts | float) | round(0) | int) %}
-              {{ dict(payload, configid=charger_config_entry) if charger_config_entry else payload }}
+          - if:
+              - condition: template
+                value_template: >
+                  {{ measurements_valid and is_number(pgrid_watts)
+                    and is_number(ppv_watts) and is_number(pakku_watts) }}
+            then:
+              - action: goecharger_api2.set_pv_data
+                data: >
+                  {% set payload = dict(
+                    pgrid=(pgrid_watts | float) | round(0) | int,
+                    ppv=(ppv_watts | float) | round(0) | int,
+                    pakku=(pakku_watts | float) | round(0) | int) %}
+                  {{ dict(payload, configid=charger_config_entry) if charger_config_entry else payload }}
+            else:
+              - choose:
+                  - alias: "Invalid measurement: send zero values"
+                    conditions:
+                      - condition: template
+                        value_template: '{{ invalid_data_policy == "zero" }}'
+                    sequence:
+                      - action: goecharger_api2.set_pv_data
+                        data: >
+                          {% set payload = dict(pgrid=0, ppv=0, pakku=0) %}
+                          {{ dict(payload, configid=charger_config_entry) if charger_config_entry else payload }}
+                  - alias: "Invalid measurement: notify"
+                    conditions:
+                      - condition: template
+                        value_template: '{{ invalid_data_policy == "notify" }}'
+                    sequence:
+                      - action: persistent_notification.create
+                        data:
+                          notification_id: "goecharger_pv_invalid_data_{{ this.entity_id }}"
+                          title: "go-eCharger PV surplus: invalid measurement"
+                          message: >
+                            A used power source is unavailable or non-numeric. The
+                            charger keeps working with its last received values.
 
       # Night, car connected: zeros every 30 seconds (flushes stale averages)
       - conditions:

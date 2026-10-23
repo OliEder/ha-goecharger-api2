@@ -69,9 +69,11 @@ class BlueprintRun:
             config_entry_attr=lambda entry, attr: self.entries.get(entry) if attr == "domain" else None,
             is_number=is_number,
             now=lambda: SimpleNamespace(second=second),
+            this=SimpleNamespace(entity_id="automation.pv_surplus"),
         )
         self.variables = {}
         self.calls = []
+        self.notifications = []
         self.stopped = None
 
     def expand(self, entities):
@@ -135,6 +137,8 @@ class BlueprintRun:
                 payload = self.render(action["data"])
                 assert isinstance(payload, dict)
                 self.calls.append(payload)
+            elif action.get("action") == "persistent_notification.create":
+                self.notifications.append(self.render(action["data"]))
             else:
                 raise AssertionError(f"Unsupported action: {action}")
 
