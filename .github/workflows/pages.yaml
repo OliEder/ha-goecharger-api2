@@ -1,0 +1,96 @@
+name: Test report and documentation (GitHub Pages)
+
+# Fork only. Takes the current main of marq24/ha-goecharger-api2 (tests, tools and docs/quality live there),
+# runs the tests with coverage and path measurement and publishes the result with GitHub Pages:
+# test report, list of all test cases, arc42, test concept, coverage in detail.
+# Nothing is committed anywhere. Scheduled workflows only run from the default branch, so this branch
+# (fork-ci) is the default branch of the fork and holds nothing but this file.
+# Needs Pages with the source "GitHub Actions" in the settings of the fork.
+
+on:
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch or tag of marq24/ha-goecharger-api2 (empty = main)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: marq24/ha-goecharger-api2
+          ref: ${{ inputs.ref || 'main' }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements_dev.txt
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements_dev.txt msgpack pytest-cov radon markdown
+
+      - name: Measure and build the report
+        env:
+          SOURCE_REF: ${{ inputs.ref || 'main' }}
+        run: sh tests/tools/measure.sh "$RUNNER_TEMP/report"
+        continue-on-error: true
+
+      - name: Summarise the results
+        run: |
+          python - <<'PY'
+          import os, subprocess, xml.etree.ElementTree as ET
+          out = os.environ["RUNNER_TEMP"]
+          def counts(path):
+              r = ET.parse(path).getroot()
+              s = r if r.tag == "testsuite" else r.find("testsuite")
+              total, bad = int(s.get("tests")), int(s.get("failures")) + int(s.get("errors"))
+              return total, bad
+          sha = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], text=True).strip()
+          ref = os.environ.get("REF") or "main"
+          total, bad = counts(f"{out}/report/junit-blocking.xml")
+          all_total, all_bad = counts(f"{out}/report/junit-all.xml")
+          lines = [f"## Tests for upstream `{ref}` (`{sha}`)", "",
+                   "| | |", "|---|---|",
+                   f"| Blocking tests | **{total - bad} of {total} passed** |",
+                   f"| Known bugs / open decisions still failing | {all_bad - bad} |", ""]
+          open(f"{out}/summary.md", "w").write("\n".join(lines))
+          PY
+        env:
+          REF: ${{ inputs.ref || 'main' }}
+        continue-on-error: true
+
+      - name: Build the site
+        run: |
+          report="$RUNNER_TEMP/report"
+          args=""
+          if [ -f "$report/junit-all.xml" ]; then
+            python tests/tools/build_testcases.py "$report/junit-all.xml" tests/integration testcases.md
+            args="--report $report --testcases testcases.md"
+          fi
+          [ -f "$RUNNER_TEMP/summary.md" ] && args="$args --regression $RUNNER_TEMP/summary.md"
+          python tests/tools/build_site.py _site --docs docs/quality $args
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
