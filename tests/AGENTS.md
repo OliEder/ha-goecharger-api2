@@ -48,3 +48,28 @@ and **read the diff of the snapshot. It may only add IDs.** If it removes or ren
 ## Tools (`tools/`)
 
 `measure.sh` and `build_report.py` produce the test report, `build_testcases.py` the test case list, `build_site.py` the web pages, `build_risk_register.py` the risk documents. They do not run as tests. Do not change them in a change that is about something else.
+
+## Writing good tests (summary of `writing-good-tests`)
+
+If your agent already works with [Superpowers](https://github.com/obra/superpowers), its `test-driven-development` skill points to this guide and you can skip the summary. For everyone else, it follows the guide closely (MIT licence, by Jesse Vincent). **If you can read URLs, read the full guide before you write or change a test. If you cannot, this summary is enough.**
+
+Two rules govern everything: **every test names the break it catches, and every test exercises the real thing.**
+
+1. **Name the break.** Before you write the test body, name the production change that should make the test fail, and say whether that change is a bug or a decision. If you cannot name one, redesign the test around an observable behaviour.
+2. **Derive the expected value independently.** Use literals or hand-checked fixtures; tests with a table of literal expected values are preferred. An expectation that the code under test (or its helpers) computes passes whatever the code does. In this repository the official key tables are such an independent source.
+3. **No change detectors.** A test that only an intentional decision can fail (the value of a constant, the exact wording of a message, a private structure) fires on every redesign and sleeps through bugs. Test the behaviour that depends on the decision: not "the limit is 5", but "a failing call is retried 5 times and the sixth attempt never happens".
+4. **Behaviour, not text.** Do not assert that a file contains a line. Run it with controlled input and assert the output, the side effects or the exit code. Prose for humans needs no test.
+5. **Your code, not the framework.** Test the contract your code makes at its boundaries (what it registers, what it sends, what it returns), not how Home Assistant works. If upstream behaviour surprised you, write one narrow characterisation test that names the assumption. Constructors, getters, constants and trivial forwarding get a test only when they validate, normalise, default, derive, enforce or cause a side effect.
+6. **Exercise the real thing.**
+   - A mock earns no assertions. Never assert on the mock itself; if the mock is what you check, unmock it or delete the assertion.
+   - Mock at the right level: learn every side effect of the real method, mock the slow or external level below it, and keep real what the test depends on.
+   - Make doubles specific: when arguments, call counts or order are part of the contract, assert them, and give each branch (success, error, malformed answer) its own fixture, so the wrong branch cannot satisfy the test.
+   - Mirror real data completely, with all documented fields, not only those your test reads.
+   - Production classes carry production methods only; cleanup that only tests need lives in test utilities.
+   - When mock set-up outgrows the test, use real components in an integration test (the pattern of this repository).
+7. **Ship the tests the behaviour needs, and only those.** Trivial code and prose earn none; a test written to satisfy a process costs maintenance for good.
+8. **Mutation check before you finish.** Change the production code in your head: a wrong constant or argument, a wrong branch, a missing state change or side effect, an empty or default return, a missing check for zero, empty, none, unauthorised or malformed input. At least one test should fail for each realistic change. If none does, the behaviour is unprotected or a test is tautological.
+
+**Warning signs:** set-up and assertion share the same object; the test can only fail by a crash; it fails on every intended change and never on accidental breakage; expected values hide behind loops, builders or helpers; the test greps source text; it would still matter if only the framework remained; it exists for coverage and checks no outcome; an assertion fails when you remove the mock; a method is called only from tests; mock set-up is more than half of the test; mocking "just to be safe".
+
+Source: <https://github.com/obra/superpowers/blob/main/skills/test-driven-development/writing-good-tests.md>
