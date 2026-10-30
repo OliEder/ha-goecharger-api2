@@ -1,5 +1,5 @@
 ---
-id: R11
+id: R011
 date: 2026-10-27
 category: INT
 probability: 3
@@ -11,7 +11,7 @@ status: open
 owner:
 review: release
 ---
-# R11: `bcrypt` missing in the manifest, minimum Home Assistant version unclear
+# R011: `bcrypt` missing in the manifest, minimum Home Assistant version unclear
 
 ## Risk description
 

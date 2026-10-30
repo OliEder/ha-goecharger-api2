@@ -1,5 +1,5 @@
 ---
-id: R17
+id: R017
 date: 2026-10-29
 category: INT
 probability: 3
@@ -11,7 +11,7 @@ status: open
 owner:
 review: release
 ---
-# R17: Cloud data can be up to 30 seconds old
+# R017: Cloud data can be up to 30 seconds old
 
 ## Risk description
 

@@ -1,5 +1,5 @@
 ---
-id: R20
+id: R020
 date: 2026-10-29
 category: ARCH
 probability: 3
@@ -11,7 +11,7 @@ status: settled
 owner:
 review: release
 ---
-# R20: Old values stay after a failed read
+# R020: Old values stay after a failed read
 
 ## Risk description
 
@@ -36,7 +36,7 @@ Risk strategy: **Accept**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (l
 
 ## Countermeasure
 
-None. The maintainer confirmed in issue #173 (2026-10-27) that this is intended: stale data is better than losing all previously available information when a communication error occurs. Today's behaviour is recorded as a characterisation (`test_failed_full_read_keeps_the_previous_states`). Remaining effect: a charger that went offline keeps showing its last values in cloud mode; see also [R14](R014-entities-stay-available-on-partial-failure-and-show-old.md).
+None. The maintainer confirmed in issue #173 (2026-10-27) that this is intended: stale data is better than losing all previously available information when a communication error occurs. Today's behaviour is recorded as a characterisation (`test_failed_full_read_keeps_the_previous_states`). Remaining effect: a charger that went offline keeps showing its last values in cloud mode; see also [R014](R014-entities-stay-available-on-partial-failure-and-show-old.md).
 
 ## Status and history
 

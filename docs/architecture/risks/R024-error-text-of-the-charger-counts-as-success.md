@@ -1,5 +1,5 @@
 ---
-id: R24
+id: R024
 date: 2026-10-29
 category: ARCH
 probability: 2
@@ -11,7 +11,7 @@ status: fixed
 owner:
 review: release
 ---
-# R24: Error text of the charger counts as success
+# R024: Error text of the charger counts as success
 
 ## Risk description
 

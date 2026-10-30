@@ -1,5 +1,5 @@
 ---
-id: R26
+id: R026
 date: 2026-10-29
 category: ARCH
 probability: 3
@@ -11,7 +11,7 @@ status: open
 owner:
 review: release
 ---
-# R26: Rejected value stays in the display
+# R026: Rejected value stays in the display
 
 ## Risk description
 

@@ -126,7 +126,7 @@ Source: GitHub repository [`goecharger/go-eCharger-API-v2`](https://github.com/g
 | `gridapi-en.md` | "Coming soon", no content | No |
 | `Changelogs_Gemini/`, `Changelogs_PRO/` | Firmware changes 60.3 to 60.5 | Only as background |
 
-**Important:** A **WebSocket interface is not described in the official documentation.** The README of the integration calls it "undocumented". Login and message format are reverse engineered (observation of the app and of the Wattpilot project, see comments in `ws_connect` and `_ws_compute_hashed_password`). The preferred data path is therefore outside of what go-e guarantees (risk [R16](risks/R016-websocket-interface-is-not-officially-documented.md)).
+**Important:** A **WebSocket interface is not described in the official documentation.** The README of the integration calls it "undocumented". Login and message format are reverse engineered (observation of the app and of the Wattpilot project, see comments in `ws_connect` and `_ws_compute_hashed_password`). The preferred data path is therefore outside of what go-e guarantees (risk [R016](risks/R016-websocket-interface-is-not-officially-documented.md)).
 
 **What the official documentation defines for the integration**
 
@@ -142,7 +142,7 @@ Source: GitHub repository [`goecharger/go-eCharger-API-v2`](https://github.com/g
 | Cloud token | Visible in the app or readable via key `cak`; a new token is created by setting `cak` | The integration does not read `cak` but stores the token in the config entry |
 | Cloud rate limit | None, but do not query more than once per second | Integration: cloud interval at least 30 s |
 | Cloud `/api/status` | 403 offline or cloud API off; 404 no current data; 200 with data, header `last-modified`. Parameters `age` (default 30 s), `filter` | The integration evaluates only 200 and 400 and does not use `age` |
-| Cloud `/api/set` | 403, 404 (charger offline), 422 (all keys rejected), **202** according to the documentation (at least one key sent, no guarantee); according to the maintainer the real cloud answers 200 and the documentation is wrong here | In `_write_values_int` the integration treats only 200 and 500 as an answer (risk [R15](risks/R015-cloud-documentation-names-http-202-for-api-set.md), not a defect) |
+| Cloud `/api/set` | 403, 404 (charger offline), 422 (all keys rejected), **202** according to the documentation (at least one key sent, no guarantee); according to the maintainer the real cloud answers 200 and the documentation is wrong here | In `_write_values_int` the integration treats only 200 and 500 as an answer (risk [R015](risks/R015-cloud-documentation-names-http-202-for-api-set.md), not a defect) |
 
 ---
 
@@ -298,7 +298,7 @@ sequenceDiagram
 1. The entity calls `coordinator.async_write_key(key, value, entity)`.
 2. The coordinator checks the block after errors (2 minutes) and the restart state and otherwise raises `ValueError`.
 3. Bridge: WebSocket → send and return `{key: value}` at once (multiple write: `{}`); the confirmation of the device arrives later as `response`. HTTP → `GET /api/set`, result `{key: value}` or `{"err": …}`.
-4. `handle_write_result()` takes over the **requested** value into the data at once (also in WebSocket mode) and triggers an entity update. If the charger rejects the command, the value stays until the device reports the key again ([R26](risks/R026-rejected-value-stays-in-the-display.md)).
+4. `handle_write_result()` takes over the **requested** value into the data at once (also in WebSocket mode) and triggers an entity update. If the charger rejects the command, the value stays until the device reports the key again ([R026](risks/R026-rejected-value-stays-in-the-display.md)).
 
 ```mermaid
 sequenceDiagram
@@ -335,7 +335,7 @@ sequenceDiagram
 
 ### 6.6 Forced stop (`stop_charging`)
 
-`frc=1` (charging off), wait 300 s, `frc=0`. Both writes have required an acknowledgement since `d876dfd` (`require_ack=True`, see 6.8). A second request during the waiting time is rejected (`_stop_in_progress`). Since `9e7d62a` the flag is reset in a `finally`, so also after a write error ([R1](risks/R001-stop-charging-locks-the-charger-after-a-write-error.md), fixed). The earlier `TypeError` in WebSocket mode is also fixed.
+`frc=1` (charging off), wait 300 s, `frc=0`. Both writes have required an acknowledgement since `d876dfd` (`require_ack=True`, see 6.8). A second request during the waiting time is rejected (`_stop_in_progress`). Since `9e7d62a` the flag is reset in a `finally`, so also after a write error ([R001](risks/R001-stop-charging-locks-the-charger-after-a-write-error.md), fixed). The earlier `TypeError` in WebSocket mode is also fixed.
 
 ```mermaid
 sequenceDiagram
@@ -421,7 +421,7 @@ flowchart TD
     F -- no --> G["ServiceValidationError: No config_id provided BUT zero or multiple ... (ADR-0010)"]
 ```
 
-The registry contains chargers only ([R3](risks/R003-active-charger-counter-with-controller-entries.md), fixed). Controllers have no services.
+The registry contains chargers only ([R003](risks/R003-active-charger-counter-with-controller-entries.md), fixed). Controllers have no services.
 
 ### 6.10 Detection of the 16 A limit [Code, `read_versions`]
 
@@ -466,7 +466,7 @@ When the user selects a vehicle type (`ct`), the integration writes several keys
 | `psm` (phase switch mode) | 1 for Dacia Spring, otherwise 0 |
 | `mcpd` (minimum pause between charges) | 120000 ms for Cupra Born (alternative), Ford Explorer, Porsche Taycan and Škoda Enyaq, otherwise 0 |
 
-In WebSocket mode the bridge sends the keys one after another 0.75 seconds apart and then reports an empty result; the confirmation arrives through the status messages ([R27](risks/R027-false-error-after-a-successful-multiple-write.md), fixed). In HTTP mode everything goes in one request.
+In WebSocket mode the bridge sends the keys one after another 0.75 seconds apart and then reports an empty result; the confirmation arrives through the status messages ([R027](risks/R027-false-error-after-a-successful-multiple-write.md), fixed). In HTTP mode everything goes in one request.
 
 ### 6.13 Setup in the config flow [Code, `config_flow.py`]
 
@@ -491,7 +491,7 @@ flowchart TD
     M -- reconfigure --> O["Update entry and reload"]
 ```
 
-Note: `_abort_if_unique_id_configured()` is called, but no `unique_id` is set ([R6](risks/R006-no-unique-id-in-the-config-flow.md)). Creating the same device twice is therefore not prevented. Existing entries of an older version are migrated by `async_migrate_entry` when they are loaded (section 8.1).
+Note: `_abort_if_unique_id_configured()` is called, but no `unique_id` is set ([R006](risks/R006-no-unique-id-in-the-config-flow.md)). Creating the same device twice is therefore not prevented. Existing entries of an older version are migrated by `async_migrate_entry` when they are loaded (section 8.1).
 
 ---
 
@@ -534,7 +534,7 @@ flowchart LR
 
 ### 8.3 Device and firmware variants
 - Core/Phoenix/Pro versus classic: different temperature sensors (`tma` index 2 to 5 versus 0 and 1), some unsupported entities, Core-only `iso2ena`, different hash type (bcrypt).
-- 16 A limit: from cable limit (`cll.cableCurrentLimit`), adapter (`adi`), variant (`var == 11`) or option; sets `native_max_value` to 16 and writes values that are too high back at start. Since `98af3e0`: if `cll` has content but no `cableCurrentLimit`, **no** limit is set and `adi` is not consulted (assumption of the author: only Flex devices deliver this key; trigger was issue #176). Before that, Core devices without this key were limited to 16 A to be safe ([R29](risks/R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md)).
+- 16 A limit: from cable limit (`cll.cableCurrentLimit`), adapter (`adi`), variant (`var == 11`) or option; sets `native_max_value` to 16 and writes values that are too high back at start. Since `98af3e0`: if `cll` has content but no `cableCurrentLimit`, **no** limit is set and `adi` is not consulted (assumption of the author: only Flex devices deliver this key; trigger was issue #176). Before that, Core devices without this key were limited to 16 A to be safe ([R029](risks/R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md)).
 - `cards` as an object or as 30 single keys (firmware 60.0).
 
 ### 8.4 Error and log strategy
@@ -607,15 +607,15 @@ Quality
 | Q1 | Wallbox is gone from the WLAN for 10 minutes | No permanent load; automatic recovery | Error counter, 2 min block, reload after more than 5 errors [Code] |
 | Q2 | Firmware update changes keys (60.0) | Integration keeps running | Switches for `cards` and `cll` exist [Code] |
 | Q3 | PV automation fails | No unwanted grid charging | Lies in the blueprint; the integration checks inputs only for number and finiteness (`ppv`, `pakku`) |
-| Q4 | `stop_charging` in WebSocket mode | Charging off for 5 min, then free again | **Met** since `03b0fc3` and `9e7d62a`: `frc=1`, wait, `frc=0`, the flag is always reset ([R1](risks/R001-stop-charging-locks-the-charger-after-a-write-error.md)). Earlier `TypeError`. Not checked on a device. |
-| Q5 | Two chargers in one HA instance | Service acts on the chosen charger | **Met** with `configid`; without `configid` there is an error instead of a silent default ([R2](risks/R002-multi-charger-registry-incomplete.md) fixed, ADR-0010). Not checked on a device. |
+| Q4 | `stop_charging` in WebSocket mode | Charging off for 5 min, then free again | **Met** since `03b0fc3` and `9e7d62a`: `frc=1`, wait, `frc=0`, the flag is always reset ([R001](risks/R001-stop-charging-locks-the-charger-after-a-write-error.md)). Earlier `TypeError`. Not checked on a device. |
+| Q5 | Two chargers in one HA instance | Service acts on the chosen charger | **Met** with `configid`; without `configid` there is an error instead of a silent default ([R002](risks/R002-multi-charger-registry-incomplete.md) fixed, ADR-0010). Not checked on a device. |
 | Q6 | User without admin rights | No credentials readable | The token has not been in the device info since `8cb62b2`. Password and token remain in the config entry (HA property). |
 
 ---
 
 ## 11. Risks and technical debt
 
-The risks are in documents of their own: [risk register](risks/README.md), one document per risk (description, assessment, countermeasure, status, evidence) with an overview and a heat map. The open assumptions are listed there as well. References like [R15](risks/R015-cloud-documentation-names-http-202-for-api-set.md) in the text of this document link to the risk documents.
+The risks are in documents of their own: [risk register](risks/README.md), one document per risk (description, assessment, countermeasure, status, evidence) with an overview and a heat map. The open assumptions are listed there as well. References like [R015](risks/R015-cloud-documentation-names-http-202-for-api-set.md) in the text of this document link to the risk documents.
 
 ---
 

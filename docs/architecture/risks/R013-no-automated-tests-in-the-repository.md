@@ -1,5 +1,5 @@
 ---
-id: R13
+id: R013
 date: 2026-10-27
 category: QA
 probability: 4
@@ -11,7 +11,7 @@ status: superseded
 owner:
 review: release
 ---
-# R13: No automated tests in the repository
+# R013: No automated tests in the repository
 
 ## Risk description
 

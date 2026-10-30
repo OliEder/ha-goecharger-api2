@@ -1,5 +1,5 @@
 ---
-id: R27
+id: R027
 date: 2026-10-29
 category: ARCH
 probability: 5
@@ -11,7 +11,7 @@ status: fixed
 owner:
 review: release
 ---
-# R27: False `ERROR` after a successful multiple write
+# R027: False `ERROR` after a successful multiple write
 
 ## Risk description
 

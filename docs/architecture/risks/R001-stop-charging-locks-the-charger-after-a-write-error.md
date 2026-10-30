@@ -1,5 +1,5 @@
 ---
-id: R1
+id: R001
 date: 2026-10-27
 category: ARCH
 probability: 3
@@ -11,7 +11,7 @@ status: fixed
 owner:
 review: release
 ---
-# R1: stop_charging locks the charger after a write error
+# R001: stop_charging locks the charger after a write error
 
 ## Risk description
 

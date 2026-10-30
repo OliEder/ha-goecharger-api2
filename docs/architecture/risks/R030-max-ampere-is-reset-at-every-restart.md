@@ -1,5 +1,5 @@
 ---
-id: R30
+id: R030
 date: 2026-10-29
 category: ARCH
 probability: 3
@@ -11,7 +11,7 @@ status: open
 owner:
 review: release
 ---
-# R30: Max Ampere is reset at every restart
+# R030: Max Ampere is reset at every restart
 
 ## Risk description
 
@@ -48,7 +48,7 @@ Open
 
 *Evidence at the time of the finding (not today's state)*
 
-Statement of the maintainer, **not** replayed by us and no test for it. Whether it comes from the 16 A limiter ([R29](R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md)) or from taking over values at start is open.  
+Statement of the maintainer, **not** replayed by us and no test for it. Whether it comes from the 16 A limiter ([R029](R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md)) or from taking over values at start is open.  
 
 ## Note on the assessment
 
