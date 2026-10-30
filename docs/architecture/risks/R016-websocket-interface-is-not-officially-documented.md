@@ -21,7 +21,7 @@ If go-e changes firmware or cloud, then the reverse-engineered WebSocket login o
 
 **Finding.** The preferred data path (WebSocket) is not officially documented; login procedure and messages are reverse engineered.
 
-**Effect.** A firmware or cloud change by go-e can break it without warning. The README already mentions this for firmware 60.2 and 60.4.
+**Effect.** A firmware or cloud change by go-e can break it without warning. The README already mentions connection problems with firmware 60.2 and a race with the go-e app during the update from 60.3 to 60.4.
 
 ## Assessment
 

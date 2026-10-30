@@ -21,7 +21,7 @@ If the integration queries the cloud `/api/status` without the parameter `age`, 
 
 **Finding.** Cloud `/api/status` returns data up to 30 seconds old by default (`age=30`); the integration does not set `age`.
 
-**Effect.** In cloud polling values can be up to 30 seconds old without the integration noticing.
+**Effect.** In cloud polling values can be up to 30 seconds old without the integration noticing. A 404 caps the staleness at 30 s; the cloud WebSocket mode is not affected.
 
 ## Assessment
 

@@ -19,9 +19,9 @@ If someone gets access to the HA configuration or a backup, then password and cl
 
 ## Finding in detail
 
-**Finding.** Credentials are in plain text in the config entry (property of Home Assistant). Further details are deliberately not listed.
+**Finding.** Password and cloud token are stored unencrypted in `config_entry.data` (property of Home Assistant). The password field uses a password selector in the config flow. The integration offers no diagnostics download and sets no `extra_state_attributes` with credentials; since `5328e74` and `8cb62b2` the device identifiers no longer contain the token.
 
-**Effect.** –
+**Effect.** Whoever can read the HA configuration or a backup can read the credentials. Further observations were passed to the maintainer directly and are deliberately not listed.
 
 ## Assessment
 
@@ -48,7 +48,7 @@ Accepted (note)
 
 *Evidence at the time of the finding (not today's state)*
 
-–  
+[Code] `config_flow.py` and `__init__.py` read; no `diagnostics.py`, no credentials in `extra_state_attributes` (searched). [Docs] Home Assistant stores config entries in `.storage/core.config_entries` in plain text.
 
 ## Note on the assessment
 
