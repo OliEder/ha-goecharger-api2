@@ -1,13 +1,17 @@
+---
+id: R1
+date: 2026-10-27
+category: ARCH
+probability: 3
+impact: 4
+residual_probability: 1
+residual_impact: 4
+strategy: mitigate
+status: fixed
+owner:
+review: release
+---
 # R1: stop_charging sperrt den Charger nach einem Schreibfehler
-
-| Feld | Wert |
-|---|---|
-| ID | R1 |
-| Datum erfasst | 2026-10-27 |
-| Kategorie | Technologie / Architektur |
-| Status | Geschlossen (behoben) |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn der Dienst `stop_charging` im WebSocket-Modus aufgerufen wird und der erste
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 3 | 4 | 12 | mittel |
 | Restrisiko nach der Gegenmaßnahme | 1 | 4 | 4 | niedrig |
 
 Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,11 @@ Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wah
 
 ## Status und Verlauf
 
-Geschlossen (behoben) – `03b0fc3`, `9e7d62a`. Der `TypeError` im WebSocket-Modus ist weg (`write_value_to_key` liefert `{key: value}`), `_stop_in_progress` wird seit `9e7d62a` in einem `finally` zurückgesetzt. Beide Tests sind grün.
+<!-- risk:status -->
+Geschlossen (behoben)
+<!-- /risk:status -->
+
+`03b0fc3`, `9e7d62a`. Der `TypeError` im WebSocket-Modus ist weg (`write_value_to_key` liefert `{key: value}`), `_stop_in_progress` wird seit `9e7d62a` in einem `finally` zurückgesetzt. Beide Tests sind grün.
 
 ## Beleg
 

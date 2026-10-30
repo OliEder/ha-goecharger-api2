@@ -1,13 +1,17 @@
+---
+id: R7
+date: 2026-10-27
+category: DOC
+probability: 5
+impact: 1
+residual_probability: 1
+residual_impact: 1
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R7: README und Code nennen verschiedene Leseintervalle der Konfiguration
-
-| Feld | Wert |
-|---|---|
-| ID | R7 |
-| Datum erfasst | 2026-10-27 |
-| Kategorie | Dokumentation |
-| Status | Offen |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn Nutzer sich auf die Angabe „alle 24 Stunden“ im README verlassen, dann 
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 5 | 1 | 5 | niedrig |
 | Restrisiko nach der Gegenmaßnahme | 1 | 1 | 1 | niedrig |
 
 Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,9 @@ README oder Intervall anpassen. Vorschlag, nicht umgesetzt.
 
 ## Status und Verlauf
 
-Offen.
+<!-- risk:status -->
+Offen
+<!-- /risk:status -->
 
 ## Beleg
 

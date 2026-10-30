@@ -16,18 +16,35 @@ Score bands: 1 to 5 low, 6 to 12 medium, 15 and above high.
 
 ## Open risks (heat map)
 
+Current, open risks and notes only (colour by score W × A: 🟩 low, 🟨 medium, 🟥 high).
+
+<!-- risk:heatmap-current -->
 | W \ A | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|
-| **5** | R7 |   |   |   |   |
-| **4** |   |   |   |   |   |
-| **3** | R10 | R6, R12, R17, R26, R29 | R11, R14, R20, R23, R30 | R16 |   |
-| **2** | R18 | R9 | R8, R21 | R19 |   |
-| **1** | R22 |   |   |   |   |
+| **5** | 🟩 [R7](R007-readme-and-code-state-different-read-intervals-for-the.md) | 🟨  | 🟥  | 🟥  | 🟥  |
+| **4** | 🟩  | 🟨  | 🟨  | 🟥  | 🟥  |
+| **3** | 🟩 [R10](R010-check-and-write-to-16a-accesses-private-members.md) | 🟨 [R6](R006-no-unique-id-in-the-config-flow.md), [R12](R012-customfriendlynameentity-overrides-a-private-ha-method.md), [R17](R017-cloud-data-can-be-up-to-30-seconds-old.md), [R26](R026-rejected-value-stays-in-the-display.md), [R29](R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md) | 🟨 [R11](R011-bcrypt-missing-in-the-manifest-minimum-home-assistant-v.md), [R14](R014-entities-stay-available-on-partial-failure-and-show-old.md), [R20](R020-old-values-stay-after-a-failed-read.md), [R23](R023-blueprint-in-main-has-no-zero-value-branch-for-invalid.md), [R30](R030-max-ampere-is-reset-at-every-restart.md) | 🟨 [R16](R016-websocket-interface-is-not-officially-documented.md) | 🟥  |
+| **2** | 🟩 [R18](R018-negative-ppv-standby-cannot-be-set.md) | 🟩 [R9](R009-global-variable-scan-interval-is-overwritten-in-the-con.md) | 🟨 [R8](R008-credentials-are-stored-in-plain-text-in-the-config-entr.md), [R21](R021-migration-from-2-0-to-2-1-deletes-all-devices.md) | 🟨 [R19](R019-cloud-token-is-readable-via-the-key-cak-according-to-th.md) | 🟨  |
+| **1** | 🟩 [R22](R022-version-1-entries-leave-old-devices-in-the-registry.md) | 🟩  | 🟩  | 🟩  | 🟩  |
+<!-- /risk:heatmap-current -->
 
-(Open risks and notes only. Closed risks are listed in the table below.)
+## After the countermeasures (residual risk)
+
+The same open risks with their residual risk once the countermeasure is in place.
+
+<!-- risk:heatmap-residual -->
+| W \ A | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| **5** | 🟩  | 🟨  | 🟥  | 🟥  | 🟥  |
+| **4** | 🟩  | 🟨  | 🟨  | 🟥  | 🟥  |
+| **3** | 🟩  | 🟨  | 🟨  | 🟨  | 🟥  |
+| **2** | 🟩 [R18](R018-negative-ppv-standby-cannot-be-set.md) | 🟩 [R12](R012-customfriendlynameentity-overrides-a-private-ha-method.md), [R29](R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md) | 🟨 [R8](R008-credentials-are-stored-in-plain-text-in-the-config-entr.md), [R14](R014-entities-stay-available-on-partial-failure-and-show-old.md), [R16](R016-websocket-interface-is-not-officially-documented.md), [R19](R019-cloud-token-is-readable-via-the-key-cak-according-to-th.md), [R20](R020-old-values-stay-after-a-failed-read.md), [R23](R023-blueprint-in-main-has-no-zero-value-branch-for-invalid.md) | 🟨  | 🟨  |
+| **1** | 🟩 [R7](R007-readme-and-code-state-different-read-intervals-for-the.md), [R10](R010-check-and-write-to-16a-accesses-private-members.md), [R22](R022-version-1-entries-leave-old-devices-in-the-registry.md) | 🟩 [R6](R006-no-unique-id-in-the-config-flow.md), [R9](R009-global-variable-scan-interval-is-overwritten-in-the-con.md), [R17](R017-cloud-data-can-be-up-to-30-seconds-old.md), [R26](R026-rejected-value-stays-in-the-display.md) | 🟩 [R11](R011-bcrypt-missing-in-the-manifest-minimum-home-assistant-v.md), [R21](R021-migration-from-2-0-to-2-1-deletes-all-devices.md), [R30](R030-max-ampere-is-reset-at-every-restart.md) | 🟩  | 🟩  |
+<!-- /risk:heatmap-residual -->
 
 ## All risks
 
+<!-- risk:table -->
 | ID | Title | Category | W | A | Score | Strategy | Status |
 |---|---|---|---|---|---|---|---|
 | [R1](R001-stop-charging-locks-the-charger-after-a-write-error.md) | stop_charging locks the charger after a write error | Technology / architecture | 3 | 4 | 12 (medium) | Mitigate | Closed (fixed) |
@@ -59,6 +76,7 @@ Score bands: 1 to 5 low, 6 to 12 medium, 15 and above high.
 | [R27](R027-false-error-after-a-successful-multiple-write.md) | False `ERROR` after a successful multiple write | Technology / architecture | 5 | 1 | 5 (low) | Mitigate | Closed (fixed) |
 | [R29](R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md) | Without `cableCurrentLimit` there is no limit to 16 A any more | Integration / third party | 3 | 2 | 6 (medium) | Mitigate | Open |
 | [R30](R030-max-ampere-is-reset-at-every-restart.md) | Max Ampere is reset at every restart | Technology / architecture | 3 | 3 | 9 (medium) | Mitigate | Open |
+<!-- /risk:table -->
 
 ## Notes
 

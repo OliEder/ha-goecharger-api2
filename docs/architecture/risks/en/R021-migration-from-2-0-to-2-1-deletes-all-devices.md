@@ -1,13 +1,17 @@
+---
+id: R21
+date: 2026-10-29
+category: ARCH
+probability: 2
+impact: 3
+residual_probability: 1
+residual_impact: 3
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R21: Migration from 2.0 to 2.1 deletes all devices
-
-| Field | Value |
-|---|---|
-| ID | R21 |
-| Date recorded | 2026-10-29 |
-| Category | Technology / architecture |
-| Status | Open |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -21,12 +25,14 @@ If an entry of version 2.0 is migrated, then `async_migrate_entry` deletes all d
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 2 | 3 | 6 | medium |
 | Residual risk after the countermeasure | 1 | 3 | 3 | low |
 
 Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -34,7 +40,9 @@ The migration should not delete devices. The case now concerns only entries stil
 
 ## Status and history
 
-Open.
+<!-- risk:status -->
+Open
+<!-- /risk:status -->
 
 ## Evidence
 

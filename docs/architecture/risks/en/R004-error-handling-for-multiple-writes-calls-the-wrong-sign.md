@@ -1,13 +1,17 @@
+---
+id: R4
+date: 2026-10-27
+category: ARCH
+probability: 2
+impact: 2
+residual_probability: 1
+residual_impact: 2
+strategy: mitigate
+status: fixed
+owner:
+review: release
+---
 # R4: Error handling for multiple writes calls the wrong signature
-
-| Field | Value |
-|---|---|
-| ID | R4 |
-| Date recorded | 2026-10-27 |
-| Category | Technology / architecture |
-| Status | Closed (fixed) |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -21,12 +25,14 @@ If the connection drops during a multiple write (vehicle selection `ct`), then `
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 2 | 2 | 4 | low |
 | Residual risk after the countermeasure | 1 | 2 | 2 | low |
 
 Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -34,7 +40,11 @@ The call now has two arguments (`03b0fc3`).
 
 ## Status and history
 
-Closed (fixed) – `03b0fc3`. The call now has two arguments.
+<!-- risk:status -->
+Closed (fixed)
+<!-- /risk:status -->
+
+`03b0fc3`. The call now has two arguments.
 
 ## Evidence
 

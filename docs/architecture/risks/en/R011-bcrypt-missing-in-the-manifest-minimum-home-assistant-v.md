@@ -1,13 +1,17 @@
+---
+id: R11
+date: 2026-10-27
+category: INT
+probability: 3
+impact: 3
+residual_probability: 1
+residual_impact: 3
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R11: `bcrypt` missing in the manifest, minimum Home Assistant version unclear
-
-| Field | Value |
-|---|---|
-| ID | R11 |
-| Date recorded | 2026-10-27 |
-| Category | Integration / third party |
-| Status | Open |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -21,12 +25,14 @@ If the integration is installed on an older Home Assistant or without an availab
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 3 | 3 | 9 | medium |
 | Residual risk after the countermeasure | 1 | 3 | 3 | low |
 
 Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -34,7 +40,9 @@ Add `bcrypt` to the manifest, check the minimum version and adjust `hacs.json`. 
 
 ## Status and history
 
-Open.
+<!-- risk:status -->
+Open
+<!-- /risk:status -->
 
 ## Evidence
 

@@ -1,13 +1,17 @@
+---
+id: R23
+date: 2026-10-29
+category: INT
+probability: 3
+impact: 3
+residual_probability: 2
+residual_impact: 3
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R23: Blueprint in `main` hat bei ungültigen Messwerten keinen Nullwert-Zweig
-
-| Feld | Wert |
-|---|---|
-| ID | R23 |
-| Datum erfasst | 2026-10-29 |
-| Kategorie | Integration / Drittanbieter |
-| Status | Offen |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn ein Sensor des PV-Blueprints tagsüber ausfällt, dann überspringt das Blu
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 3 | 3 | 9 | mittel |
 | Restrisiko nach der Gegenmaßnahme | 2 | 3 | 6 | mittel |
 
 Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,9 @@ Das Verhalten ist im Blueprint als bewusste Entscheidung beschrieben. Eine Optio
 
 ## Status und Verlauf
 
-Offen.
+<!-- risk:status -->
+Offen
+<!-- /risk:status -->
 
 ## Beleg
 

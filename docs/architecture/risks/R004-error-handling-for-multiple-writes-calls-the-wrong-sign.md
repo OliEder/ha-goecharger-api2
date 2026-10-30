@@ -1,13 +1,17 @@
+---
+id: R4
+date: 2026-10-27
+category: ARCH
+probability: 2
+impact: 2
+residual_probability: 1
+residual_impact: 2
+strategy: mitigate
+status: fixed
+owner:
+review: release
+---
 # R4: Fehlerbehandlung beim Mehrfachschreiben ruft falsche Signatur auf
-
-| Feld | Wert |
-|---|---|
-| ID | R4 |
-| Datum erfasst | 2026-10-27 |
-| Kategorie | Technologie / Architektur |
-| Status | Geschlossen (behoben) |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn die Verbindung während eines Mehrfachschreibens (Fahrzeugauswahl `ct`) abb
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 2 | 2 | 4 | niedrig |
 | Restrisiko nach der Gegenmaßnahme | 1 | 2 | 2 | niedrig |
 
 Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,11 @@ Der Aufruf hat jetzt zwei Argumente (`03b0fc3`).
 
 ## Status und Verlauf
 
-Geschlossen (behoben) – `03b0fc3`. Aufruf hat jetzt zwei Argumente.
+<!-- risk:status -->
+Geschlossen (behoben)
+<!-- /risk:status -->
+
+`03b0fc3`. Aufruf hat jetzt zwei Argumente.
 
 ## Beleg
 

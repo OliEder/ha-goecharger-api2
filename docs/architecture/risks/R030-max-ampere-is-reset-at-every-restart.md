@@ -1,13 +1,17 @@
+---
+id: R30
+date: 2026-10-29
+category: ARCH
+probability: 3
+impact: 3
+residual_probability: 1
+residual_impact: 3
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R30: Max Ampere wird bei jedem Neustart zurückgesetzt
-
-| Feld | Wert |
-|---|---|
-| ID | R30 |
-| Datum erfasst | 2026-10-29 |
-| Kategorie | Technologie / Architektur |
-| Status | Offen |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn Home Assistant oder die Integration neu startet, dann setzt die Integration
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 3 | 3 | 9 | mittel |
 | Restrisiko nach der Gegenmaßnahme | 1 | 3 | 3 | niedrig |
 
 Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,9 @@ Das Verhalten nachstellen und mit einem Test festhalten; dann die Ursache kläre
 
 ## Status und Verlauf
 
-Offen.
+<!-- risk:status -->
+Offen
+<!-- /risk:status -->
 
 ## Beleg
 

@@ -1,13 +1,17 @@
+---
+id: R18
+date: 2026-10-29
+category: INT
+probability: 2
+impact: 1
+residual_probability: 2
+residual_impact: 1
+strategy: accept
+status: open
+owner:
+review: release
+---
 # R18: `ppv` negativ (Standby) lässt sich nicht setzen
-
-| Feld | Wert |
-|---|---|
-| ID | R18 |
-| Datum erfasst | 2026-10-29 |
-| Kategorie | Integration / Drittanbieter |
-| Status | Offen |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn ein Nutzer den Standby-Zustand der PV-Anlage über `set_pv_data` melden wil
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 2 | 1 | 2 | niedrig |
 | Restrisiko nach der Gegenmaßnahme | 2 | 1 | 2 | niedrig |
 
 Risikostrategie: **Akzeptieren**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,9 @@ Akzeptiert, bis der Maintainer klärt, ob das gewollt ist.
 
 ## Status und Verlauf
 
-Offen.
+<!-- risk:status -->
+Offen
+<!-- /risk:status -->
 
 ## Beleg
 

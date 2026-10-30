@@ -1,13 +1,17 @@
+---
+id: R10
+date: 2026-10-27
+category: MAINT
+probability: 3
+impact: 1
+residual_probability: 1
+residual_impact: 1
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R10: `check_and_write_to_16a` greift auf Privates zu
-
-| Feld | Wert |
-|---|---|
-| ID | R10 |
-| Datum erfasst | 2026-10-27 |
-| Kategorie | Wartbarkeit |
-| Status | Offen |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn die Bridge intern umgebaut wird, dann bricht `check_and_write_to_16a`, weil
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 3 | 1 | 3 | niedrig |
 | Restrisiko nach der Gegenmaßnahme | 1 | 1 | 1 | niedrig |
 
 Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,9 @@ Die Funktion in den Koordinator verlegen und eine öffentliche Bridge-Methode nu
 
 ## Status und Verlauf
 
-Offen.
+<!-- risk:status -->
+Offen
+<!-- /risk:status -->
 
 ## Beleg
 

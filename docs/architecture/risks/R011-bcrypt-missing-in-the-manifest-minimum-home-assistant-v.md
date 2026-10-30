@@ -1,13 +1,17 @@
+---
+id: R11
+date: 2026-10-27
+category: INT
+probability: 3
+impact: 3
+residual_probability: 1
+residual_impact: 3
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R11: `bcrypt` fehlt im Manifest, Mindestversion von Home Assistant unklar
-
-| Feld | Wert |
-|---|---|
-| ID | R11 |
-| Datum erfasst | 2026-10-27 |
-| Kategorie | Integration / Drittanbieter |
-| Status | Offen |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn die Integration auf einem älteren Home Assistant oder ohne vorhandenes `bc
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 3 | 3 | 9 | mittel |
 | Restrisiko nach der Gegenmaßnahme | 1 | 3 | 3 | niedrig |
 
 Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,9 @@ Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wah
 
 ## Status und Verlauf
 
-Offen.
+<!-- risk:status -->
+Offen
+<!-- /risk:status -->
 
 ## Beleg
 

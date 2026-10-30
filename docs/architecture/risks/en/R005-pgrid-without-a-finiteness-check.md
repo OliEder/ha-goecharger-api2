@@ -1,13 +1,17 @@
+---
+id: R5
+date: 2026-10-27
+category: ARCH
+probability: 1
+impact: 3
+residual_probability: 1
+residual_impact: 1
+strategy: mitigate
+status: fixed
+owner:
+review: release
+---
 # R5: `pgrid` without a finiteness check
-
-| Field | Value |
-|---|---|
-| ID | R5 |
-| Date recorded | 2026-10-27 |
-| Category | Technology / architecture |
-| Status | Closed (fixed) |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -21,12 +25,14 @@ If `set_pv_data` is called with `NaN` or `inf` as `pgrid`, then the value is sen
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 1 | 3 | 3 | low |
 | Residual risk after the countermeasure | 1 | 1 | 1 | low |
 
 Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -34,7 +40,11 @@ Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 
 
 ## Status and history
 
-Closed (fixed) – `eb5da46`. Since `eb5da46` `set_pv_data` also checks `pgrid` for finiteness.
+<!-- risk:status -->
+Closed (fixed)
+<!-- /risk:status -->
+
+`eb5da46`. Since `eb5da46` `set_pv_data` also checks `pgrid` for finiteness.
 
 ## Evidence
 

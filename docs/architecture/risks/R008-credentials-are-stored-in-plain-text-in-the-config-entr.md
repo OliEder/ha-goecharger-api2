@@ -1,13 +1,17 @@
+---
+id: R8
+date: 2026-10-27
+category: SEC
+probability: 2
+impact: 3
+residual_probability: 2
+residual_impact: 3
+strategy: accept
+status: note
+owner:
+review: release
+---
 # R8: Zugangsdaten liegen im Klartext im Config-Entry
-
-| Feld | Wert |
-|---|---|
-| ID | R8 |
-| Datum erfasst | 2026-10-27 |
-| Kategorie | Security & Datenschutz |
-| Status | Akzeptiert (Hinweis) |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn jemand Zugriff auf die HA-Konfiguration oder ein Backup erhält, dann sind 
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 2 | 3 | 6 | mittel |
 | Restrisiko nach der Gegenmaßnahme | 2 | 3 | 6 | mittel |
 
 Risikostrategie: **Akzeptieren**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,9 @@ Home Assistant stellt keinen Tresor bereit; das Risiko wird akzeptiert und liegt
 
 ## Status und Verlauf
 
-Akzeptiert (Hinweis).
+<!-- risk:status -->
+Akzeptiert (Hinweis)
+<!-- /risk:status -->
 
 ## Beleg
 

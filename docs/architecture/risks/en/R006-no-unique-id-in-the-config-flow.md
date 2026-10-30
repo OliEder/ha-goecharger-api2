@@ -1,13 +1,17 @@
+---
+id: R6
+date: 2026-10-27
+category: ARCH
+probability: 3
+impact: 2
+residual_probability: 1
+residual_impact: 2
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R6: No `unique_id` in the config flow
-
-| Field | Value |
-|---|---|
-| ID | R6 |
-| Date recorded | 2026-10-27 |
-| Category | Technology / architecture |
-| Status | Open |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -21,12 +25,14 @@ If a user sets up the same charger a second time, then `_abort_if_unique_id_conf
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 3 | 2 | 6 | medium |
 | Residual risk after the countermeasure | 1 | 2 | 2 | low |
 
 Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -34,7 +40,9 @@ Call `async_set_unique_id` with the serial number in the config flow. Proposal, 
 
 ## Status and history
 
-Open.
+<!-- risk:status -->
+Open
+<!-- /risk:status -->
 
 ## Evidence
 

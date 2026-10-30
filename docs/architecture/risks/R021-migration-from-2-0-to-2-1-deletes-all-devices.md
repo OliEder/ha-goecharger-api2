@@ -1,13 +1,17 @@
+---
+id: R21
+date: 2026-10-29
+category: ARCH
+probability: 2
+impact: 3
+residual_probability: 1
+residual_impact: 3
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R21: Migration von 2.0 auf 2.1 löscht alle Geräte
-
-| Feld | Wert |
-|---|---|
-| ID | R21 |
-| Datum erfasst | 2026-10-29 |
-| Kategorie | Technologie / Architektur |
-| Status | Offen |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn ein Entry der Version 2.0 migriert wird, dann löscht `async_migrate_entry`
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 2 | 3 | 6 | mittel |
 | Restrisiko nach der Gegenmaßnahme | 1 | 3 | 3 | niedrig |
 
 Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,9 @@ Die Migration soll Geräte nicht löschen. Der Fall betrifft nur noch Entries, d
 
 ## Status und Verlauf
 
-Offen.
+<!-- risk:status -->
+Offen
+<!-- /risk:status -->
 
 ## Beleg
 

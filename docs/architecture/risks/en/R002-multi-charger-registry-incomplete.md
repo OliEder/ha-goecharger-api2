@@ -1,13 +1,17 @@
+---
+id: R2
+date: 2026-10-27
+category: ARCH
+probability: 3
+impact: 3
+residual_probability: 1
+residual_impact: 3
+strategy: mitigate
+status: fixed
+owner:
+review: release
+---
 # R2: Multi-charger registry incomplete
-
-| Field | Value |
-|---|---|
-| ID | R2 |
-| Date recorded | 2026-10-27 |
-| Category | Technology / architecture |
-| Status | Closed (fixed) |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -23,12 +27,14 @@ If several go-eChargers are set up in one HA instance and an entry is reloaded, 
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 3 | 3 | 9 | medium |
 | Residual risk after the countermeasure | 1 | 3 | 3 | low |
 
 Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -36,7 +42,11 @@ The registry is maintained for every charger, a reload replaces the coordinator 
 
 ## Status and history
 
-Closed (fixed) – `03b0fc3`, ADR-0010 (`4702213`). The registry is maintained for every charger, reloading replaces the old coordinator. The changing default charger has been decided through ADR-0010 since `4702213` (no default with several chargers).
+<!-- risk:status -->
+Closed (fixed)
+<!-- /risk:status -->
+
+`03b0fc3`, ADR-0010 (`4702213`). The registry is maintained for every charger, reloading replaces the old coordinator. The changing default charger has been decided through ADR-0010 since `4702213` (no default with several chargers).
 
 ## Evidence
 

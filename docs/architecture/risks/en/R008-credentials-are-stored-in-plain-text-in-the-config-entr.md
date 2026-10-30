@@ -1,13 +1,17 @@
+---
+id: R8
+date: 2026-10-27
+category: SEC
+probability: 2
+impact: 3
+residual_probability: 2
+residual_impact: 3
+strategy: accept
+status: note
+owner:
+review: release
+---
 # R8: Credentials are stored in plain text in the config entry
-
-| Field | Value |
-|---|---|
-| ID | R8 |
-| Date recorded | 2026-10-27 |
-| Category | Security & privacy |
-| Status | Accepted (note) |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -21,12 +25,14 @@ If someone gets access to the HA configuration or a backup, then password and cl
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 2 | 3 | 6 | medium |
 | Residual risk after the countermeasure | 2 | 3 | 6 | medium |
 
 Risk strategy: **Accept**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -34,7 +40,9 @@ Home Assistant provides no vault; the risk is accepted and lies with Home Assist
 
 ## Status and history
 
-Accepted (note).
+<!-- risk:status -->
+Accepted (note)
+<!-- /risk:status -->
 
 ## Evidence
 

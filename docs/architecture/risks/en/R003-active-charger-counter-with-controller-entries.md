@@ -1,13 +1,17 @@
+---
+id: R3
+date: 2026-10-27
+category: ARCH
+probability: 2
+impact: 3
+residual_probability: 1
+residual_impact: 3
+strategy: mitigate
+status: fixed
+owner:
+review: release
+---
 # R3: Active charger counter with controller entries
-
-| Field | Value |
-|---|---|
-| ID | R3 |
-| Date recorded | 2026-10-27 |
-| Category | Technology / architecture |
-| Status | Closed (fixed) |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -21,12 +25,14 @@ If a controller entry is unloaded, then the code lowers the counter `ACTIVE_CHAR
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 2 | 3 | 6 | medium |
 | Residual risk after the countermeasure | 1 | 3 | 3 | low |
 
 Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -34,7 +40,11 @@ Counter and services are adjusted for chargers only (`eb5da46`).
 
 ## Status and history
 
-Closed (fixed) – `eb5da46`. Since `eb5da46` counter and services are adjusted for chargers only.
+<!-- risk:status -->
+Closed (fixed)
+<!-- /risk:status -->
+
+`eb5da46`. Since `eb5da46` counter and services are adjusted for chargers only.
 
 ## Evidence
 

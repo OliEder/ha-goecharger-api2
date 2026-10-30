@@ -1,13 +1,17 @@
+---
+id: R24
+date: 2026-10-29
+category: ARCH
+probability: 2
+impact: 3
+residual_probability: 1
+residual_impact: 3
+strategy: mitigate
+status: fixed
+owner:
+review: release
+---
 # R24: Fehlertext des Chargers gilt als Erfolg
-
-| Feld | Wert |
-|---|---|
-| ID | R24 |
-| Datum erfasst | 2026-10-29 |
-| Kategorie | Technologie / Architektur |
-| Status | Geschlossen (behoben) |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn der Charger auf einen Schreibbefehl mit einem Fehlertext statt `true` antwo
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 2 | 3 | 6 | mittel |
 | Restrisiko nach der Gegenmaßnahme | 1 | 3 | 3 | niedrig |
 
 Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,11 @@ Der Test ist auf `main` bei `9e7d62a` grün; welche Änderung das bewirkt hat, w
 
 ## Status und Verlauf
 
-Geschlossen (behoben) – (Commit nicht nachverfolgt). Der Test `test_write_rejected_by_charger_returns_err` ist auf `9e7d62a` grün; wann genau die Antwort mit Fehlertext ausgewertet wird, habe ich nicht nachvollzogen.
+<!-- risk:status -->
+Geschlossen (behoben)
+<!-- /risk:status -->
+
+(Commit nicht nachverfolgt). Der Test `test_write_rejected_by_charger_returns_err` ist auf `9e7d62a` grün; wann genau die Antwort mit Fehlertext ausgewertet wird, habe ich nicht nachvollzogen.
 
 ## Beleg
 

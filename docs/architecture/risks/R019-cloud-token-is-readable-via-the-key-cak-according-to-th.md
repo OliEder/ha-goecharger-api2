@@ -1,13 +1,17 @@
+---
+id: R19
+date: 2026-10-29
+category: SEC
+probability: 2
+impact: 4
+residual_probability: 2
+residual_impact: 3
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R19: Cloud-Token ist laut Doku über den Schlüssel `cak` lesbar
-
-| Feld | Wert |
-|---|---|
-| ID | R19 |
-| Datum erfasst | 2026-10-29 |
-| Kategorie | Security & Datenschutz |
-| Status | Offen |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn der Schlüssel `cak` lokal ohne Anmeldung lesbar ist, dann kann jeder im Ne
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 2 | 4 | 8 | mittel |
 | Restrisiko nach der Gegenmaßnahme | 2 | 3 | 6 | mittel |
 
 Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,9 @@ Prüfen, ob `cak` lokal ohne Anmeldung lesbar ist (nur lesend, am Gerät); je na
 
 ## Status und Verlauf
 
-Offen.
+<!-- risk:status -->
+Offen
+<!-- /risk:status -->
 
 ## Beleg
 

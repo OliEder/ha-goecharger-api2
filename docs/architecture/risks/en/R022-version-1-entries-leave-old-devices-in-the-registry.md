@@ -1,13 +1,17 @@
+---
+id: R22
+date: 2026-10-29
+category: MAINT
+probability: 1
+impact: 1
+residual_probability: 1
+residual_impact: 1
+strategy: accept
+status: open
+owner:
+review: release
+---
 # R22: Version 1 entries leave old devices in the registry
-
-| Field | Value |
-|---|---|
-| ID | R22 |
-| Date recorded | 2026-10-29 |
-| Category | Maintainability |
-| Status | Open |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -21,12 +25,14 @@ If a version 1 entry is migrated directly to 2.1, then the migration skips delet
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 1 | 1 | 1 | low |
 | Residual risk after the countermeasure | 1 | 1 | 1 | low |
 
 Risk strategy: **Accept**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -34,7 +40,9 @@ Accepted: very rare edge case.
 
 ## Status and history
 
-Open.
+<!-- risk:status -->
+Open
+<!-- /risk:status -->
 
 ## Evidence
 

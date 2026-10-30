@@ -1,13 +1,17 @@
+---
+id: R24
+date: 2026-10-29
+category: ARCH
+probability: 2
+impact: 3
+residual_probability: 1
+residual_impact: 3
+strategy: mitigate
+status: fixed
+owner:
+review: release
+---
 # R24: Error text of the charger counts as success
-
-| Field | Value |
-|---|---|
-| ID | R24 |
-| Date recorded | 2026-10-29 |
-| Category | Technology / architecture |
-| Status | Closed (fixed) |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -21,12 +25,14 @@ If the charger answers a write command with an error text instead of `true`, the
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 2 | 3 | 6 | medium |
 | Residual risk after the countermeasure | 1 | 3 | 3 | low |
 
 Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -34,7 +40,11 @@ The test is green on `main` at `9e7d62a`; which change caused this was not trace
 
 ## Status and history
 
-Closed (fixed) – (commit not traced). The test `test_write_rejected_by_charger_returns_err` is green on `9e7d62a`; I did not trace when exactly the answer with an error text is evaluated.
+<!-- risk:status -->
+Closed (fixed)
+<!-- /risk:status -->
+
+(commit not traced). The test `test_write_rejected_by_charger_returns_err` is green on `9e7d62a`; I did not trace when exactly the answer with an error text is evaluated.
 
 ## Evidence
 

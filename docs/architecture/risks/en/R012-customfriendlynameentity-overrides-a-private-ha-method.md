@@ -1,13 +1,17 @@
+---
+id: R12
+date: 2026-10-27
+category: INT
+probability: 3
+impact: 2
+residual_probability: 2
+residual_impact: 2
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R12: `CustomFriendlyNameEntity` overrides a private HA method
-
-| Field | Value |
-|---|---|
-| ID | R12 |
-| Date recorded | 2026-10-27 |
-| Category | Integration / third party |
-| Status | Open |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -21,12 +25,14 @@ If Home Assistant changes the private method `_Entity__async_calculate_state`, t
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 3 | 2 | 6 | medium |
 | Residual risk after the countermeasure | 2 | 2 | 4 | low |
 
 Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -34,7 +40,9 @@ Run the tests against new Home Assistant versions to see breaks early (the versi
 
 ## Status and history
 
-Open.
+<!-- risk:status -->
+Open
+<!-- /risk:status -->
 
 ## Evidence
 

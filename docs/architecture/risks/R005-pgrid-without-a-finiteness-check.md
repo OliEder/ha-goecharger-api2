@@ -1,13 +1,17 @@
+---
+id: R5
+date: 2026-10-27
+category: ARCH
+probability: 1
+impact: 3
+residual_probability: 1
+residual_impact: 1
+strategy: mitigate
+status: fixed
+owner:
+review: release
+---
 # R5: `pgrid` ohne Endlichkeitsprüfung
-
-| Feld | Wert |
-|---|---|
-| ID | R5 |
-| Datum erfasst | 2026-10-27 |
-| Kategorie | Technologie / Architektur |
-| Status | Geschlossen (behoben) |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn `set_pv_data` mit `NaN` oder `inf` als `pgrid` aufgerufen wird, dann wird d
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 1 | 3 | 3 | niedrig |
 | Restrisiko nach der Gegenmaßnahme | 1 | 1 | 1 | niedrig |
 
 Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,11 @@ Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wah
 
 ## Status und Verlauf
 
-Geschlossen (behoben) – `eb5da46`. Seit `eb5da46` prüft `set_pv_data` auch `pgrid` auf Endlichkeit.
+<!-- risk:status -->
+Geschlossen (behoben)
+<!-- /risk:status -->
+
+`eb5da46`. Seit `eb5da46` prüft `set_pv_data` auch `pgrid` auf Endlichkeit.
 
 ## Beleg
 

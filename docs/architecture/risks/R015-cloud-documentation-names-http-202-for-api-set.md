@@ -1,13 +1,17 @@
+---
+id: R15
+date: 2026-10-29
+category: INT
+probability: 2
+impact: 3
+residual_probability: 1
+residual_impact: 1
+strategy: accept
+status: settled
+owner:
+review: release
+---
 # R15: Cloud-Dokumentation nennt für `/api/set` HTTP 202
-
-| Feld | Wert |
-|---|---|
-| ID | R15 |
-| Datum erfasst | 2026-10-29 |
-| Kategorie | Integration / Drittanbieter |
-| Status | Geschlossen (geklärt, kein Fehler) |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn die Cloud auf `/api/set` mit 202 statt 200 antwortete, dann würde der Code
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 2 | 3 | 6 | mittel |
 | Restrisiko nach der Gegenmaßnahme | 1 | 1 | 1 | niedrig |
 
 Risikostrategie: **Akzeptieren**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,11 @@ Keine. Der Maintainer hat am 2026-10-29 im Issue #172 bestätigt, dass die echte
 
 ## Status und Verlauf
 
-Geschlossen (geklärt, kein Fehler) – Maintainer, Issue #172.
+<!-- risk:status -->
+Geschlossen (geklärt, kein Fehler)
+<!-- /risk:status -->
+
+Maintainer, Issue #172.
 
 ## Beleg
 

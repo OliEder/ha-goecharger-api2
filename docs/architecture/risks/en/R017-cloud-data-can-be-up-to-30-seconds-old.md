@@ -1,13 +1,17 @@
+---
+id: R17
+date: 2026-10-29
+category: INT
+probability: 3
+impact: 2
+residual_probability: 1
+residual_impact: 2
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R17: Cloud data can be up to 30 seconds old
-
-| Field | Value |
-|---|---|
-| ID | R17 |
-| Date recorded | 2026-10-29 |
-| Category | Integration / third party |
-| Status | Open |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -21,12 +25,14 @@ If the integration queries the cloud `/api/status` without the parameter `age`, 
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 3 | 2 | 6 | medium |
 | Residual risk after the countermeasure | 1 | 2 | 2 | low |
 
 Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -34,7 +40,9 @@ Set `age` or evaluate the header `last-modified`. Proposal, not implemented.
 
 ## Status and history
 
-Open.
+<!-- risk:status -->
+Open
+<!-- /risk:status -->
 
 ## Evidence
 

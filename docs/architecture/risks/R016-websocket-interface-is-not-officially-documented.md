@@ -1,13 +1,17 @@
+---
+id: R16
+date: 2026-10-29
+category: INT
+probability: 3
+impact: 4
+residual_probability: 2
+residual_impact: 3
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R16: WebSocket-Schnittstelle ist nicht offiziell dokumentiert
-
-| Feld | Wert |
-|---|---|
-| ID | R16 |
-| Datum erfasst | 2026-10-29 |
-| Kategorie | Integration / Drittanbieter |
-| Status | Offen |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn go-e Firmware oder Cloud ändert, dann bricht die nachgebaute WebSocket-Anm
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 3 | 4 | 12 | mittel |
 | Restrisiko nach der Gegenmaßnahme | 2 | 3 | 6 | mittel |
 
 Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,9 @@ Firmware-Änderungen von go-e beobachten, die Anmeldung mit Tests absichern (die
 
 ## Status und Verlauf
 
-Offen.
+<!-- risk:status -->
+Offen
+<!-- /risk:status -->
 
 ## Beleg
 

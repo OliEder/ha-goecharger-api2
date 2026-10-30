@@ -1,13 +1,17 @@
+---
+id: R26
+date: 2026-10-29
+category: ARCH
+probability: 3
+impact: 2
+residual_probability: 1
+residual_impact: 2
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R26: Abgelehnter Wert bleibt in der Anzeige stehen
-
-| Feld | Wert |
-|---|---|
-| ID | R26 |
-| Datum erfasst | 2026-10-29 |
-| Kategorie | Technologie / Architektur |
-| Status | Offen |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn der Charger einen Schreibbefehl im WebSocket-Modus ablehnt, dann hat die In
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 3 | 2 | 6 | mittel |
 | Restrisiko nach der Gegenmaßnahme | 1 | 2 | 2 | niedrig |
 
 Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,9 @@ Den Wert erst nach der Bestätigung übernehmen oder bei Ablehnung zurücksetzen
 
 ## Status und Verlauf
 
-Offen.
+<!-- risk:status -->
+Offen
+<!-- /risk:status -->
 
 ## Beleg
 

@@ -1,13 +1,17 @@
+---
+id: R6
+date: 2026-10-27
+category: ARCH
+probability: 3
+impact: 2
+residual_probability: 1
+residual_impact: 2
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R6: Keine `unique_id` im Config-Flow
-
-| Feld | Wert |
-|---|---|
-| ID | R6 |
-| Datum erfasst | 2026-10-27 |
-| Kategorie | Technologie / Architektur |
-| Status | Offen |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn ein Nutzer denselben Charger ein zweites Mal einrichtet, dann greift `_abor
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 3 | 2 | 6 | mittel |
 | Restrisiko nach der Gegenmaßnahme | 1 | 2 | 2 | niedrig |
 
 Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,9 @@ Im Config-Flow `async_set_unique_id` mit der Seriennummer aufrufen. Vorschlag, n
 
 ## Status und Verlauf
 
-Offen.
+<!-- risk:status -->
+Offen
+<!-- /risk:status -->
 
 ## Beleg
 

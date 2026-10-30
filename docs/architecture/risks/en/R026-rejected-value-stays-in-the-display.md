@@ -1,13 +1,17 @@
+---
+id: R26
+date: 2026-10-29
+category: ARCH
+probability: 3
+impact: 2
+residual_probability: 1
+residual_impact: 2
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R26: Rejected value stays in the display
-
-| Field | Value |
-|---|---|
-| ID | R26 |
-| Date recorded | 2026-10-29 |
-| Category | Technology / architecture |
-| Status | Open |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -21,12 +25,14 @@ If the charger rejects a write command in WebSocket mode, then the integration h
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 3 | 2 | 6 | medium |
 | Residual risk after the countermeasure | 1 | 2 | 2 | low |
 
 Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -34,7 +40,9 @@ Take over the value only after the acknowledgement or reset it on rejection; `re
 
 ## Status and history
 
-Open.
+<!-- risk:status -->
+Open
+<!-- /risk:status -->
 
 ## Evidence
 

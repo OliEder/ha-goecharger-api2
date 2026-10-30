@@ -1,13 +1,17 @@
+---
+id: R18
+date: 2026-10-29
+category: INT
+probability: 2
+impact: 1
+residual_probability: 2
+residual_impact: 1
+strategy: accept
+status: open
+owner:
+review: release
+---
 # R18: Negative `ppv` (standby) cannot be set
-
-| Field | Value |
-|---|---|
-| ID | R18 |
-| Date recorded | 2026-10-29 |
-| Category | Integration / third party |
-| Status | Open |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -21,12 +25,14 @@ If a user wants to report the standby state of the PV system via `set_pv_data`, 
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 2 | 1 | 2 | low |
 | Residual risk after the countermeasure | 2 | 1 | 2 | low |
 
 Risk strategy: **Accept**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -34,7 +40,9 @@ Accepted until the maintainer clarifies whether this is intended.
 
 ## Status and history
 
-Open.
+<!-- risk:status -->
+Open
+<!-- /risk:status -->
 
 ## Evidence
 

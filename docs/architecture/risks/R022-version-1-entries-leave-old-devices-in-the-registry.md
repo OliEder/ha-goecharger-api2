@@ -1,13 +1,17 @@
+---
+id: R22
+date: 2026-10-29
+category: MAINT
+probability: 1
+impact: 1
+residual_probability: 1
+residual_impact: 1
+strategy: accept
+status: open
+owner:
+review: release
+---
 # R22: Version-1-Entries lassen alte Geräte in der Registry
-
-| Feld | Wert |
-|---|---|
-| ID | R22 |
-| Datum erfasst | 2026-10-29 |
-| Kategorie | Wartbarkeit |
-| Status | Offen |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn ein Entry der Version 1 direkt auf 2.1 migriert wird, dann überspringt die
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 1 | 1 | 1 | niedrig |
 | Restrisiko nach der Gegenmaßnahme | 1 | 1 | 1 | niedrig |
 
 Risikostrategie: **Akzeptieren**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,9 @@ Akzeptiert: sehr seltener Randfall.
 
 ## Status und Verlauf
 
-Offen.
+<!-- risk:status -->
+Offen
+<!-- /risk:status -->
 
 ## Beleg
 

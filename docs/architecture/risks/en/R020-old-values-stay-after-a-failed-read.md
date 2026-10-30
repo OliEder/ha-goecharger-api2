@@ -1,13 +1,17 @@
+---
+id: R20
+date: 2026-10-29
+category: ARCH
+probability: 3
+impact: 3
+residual_probability: 2
+residual_impact: 3
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R20: Old values stay after a failed read
-
-| Field | Value |
-|---|---|
-| ID | R20 |
-| Date recorded | 2026-10-29 |
-| Category | Technology / architecture |
-| Status | Open |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -21,12 +25,14 @@ If a charger goes offline in cloud mode, then `read_all_states`, `read_all_confi
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 3 | 3 | 9 | medium |
 | Residual risk after the countermeasure | 2 | 3 | 6 | medium |
 
 Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -34,7 +40,9 @@ Clarify the intent with the maintainer; a test for the desired behaviour is miss
 
 ## Status and history
 
-Open.
+<!-- risk:status -->
+Open
+<!-- /risk:status -->
 
 ## Evidence
 

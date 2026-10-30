@@ -1,13 +1,17 @@
+---
+id: R25
+date: 2026-10-29
+category: ARCH
+probability: 3
+impact: 1
+residual_probability: 1
+residual_impact: 1
+strategy: mitigate
+status: fixed
+owner:
+review: release
+---
 # R25: Konkrete Startfehlermeldung wird überdeckt
-
-| Feld | Wert |
-|---|---|
-| ID | R25 |
-| Datum erfasst | 2026-10-29 |
-| Kategorie | Technologie / Architektur |
-| Status | Geschlossen (behoben) |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn beim Start keine Gerätedaten verfügbar sind, dann ersetzt `except BaseExc
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 3 | 1 | 3 | niedrig |
 | Restrisiko nach der Gegenmaßnahme | 1 | 1 | 1 | niedrig |
 
 Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,11 @@ Die konkrete `ConfigEntryNotReady`-Meldung bleibt erhalten (`eb5da46`).
 
 ## Status und Verlauf
 
-Geschlossen (behoben) – `eb5da46`. Seit `eb5da46` bleibt die konkrete `ConfigEntryNotReady`-Meldung erhalten.
+<!-- risk:status -->
+Geschlossen (behoben)
+<!-- /risk:status -->
+
+`eb5da46`. Seit `eb5da46` bleibt die konkrete `ConfigEntryNotReady`-Meldung erhalten.
 
 ## Beleg
 

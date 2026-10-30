@@ -1,13 +1,17 @@
+---
+id: R12
+date: 2026-10-27
+category: INT
+probability: 3
+impact: 2
+residual_probability: 2
+residual_impact: 2
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R12: `CustomFriendlyNameEntity` überschreibt eine private HA-Methode
-
-| Feld | Wert |
-|---|---|
-| ID | R12 |
-| Datum erfasst | 2026-10-27 |
-| Kategorie | Integration / Drittanbieter |
-| Status | Offen |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn Home Assistant die private Methode `_Entity__async_calculate_state` ändert
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 3 | 2 | 6 | mittel |
 | Restrisiko nach der Gegenmaßnahme | 2 | 2 | 4 | niedrig |
 
 Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,9 @@ Die Tests gegen neue Home-Assistant-Versionen laufen lassen, um Brüche früh zu
 
 ## Status und Verlauf
 
-Offen.
+<!-- risk:status -->
+Offen
+<!-- /risk:status -->
 
 ## Beleg
 

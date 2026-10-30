@@ -1,13 +1,17 @@
+---
+id: R27
+date: 2026-10-29
+category: ARCH
+probability: 5
+impact: 1
+residual_probability: 1
+residual_impact: 1
+strategy: mitigate
+status: fixed
+owner:
+review: release
+---
 # R27: Falscher `ERROR` nach erfolgreichem Mehrfachschreiben
-
-| Feld | Wert |
-|---|---|
-| ID | R27 |
-| Datum erfasst | 2026-10-29 |
-| Kategorie | Technologie / Architektur |
-| Status | Geschlossen (behoben) |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -21,12 +25,14 @@ Wenn der Nutzer im WebSocket-Modus den Fahrzeugtyp wechselt, dann liefert `write
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 5 | 1 | 5 | niedrig |
 | Restrisiko nach der Gegenmaßnahme | 1 | 1 | 1 | niedrig |
 
 Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -34,7 +40,11 @@ Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wah
 
 ## Status und Verlauf
 
-Geschlossen (behoben) – `9e7d62a`. Seit `9e7d62a` überspringt `handle_write_result` im WebSocket-Modus auch ein leeres Ergebnis.
+<!-- risk:status -->
+Geschlossen (behoben)
+<!-- /risk:status -->
+
+`9e7d62a`. Seit `9e7d62a` überspringt `handle_write_result` im WebSocket-Modus auch ein leeres Ergebnis.
 
 ## Beleg
 

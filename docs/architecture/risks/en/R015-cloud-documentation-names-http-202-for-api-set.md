@@ -1,13 +1,17 @@
+---
+id: R15
+date: 2026-10-29
+category: INT
+probability: 2
+impact: 3
+residual_probability: 1
+residual_impact: 1
+strategy: accept
+status: settled
+owner:
+review: release
+---
 # R15: Cloud documentation names HTTP 202 for `/api/set`
-
-| Field | Value |
-|---|---|
-| ID | R15 |
-| Date recorded | 2026-10-29 |
-| Category | Integration / third party |
-| Status | Closed (settled, not a defect) |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -21,12 +25,14 @@ If the cloud answered `/api/set` with 202 instead of 200, then the code would tr
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 2 | 3 | 6 | medium |
 | Residual risk after the countermeasure | 1 | 1 | 1 | low |
 
 Risk strategy: **Accept**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -34,7 +40,11 @@ None. The maintainer confirmed on 2026-10-29 in issue #172 that the real cloud a
 
 ## Status and history
 
-Closed (settled, not a defect) – Maintainer, Issue #172.
+<!-- risk:status -->
+Closed (settled, not a defect)
+<!-- /risk:status -->
+
+Maintainer, Issue #172.
 
 ## Evidence
 

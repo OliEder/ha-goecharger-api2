@@ -1,13 +1,17 @@
+---
+id: R2
+date: 2026-10-27
+category: ARCH
+probability: 3
+impact: 3
+residual_probability: 1
+residual_impact: 3
+strategy: mitigate
+status: fixed
+owner:
+review: release
+---
 # R2: Multi-Charger-Register unvollständig
-
-| Feld | Wert |
-|---|---|
-| ID | R2 |
-| Datum erfasst | 2026-10-27 |
-| Kategorie | Technologie / Architektur |
-| Status | Geschlossen (behoben) |
-| Risk Owner | nicht benannt (vom Maintainer festzulegen) |
-| Nächste Prüfung | bei jedem neuen Release |
 
 ## Risikobeschreibung
 
@@ -23,12 +27,14 @@ Wenn mehrere go-eCharger in einer HA-Instanz eingerichtet sind und ein Entry neu
 
 ## Bewertung
 
-| | W | A | Risikoscore | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Bewertung | 3 | 3 | 9 | mittel |
 | Restrisiko nach der Gegenmaßnahme | 1 | 3 | 3 | niedrig |
 
 Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+<!-- /risk:assessment -->
 
 ## Gegenmaßnahme
 
@@ -36,7 +42,11 @@ Das Register wird für jeden Charger gepflegt, ein Neuladen ersetzt den Koordina
 
 ## Status und Verlauf
 
-Geschlossen (behoben) – `03b0fc3`, ADR-0010 (`4702213`). Register wird für jeden Charger gepflegt, Neuladen ersetzt den alten Koordinator. Der wechselnde Standard-Charger ist seit `4702213` über ADR-0010 entschieden (kein Standard bei mehreren Chargern).
+<!-- risk:status -->
+Geschlossen (behoben)
+<!-- /risk:status -->
+
+`03b0fc3`, ADR-0010 (`4702213`). Register wird für jeden Charger gepflegt, Neuladen ersetzt den alten Koordinator. Der wechselnde Standard-Charger ist seit `4702213` über ADR-0010 entschieden (kein Standard bei mehreren Chargern).
 
 ## Beleg
 

@@ -1,13 +1,17 @@
+---
+id: R9
+date: 2026-10-27
+category: MAINT
+probability: 2
+impact: 2
+residual_probability: 1
+residual_impact: 2
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R9: Global variable `SCAN_INTERVAL` is overwritten in the constructor
-
-| Field | Value |
-|---|---|
-| ID | R9 |
-| Date recorded | 2026-10-27 |
-| Category | Maintainability |
-| Status | Open |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -21,12 +25,14 @@ If several entries with different intervals are set up, then every constructor o
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 2 | 2 | 4 | low |
 | Residual risk after the countermeasure | 1 | 2 | 2 | low |
 
 Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -34,7 +40,9 @@ Keep the interval per coordinator instead of globally. Proposal, not implemented
 
 ## Status and history
 
-Open.
+<!-- risk:status -->
+Open
+<!-- /risk:status -->
 
 ## Evidence
 

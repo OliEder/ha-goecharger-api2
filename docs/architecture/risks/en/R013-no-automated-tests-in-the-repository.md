@@ -1,13 +1,17 @@
+---
+id: R13
+date: 2026-10-27
+category: QA
+probability: 4
+impact: 3
+residual_probability: 2
+residual_impact: 3
+strategy: mitigate
+status: superseded
+owner:
+review: release
+---
 # R13: No automated tests in the repository
-
-| Field | Value |
-|---|---|
-| ID | R13 |
-| Date recorded | 2026-10-27 |
-| Category | Quality / testing |
-| Status | Closed (superseded) |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -21,12 +25,14 @@ If code is changed or restructured, then an automatic check is missing, which me
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 4 | 3 | 12 | medium |
 | Residual risk after the countermeasure | 2 | 3 | 6 | medium |
 
 Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -34,7 +40,11 @@ The regression tests have been in the repository since PR #178 and have run on p
 
 ## Status and history
 
-Closed (superseded) – PR #178, #179.
+<!-- risk:status -->
+Closed (superseded)
+<!-- /risk:status -->
+
+PR #178, #179.
 
 ## Evidence
 

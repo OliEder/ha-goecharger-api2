@@ -1,13 +1,17 @@
+---
+id: R16
+date: 2026-10-29
+category: INT
+probability: 3
+impact: 4
+residual_probability: 2
+residual_impact: 3
+strategy: mitigate
+status: open
+owner:
+review: release
+---
 # R16: WebSocket interface is not officially documented
-
-| Field | Value |
-|---|---|
-| ID | R16 |
-| Date recorded | 2026-10-29 |
-| Category | Integration / third party |
-| Status | Open |
-| Risk owner | not named (to be set by the maintainer) |
-| Next review | with every new release |
 
 ## Risk description
 
@@ -21,12 +25,14 @@ If go-e changes firmware or cloud, then the reverse-engineered WebSocket login o
 
 ## Assessment
 
-| | W | A | Risk score | |
+<!-- risk:assessment -->
+| | W | A | Score (W × A) | |
 |---|---|---|---|---|
 | Assessment | 3 | 4 | 12 | medium |
 | Residual risk after the countermeasure | 2 | 3 | 6 | medium |
 
 Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+<!-- /risk:assessment -->
 
 ## Countermeasure
 
@@ -34,7 +40,9 @@ Watch firmware changes by go-e, secure the login with tests (the fakes do not de
 
 ## Status and history
 
-Open.
+<!-- risk:status -->
+Open
+<!-- /risk:status -->
 
 ## Evidence
 
