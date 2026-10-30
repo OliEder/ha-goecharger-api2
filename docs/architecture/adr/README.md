@@ -1,6 +1,6 @@
 # Architecture decisions (ADR)
 
-Every decision is in a file of its own, numbered consecutively. The entries ADR-0001 to ADR-0009 are **reconstructed** from code and comments because the author keeps no decision records. ADR-0010 and ADR-0011 come from the course of the collaboration in October 2026.
+Every decision is in a file of its own, numbered consecutively. The entries ADR-0001 to ADR-0009 are **reconstructed** from code and comments because the repository has no decision records. ADR-0010 and ADR-0011 come from the course of the collaboration in October 2026.
 
 | ADR | Title | Status |
 |---|---|---|

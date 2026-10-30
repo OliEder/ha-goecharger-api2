@@ -6,7 +6,7 @@ Accepted (2026-10-29, PRs #178 and #179)
 
 ## Context and reasoning
 
-The maintainer took over the tests in PR #178 and the adapted workflows in PR #179. Before that there were no tests in the repository (ADR-0009). Regressions should be noticed before a release, also when code is restructured [Schluss, from the course of issue #172].
+The maintainer took over the tests in PR #178 and the adapted workflows in PR #179. Before that there were no tests in the repository (ADR-0009). Regressions should be noticed before a release, also when code is restructured [Inference, from the course of issue #172].
 
 ## Decision
 
