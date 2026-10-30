@@ -97,6 +97,6 @@ The addendum to [R002](R002-multi-charger-registry-incomplete.md) is in [R002](R
 
 ## Recording a new risk
 
-1. Take the next free number, create `RNNN-short-title.md` structured like the existing files (description, finding, assessment, countermeasure, status, evidence).
+1. Copy [`_template.md`](_template.md) to `RNNN-short-title.md` with the next free number (three digits) and fill it in. The comments in the template explain the front matter and the rules; delete them when you are done.
 2. Run `python tests/tools/build_risk_register.py`; it fills the tables, the heat maps and the generated blocks.
 3. When a risk is fixed, do not delete the file: set the status to "Closed" and name the change that fixed it.
