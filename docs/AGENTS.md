@@ -6,6 +6,7 @@ Read the [root `AGENTS.md`](../AGENTS.md) first. This file adds how to write the
 
 - English, short, concrete. Update the document that exists; do not add a new one for what fits into an old one.
 - A statement that the code does not do something needs the lines you read and the whole path of the data (read, store, show), not only a search for a name. Say which decision does not use a value, not that the code "does not read" it.
+- A count or a share in a document (number of risks, tests, files) names what was counted and how; recount it when you change the document. Do not count boilerplate that every file contains.
 - Mark where a statement comes from: `[Code]` (read from the source, with file and line), `[Docs]` (official or project documentation) or `[Inference]` (derived, not stated by the author). Nothing in these documents was checked on a real charger unless it says so.
 - Do not renumber sections of `architecture/arc42-ha-goecharger-api2.md`; other documents refer to them.
 
