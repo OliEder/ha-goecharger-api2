@@ -107,10 +107,10 @@ flowchart LR
 | LAN WebSocket | HA ↔ wallbox | `ws(s)://<host>/ws`, JSON/MessagePack | challenge-response with PBKDF2-SHA512 or bcrypt, `securedMsg` with HMAC-SHA256 |
 | Cloud polling | HA → cloud | `GET https://<serial>.api.v3.go-e.io/api/status`, `/api/set` | `Authorization: Bearer <token>` |
 | Cloud WebSocket | HA ↔ cloud | `wss://app.v3.go-e.io/<serial>` | token header plus wallbox password challenge |
-| HA services | automation → integration | `goecharger_api2.set_pv_data`, `goecharger_api2.stop_charging` | HA permissions |
+| HA services | automation → integration | `goecharger_api2.set_pv_data`, `goecharger_api2.stop_charging`, `goecharger_api2.set_temporary_current_limit` | HA permissions |
 | Configuration | user → HA | config flow (create, reconfigure) | HA login |
 
-[Code] The operating mode is **not** selected but follows from the configuration: if a password is stored in the config entry, the integration uses WebSocket, otherwise HTTP polling (`__init__.py:123`ff, `pygoecharger_ha/__init__.py:151`ff).
+[Code] The operating mode is **not** selected but follows from the configuration: if a password is stored in the config entry, the integration uses WebSocket, otherwise HTTP polling (`async_setup_entry` in `__init__.py`, `GoeChargerApiV2Bridge` in `pygoecharger_ha/__init__.py`).
 
 ### 3.3 Official interface documentation of go-e GmbH
 
@@ -289,7 +289,7 @@ sequenceDiagram
 ### 6.3 Polling cycle (without WebSocket)
 
 - Interval: scan interval of the config entry (LAN default 30 s in the dialog, minimum 5 s; cloud at least 30 s, suggested 120 s).
-- If no vehicle is connected (`car == 1`), only the keys `car, modelStatus, err, nrg, tma, trx` (plus time values and, after PV data, `pakku, ppv, pgrid`) are read, a full read every 5 minutes.
+- If no vehicle is connected (`car == 1`), only the keys `car, modelStatus, err, nrg, tcl, tma, trx` (plus time values and, after PV data, `pakku, ppv, pgrid`) are read, a full read every 5 minutes.
 - As soon as `car` leaves idle, a full read follows at once.
 - Configuration: at most hourly. If reading fails, it is retried after 5 minutes.
 
@@ -331,11 +331,11 @@ sequenceDiagram
 2. Cloud mode: if no vehicle is connected (`car < 2`), **nothing** is sent (load protection).
 3. The service writes the key `ids` with `{"pGrid", "pPv", "pAkku"}`.
 4. In HTTP mode the bridge then sets a flag so that `pakku, ppv, pgrid` are also read when idle.
-5. If the automation stops sending, the wallbox keeps old values for 5 seconds [Docs]. That the moving averages of the wallbox (`pvopt_average…`) stand still afterwards was an assumption during blueprint development and has not been checked on the device. The risk (unwanted grid charging) is covered by the blueprint through its behaviour on invalid measurements (default: send zero values).
+5. If the automation stops sending, the wallbox keeps old values for 5 seconds [Docs]. That the moving averages of the wallbox (`pvopt_average…`) stand still afterwards was an assumption during blueprint development and has not been checked on the device. The blueprint handles the risk (unwanted grid charging) itself: when a used source is missing or invalid it skips the daylight update and does not command the charger to stop ([R023](risks/R023-blueprint-in-main-has-no-zero-value-branch-for-invalid.md)); at night and at sunset it sends zero values so that the wallbox does not work with stale averages.
 
 ### 6.6 Forced stop (`stop_charging`)
 
-`frc=1` (charging off), wait 300 s, `frc=0`. Both writes have required an acknowledgement since `d876dfd` (`require_ack=True`, see 6.8). A second request during the waiting time is rejected (`_stop_in_progress`). Since `9e7d62a` the flag is reset in a `finally`, so also after a write error ([R001](risks/R001-stop-charging-locks-the-charger-after-a-write-error.md), fixed). The earlier `TypeError` in WebSocket mode is also fixed.
+`frc=1` (charging off), wait 300 s, `frc=0`. Both writes have required an acknowledgement since `d876dfd` (`require_ack=True`, see 6.8). A second request during the waiting time is rejected (`_stop_in_progress`). Since `9e7d62a` the flag is reset in a `finally`, so also after a write error ([R001](risks/R001-stop-charging-locks-the-charger-after-a-write-error.md), fixed). The earlier `TypeError` in WebSocket mode is also fixed. The result of the unlock write (`frc=0`) is not checked: a failed or unconfirmed unlock leaves `frc=1` set and may still be reported as success ([R031](risks/R031-stop-charging-does-not-check-the-unlock-and-may-report.md)).
 
 ```mermaid
 sequenceDiagram
@@ -363,7 +363,7 @@ sequenceDiagram
 
 - `ClientConnectionError`: set timestamp and counter, no requests for 2 minutes, data stays as it is.
 - More than 5 errors in a row: after a random wait of 1 to 5 minutes the config entry is reloaded.
-- WebSocket watchdog (every 5 min for 1 s): reconnects if not connected; aborts and rebuilds if no data arrived for more than 50 seconds.
+- WebSocket watchdog (every 5 minutes and 1 second): reconnects if not connected; aborts and rebuilds if no data arrived for more than 50 seconds.
 - `force_async_update_now()`: forces a WebSocket restart, but not in the first 5 minutes after start and not in the first 2 minutes after a fresh connection.
 
 ```mermaid
@@ -386,7 +386,7 @@ Since PR #177 there is the service `set_temporary_current_limit` (parameter `cur
 3. **Output check:** `tcl_validate_output` requires that the returned value equals the sent one, otherwise `ValueError` ("did not acknowledge").
 4. **Users:** besides `tcl`, both writes of `stop_charging` also use the acknowledgement.
 
-A controller (`go-eController`) knows neither `tcl` nor `cll` [Doku, `go-eController-API`].
+A controller (`go-eController`) knows neither `tcl` nor `cll` [Docs, `go-eController-API`].
 
 ```mermaid
 sequenceDiagram

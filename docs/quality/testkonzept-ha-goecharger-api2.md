@@ -83,6 +83,7 @@ Order of test depth by impact on operation (controls a physical device) and by p
 | [R025](../architecture/risks/R025-specific-start-error-message-is-covered-up.md) message of `ConfigEntryNotReady` is covered up | `test_missing_device_data_is_reported_with_its_own_message` | fixed since `eb5da46`, green |
 | [R024](../architecture/risks/R024-error-text-of-the-charger-counts-as-success.md) error text of the charger counts as success | `test_write_rejected_by_charger_returns_err` | green on `9e7d62a` |
 | [R027](../architecture/risks/R027-false-error-after-a-successful-multiple-write.md) false `ERROR` after multiple write in WebSocket mode | `test_websocket_multi_write_logs_no_error_on_success` | fixed since `9e7d62a`, green |
+| [R031](../architecture/risks/R031-stop-charging-does-not-check-the-unlock-and-may-report.md) `stop_charging` does not check the unlock | – | **not covered** |
 | `set_temporary_current_limit`, `tcl`, acknowledged writing (PR #177) | – | **not covered** (section 10, item 11) |
 
 ---
