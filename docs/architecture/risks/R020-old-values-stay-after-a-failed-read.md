@@ -6,8 +6,8 @@ probability: 3
 impact: 3
 residual_probability: 2
 residual_impact: 3
-strategy: mitigate
-status: open
+strategy: accept
+status: settled
 owner:
 review: release
 ---
@@ -31,18 +31,20 @@ If a charger goes offline in cloud mode, then `read_all_states`, `read_all_confi
 | Assessment | 3 | 3 | 9 | medium |
 | Residual risk after the countermeasure | 2 | 3 | 6 | medium |
 
-Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+Risk strategy: **Accept**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
 ## Countermeasure
 
-Clarify the intent with the maintainer; a test for the desired behaviour is missing until then. Today's behaviour is recorded as a characterisation.
+None. The maintainer confirmed in issue #173 (2026-10-27) that this is intended: stale data is better than losing all previously available information when a communication error occurs. Today's behaviour is recorded as a characterisation (`test_failed_full_read_keeps_the_previous_states`). Remaining effect: a charger that went offline keeps showing its last values in cloud mode; see also [R14](R014-entities-stay-available-on-partial-failure-and-show-old.md).
 
 ## Status and history
 
 <!-- risk:status -->
-Open
+Closed (settled, not a defect)
 <!-- /risk:status -->
+
+Intended behaviour, confirmed by the maintainer in issue #173 (2026-10-27).
 
 ## Evidence
 
