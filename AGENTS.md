@@ -1,5 +1,7 @@
 # AGENTS.md
 
+**Scope: changes made with an AI agent.** The rules below ask an agent for more evidence and documentation than this project asks of a person, on purpose (see "Documentation"). They are not a demand on human contributors.
+
 Instructions for AI coding agents (Claude Code, Codex, Copilot and similar) working on this repository. The maintainer decides what goes in, and a human reviews every change. If a rule here is wrong or in your way, say so and let the maintainer change this file.
 
 ## Project overview
@@ -139,7 +141,9 @@ Probability, impact and strategy are assessments. Mark them as such until the ma
 
 ## Documentation
 
-Update only what the change touches:
+An agent documents its change more than a person would, for two reasons. Writing down why a change is made, and what it affects, makes the agent check its own work again: whether the implementation is valid, what it touches, and what it risks. And the maintainer sees the reason and the impact at once when he reviews. For an agent this costs little; for a person it would be a chore, so it is not asked of people.
+
+Update only what the change touches, and keep it short and factual:
 
 | If the change ... | update |
 |---|---|
