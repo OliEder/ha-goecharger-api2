@@ -19,9 +19,9 @@ If Home Assistant or the integration restarts, then according to the maintainer 
 
 ## Finding in detail
 
-**Finding.** According to the maintainer (issue #176) the integration reset the maximum current (Max Ampere) at every restart.
+**Finding.** According to the maintainer (issue #176) the integration resets the maximum current (Max Ampere) at every restart. This happens only when `limit_to16a` is true: then `check_and_write_to_16a` writes 16 to every `ama` or `amp` value above 16 (`__init__.py`, `const.py`).
 
-**Effect.** A previously set value was lost; the limit then no longer applied until it was set again. The cause was the 16 A limiter, since changed.
+**Effect.** A previously set value is lost; the limit then no longer applies until it is set again.
 
 ## Assessment
 
@@ -36,7 +36,9 @@ Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 
 
 ## Countermeasure
 
-Done in `4c7207c` and `98af3e0` (limiter no longer decides from the `adi` fallback alone). A test that restarts with a 32 A charger and keeps the value is still missing.
+The maintainer changed the detection in `4c7207c` ("alternate handling of `cableCurrentLimit`"): with `cll` content but without `cableCurrentLimit` the limit to 16 A is no longer set. That change is the cause of [R029](R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md). A test that restarts with a 32 A charger and keeps the value is still missing.
+
+**Residual risk (W 1, A 3, as assessed from the start).** The limiter stays on for chargers that really are limited to 16 A. If the detection is wrong ([R029](R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md), [R033](R033-16-a-limiter-reads-over-http-also-in-websocket-mode.md)), the user charges slower than possible. This is accepted for the case of a really limited charger; the other cases are tracked in [R029](R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md) and [R033](R033-16-a-limiter-reads-over-http-also-in-websocket-mode.md).
 
 ## Status and history
 
@@ -44,7 +46,7 @@ Done in `4c7207c` and `98af3e0` (limiter no longer decides from the `adi` fallba
 Closed (fixed)
 <!-- /risk:status -->
 
-The cause was the 16 A limiter, which used the `adi` fallback (see [R029](R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md)); changed in `4c7207c` and `98af3e0`. The reporter wrote "Working ;)" on 2026-10-29. Issue #176 is still open. The limiter stays for chargers that really are limited to 16 A. Not checked on a real device by us.
+Fixed for the reporter in `4c7207c` (2026-10-28); the reporter wrote "Working ;)" on 2026-10-29. Issue #176 is still open. The original assessment (W 3, A 3) is kept. Not reproduced by us and not checked on a real device.
 
 ## Evidence
 

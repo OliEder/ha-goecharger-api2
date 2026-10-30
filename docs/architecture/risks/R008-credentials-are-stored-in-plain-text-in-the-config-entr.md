@@ -44,6 +44,8 @@ Home Assistant provides no vault; the risk is accepted and lies with Home Assist
 Accepted (note)
 <!-- /risk:status -->
 
+Assessment reviewed on 2026-10-30 after the independent review and kept: the independent review found that password and token are plain text in the config entry and that the token was in the device identifier before `5328e74`; both support the existing A 3. Further observations were passed to the maintainer directly and are deliberately not listed.
+
 ## Evidence
 
 *Evidence at the time of the finding (not today's state)*

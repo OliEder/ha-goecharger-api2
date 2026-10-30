@@ -44,6 +44,8 @@ Add a test that checks the display name of an entity, so that a rename in Home A
 Open
 <!-- /risk:status -->
 
+Assessment reviewed on 2026-10-30 after the independent review and kept: the review found that a rename in Home Assistant is silent and that no test refers to the override, which supports W 3. How likely a rename is, was not determined [Inference].
+
 ## Evidence
 
 *Evidence at the time of the finding (not today's state)*

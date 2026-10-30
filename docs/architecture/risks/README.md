@@ -12,6 +12,8 @@ All known risks and technical debt of the integration, **one document per risk**
 
 Each document states the risk as "If [cause], then [event], which leads to [impact]", gives probability W and impact A (1 to 5), the score W × A, the strategy (mitigate, accept, avoid, transfer), a countermeasure and the residual risk. **W, A and strategy are assessments, not measurements.** A risk owner has not been named; the maintainer should set one. Review: with every new release.
 
+**Changing an assessment.** The first assessment of a closed risk (fixed, settled, superseded) is never changed. What was done and which residual risk remains, accepted or not, is written under "Countermeasure" and "Status and history", and the residual W and A carry it. An open risk may be reassessed when new facts justify it. The old values, the new values and the reason are then recorded under "Status and history" with the date (entry "Reassessment"); an assessment is never overwritten without that entry. A risk is not inflated: close it and record what remains as a new risk.
+
 Score bands: 1 to 5 low, 6 to 12 medium, 15 and above high.
 
 ## Open risks (heat map)

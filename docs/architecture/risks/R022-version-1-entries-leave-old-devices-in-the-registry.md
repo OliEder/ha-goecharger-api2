@@ -44,6 +44,8 @@ Accepted: very rare edge case.
 Open
 <!-- /risk:status -->
 
+Assessment reviewed on 2026-10-30 after the independent review and kept: a token in the local registry can only be read with access to the Home Assistant configuration (see [R008](R008-credentials-are-stored-in-plain-text-in-the-config-entr.md)) and the case is a rare edge, so A 1 stays. The review considered A 1 questionable because of the token.
+
 ## Evidence
 
 *Evidence at the time of the finding (not today's state)*

@@ -19,7 +19,7 @@ If several entries with different intervals are set up, then every constructor o
 
 ## Finding in detail
 
-**Finding.** `SCAN_INTERVAL` is a module-level default (10 s) that the coordinator constructor assigns for each entry (`__init__.py`, constructor and the two places that use it).
+**Finding.** `SCAN_INTERVAL` is a module-level default (10 s) that the coordinator constructor assigns for each entry (`__init__.py`, constructor and the two places that use it). The defaults are not consistent: 10 s for the module, 5 s for the constructor argument, 30 or 120 s in the config flow (`config_flow.py:79` and `:88`).
 
 **Effect.** With several entries the last value set is the global default. Nothing else in the integration reads the global `SCAN_INTERVAL`; each coordinator uses the interval it has just set for itself, so there is no wrong interval today. The risk is a future reader of the global.
 
@@ -43,6 +43,8 @@ Keep the interval per coordinator instead of globally. Proposal, not implemented
 <!-- risk:status -->
 Open
 <!-- /risk:status -->
+
+Reassessment 2026-10-30 (independent review, open risk): impact A 2 → 1 and residual impact A 2 → 1 (W unchanged: 2 and 1). Reason: a search over the integration finds no other reader of the global, so a wrong value has no effect today. Original assessment: W 2, A 2, residual W 1, A 2.
 
 ## Evidence
 
