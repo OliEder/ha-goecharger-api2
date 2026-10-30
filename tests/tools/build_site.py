@@ -39,15 +39,13 @@ MERMAID = ('<script type="module">import mermaid from "https://cdn.jsdelivr.net/
 DOC_FILES = {"arc42.html": ("Architektur (arc42)", "architecture/arc42-ha-goecharger-api2.md"),
              "testkonzept.html": ("Testkonzept", "quality/testkonzept-ha-goecharger-api2.md"),
              "arc42-en.html": ("Architecture (arc42, English)", "architecture/arc42-ha-goecharger-api2.en.md"),
-             "testkonzept-en.html": ("Test concept (English)", "quality/testkonzept-ha-goecharger-api2.en.md"),
-             "risks.html": ("Risikoregister", "architecture/risk-register.md"),
-             "risks-en.html": ("Risk register (English)", "architecture/risk-register.en.md")}
-# the architecture decision records: one page per language, built from the files in docs/architecture/adr
-ADR_PAGES = {"adr.html": ("Architekturentscheidungen (ADR)", "architecture/adr"),
-             "adr-en.html": ("Architecture decisions (ADR, English)", "architecture/adr/en")}
+             "testkonzept-en.html": ("Test concept (English)", "quality/testkonzept-ha-goecharger-api2.en.md")}
+# collections of single documents (one file per decision or risk, with an index in README.md): one page per
+# language is built from the index and the files, e.g. docs/architecture/adr and docs/architecture/adr/en
+COLLECTIONS = {"adr": ("architecture/adr", "Architekturentscheidungen (ADR)", "Architecture decisions (ADR, English)", r"\d{4}-"),
+               "risks": ("architecture/risks", "Risikoregister", "Risk register (English)", r"R\d{3}-")}
 LINK_TARGETS = {"arc42-ha-goecharger-api2.md": "arc42.html", "arc42-ha-goecharger-api2.en.md": "arc42-en.html",
-                "testkonzept-ha-goecharger-api2.md": "testkonzept.html", "testkonzept-ha-goecharger-api2.en.md": "testkonzept-en.html",
-                "risk-register.md": "risks.html", "risk-register.en.md": "risks-en.html"}
+                "testkonzept-ha-goecharger-api2.md": "testkonzept.html", "testkonzept-ha-goecharger-api2.en.md": "testkonzept-en.html"}
 
 
 def find_doc(docs, rel):
@@ -58,38 +56,44 @@ def find_doc(docs, rel):
     return None
 
 
-def adr_files(docs, folder):
+def collection_files(docs, folder, pattern):
     directory = Path(docs) / folder
     if not directory.is_dir():
         return []
-    return sorted(f for f in directory.glob("*.md") if f.name != "README.md")
+    return sorted(f for f in directory.glob("*.md") if re.match(pattern, f.name))
 
 
-def adr_anchors(docs):
-    """File name -> heading id on the ADR page (the first line of each file is its heading)."""
+def collection_anchors(docs):
+    """(collection, English?, file name) -> heading id on the page (the first line of each file is its heading)."""
     from markdown.extensions.toc import slugify
     anchors = {}
-    for folder in ("architecture/adr", "architecture/adr/en"):
-        for f in adr_files(docs, folder):
-            anchors[(folder.endswith("en"), f.name)] = slugify(f.read_text().splitlines()[0].lstrip("# ").strip(), "-")
+    for coll, (folder, _, _, pattern) in COLLECTIONS.items():
+        for english, sub in ((False, folder), (True, folder + "/en")):
+            for f in collection_files(docs, sub, pattern):
+                anchors[(coll, english, f.name)] = slugify(f.read_text().splitlines()[0].lstrip("# ").strip(), "-")
     return anchors
 
 
 def rewrite_links(md_text, page, anchors):
     """Links between the Markdown documents point to the generated pages."""
-    english_adr = page == "adr-en.html"
+    page_coll = next((c for c in COLLECTIONS if page.startswith(c)), None)
+    english_page = page.endswith("-en.html")
 
     def fix(m):
         path, name, frag = m.group(1), m.group(2), m.group(3) or ""
         if name in LINK_TARGETS:
             return f"]({LINK_TARGETS[name]}{frag})"
-        is_en = "adr/en/" in path or english_adr
+        coll = next((c for c, v in COLLECTIONS.items() if re.match(v[3], name)), None)
         if name == "README.md":
-            return f"](adr-en.html{frag})" if is_en else f"](adr.html{frag})"
-        key = (is_en, name)
-        if key in anchors:
-            return f"](adr{'-en' if is_en else ''}.html#{anchors[key]})"
-        return m.group(0)
+            coll = next((c for c in COLLECTIONS if f"{c}/" in path), page_coll)
+        if coll is None:
+            return m.group(0)
+        is_en = "/en/" in path or (english_page and page_coll == coll and "/" not in path)
+        target = f"{coll}{'-en' if is_en else ''}.html"
+        if name == "README.md":
+            return f"]({target}{frag})"
+        anchor = anchors.get((coll, is_en, name))
+        return f"]({target}#{anchor})" if anchor else m.group(0)
     return re.sub(r"\]\(([^)#]*?)([A-Za-z0-9_.-]+\.md)(#[^)]*)?\)", fix, md_text)
 
 
@@ -135,17 +139,19 @@ def main():
             shutil.copytree(Path(a.report) / "html-all", site / "coverage", dirs_exist_ok=True)
     if a.testcases and Path(a.testcases).exists():
         pages["testcases.html"] = ("Testfälle", Path(a.testcases).read_text())
-    anchors = adr_anchors(a.docs) if a.docs else {}
+    anchors = collection_anchors(a.docs) if a.docs else {}
     for name, (title, filename) in DOC_FILES.items():
         found = find_doc(a.docs, filename) if a.docs else None
         if found is not None:
             pages[name] = (title, rewrite_links(found.read_text(), name, anchors), True)
-    for name, (title, folder) in ADR_PAGES.items():
-        files = adr_files(a.docs, folder) if a.docs else []
-        index = (Path(a.docs) / folder / "README.md") if a.docs else None
-        if files and index is not None and index.exists():
-            parts = [index.read_text()] + [f.read_text() for f in files]
-            pages[name] = (title, rewrite_links("\n\n---\n\n".join(parts), name, anchors))
+    for coll, (folder, title_de, title_en, pattern) in COLLECTIONS.items():
+        for english, sub, title in ((False, folder, title_de), (True, folder + "/en", title_en)):
+            name = f"{coll}{'-en' if english else ''}.html"
+            files = collection_files(a.docs, sub, pattern) if a.docs else []
+            index = (Path(a.docs) / sub / "README.md") if a.docs else None
+            if files and index is not None and index.exists():
+                parts = [index.read_text()] + [f.read_text() for f in files]
+                pages[name] = (title, rewrite_links("\n\n---\n\n".join(parts), name, anchors))
     index = ["# Regressionstests für ha-goecharger-api2", "",
              "Tests und Berichte zur Home-Assistant-Integration [marq24/ha-goecharger-api2](https://github.com/marq24/ha-goecharger-api2) "
              "(go-eCharger). Die Tests liegen im Repository unter `tests/integration`; diese Seite wird aus einem Fork heraus gebaut. Die Tests ändern den Code nicht.", ""]
