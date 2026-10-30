@@ -213,6 +213,8 @@ Done since the first version: platforms, read cycle in polling, write paths, coo
 10. **Structure:** apply Arrange-Act-Assert consistently (the new tests mostly follow the pattern without it being checked); automate a coverage lower bound and a marker warning.
 11. **Temporary current limit and acknowledged writing (PR #177):** there are no tests of their own for `set_temporary_current_limit`, the `tcl` entity, the input check (`_TCLTagLogic`) and the acknowledged writing with a 3 second timeout (`require_ack`, `_ws_pending_ack`) (checked with `grep` in `tests/integration`). The test for `stop_charging` replaces `async_write_key` with a fake and therefore does not check the acknowledgement.
 
+12. **Tests that assert the exact wording of messages ([R032](../architecture/risks/R032-tests-assert-the-exact-wording-of-messages.md)):** ten of the eleven uses of `match=` in `tests/integration` match a message text. A rewording by the maintainer breaks them without a change in behaviour (it did twice, see issue #172). Where the text is not the contract, assert the exception type and a stable part instead. To be discussed with the maintainer before anything is changed.
+
 ---
 
 ## 11. Quality of the tests themselves
