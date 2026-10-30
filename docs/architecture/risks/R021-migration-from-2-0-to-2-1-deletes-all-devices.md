@@ -1,5 +1,5 @@
 ---
-id: R21
+id: R021
 date: 2026-10-29
 category: ARCH
 probability: 2
@@ -11,7 +11,7 @@ status: open
 owner:
 review: release
 ---
-# R21: Migration from 2.0 to 2.1 deletes all devices
+# R021: Migration from 2.0 to 2.1 deletes all devices
 
 ## Risk description
 

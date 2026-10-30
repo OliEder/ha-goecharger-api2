@@ -1,5 +1,5 @@
 ---
-id: R10
+id: R010
 date: 2026-10-27
 category: MAINT
 probability: 3
@@ -11,7 +11,7 @@ status: open
 owner:
 review: release
 ---
-# R10: `check_and_write_to_16a` accesses private members
+# R010: `check_and_write_to_16a` accesses private members
 
 ## Risk description
 

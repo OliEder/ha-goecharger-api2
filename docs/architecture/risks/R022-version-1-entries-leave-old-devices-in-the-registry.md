@@ -1,5 +1,5 @@
 ---
-id: R22
+id: R022
 date: 2026-10-29
 category: MAINT
 probability: 1
@@ -11,7 +11,7 @@ status: open
 owner:
 review: release
 ---
-# R22: Version 1 entries leave old devices in the registry
+# R022: Version 1 entries leave old devices in the registry
 
 ## Risk description
 

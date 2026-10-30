@@ -1,5 +1,5 @@
 ---
-id: R7
+id: R007
 date: 2026-10-27
 category: DOC
 probability: 5
@@ -11,7 +11,7 @@ status: open
 owner:
 review: release
 ---
-# R7: README and code state different read intervals for the configuration
+# R007: README and code state different read intervals for the configuration
 
 ## Risk description
 

@@ -1,5 +1,5 @@
 ---
-id: R19
+id: R019
 date: 2026-10-29
 category: SEC
 probability: 2
@@ -11,7 +11,7 @@ status: open
 owner:
 review: release
 ---
-# R19: Cloud token is readable via the key `cak` according to the documentation
+# R019: Cloud token is readable via the key `cak` according to the documentation
 
 ## Risk description
 

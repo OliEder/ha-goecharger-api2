@@ -1,5 +1,5 @@
 ---
-id: R4
+id: R004
 date: 2026-10-27
 category: ARCH
 probability: 2
@@ -11,7 +11,7 @@ status: fixed
 owner:
 review: release
 ---
-# R4: Error handling for multiple writes calls the wrong signature
+# R004: Error handling for multiple writes calls the wrong signature
 
 ## Risk description
 
