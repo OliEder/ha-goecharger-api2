@@ -13,6 +13,8 @@ from pathlib import Path
 
 import markdown
 
+import build_risk_register as risks_lib
+
 CSS = """
 :root{--bg:#fff;--fg:#1f2328;--muted:#59636e;--line:#d1d9e0;--head:#f6f8fa;--link:#0969da}
 @media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--muted:#9198a1;--line:#3d444d;--head:#151b23;--link:#4493f8}}
@@ -25,6 +27,11 @@ table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%}
 th,td{border:1px solid var(--line);padding:.3rem .6rem;text-align:left;vertical-align:top}
 th{background:var(--head)}code{background:var(--head);padding:.1rem .3rem;border-radius:4px}
 footer{color:var(--muted);font-size:.9rem;margin-top:3rem}
+table.heat{display:table;width:100%;table-layout:fixed;text-align:center}
+table.heat td{height:3.2rem;text-align:center;vertical-align:middle;font-size:.9rem}
+table.heat td a{color:inherit;font-weight:600;margin:0 .15rem}
+table.heat td.low{background:#c9eed3;color:#0b3d1c}table.heat td.medium{background:#fbe9a3;color:#4a3700}table.heat td.high{background:#f6b3ad;color:#5a0b04}
+@media (prefers-color-scheme:dark){table.heat td.low{background:#1d4a2c;color:#c9eed3}table.heat td.medium{background:#5a4a12;color:#fbe9a3}table.heat td.high{background:#6b2620;color:#f6b3ad}}
 """
 PAGES = [("index.html", "Übersicht"), ("testreport.html", "Testbericht"), ("testcases.html", "Testfälle"),
          ("testkonzept.html", "Testkonzept"), ("arc42.html", "Architektur (arc42)"),
@@ -70,7 +77,7 @@ def collection_anchors(docs):
     for coll, (folder, _, _, pattern) in COLLECTIONS.items():
         for english, sub in ((False, folder), (True, folder + "/en")):
             for f in collection_files(docs, sub, pattern):
-                anchors[(coll, english, f.name)] = slugify(f.read_text().splitlines()[0].lstrip("# ").strip(), "-")
+                anchors[(coll, english, f.name)] = slugify(risks_lib.parse_front_matter(f.read_text())[1].splitlines()[0].lstrip("# ").strip(), "-")
     return anchors
 
 
@@ -95,6 +102,15 @@ def rewrite_links(md_text, page, anchors):
         anchor = anchors.get((coll, is_en, name))
         return f"]({target}#{anchor})" if anchor else m.group(0)
     return re.sub(r"\]\(([^)#]*?)([A-Za-z0-9_.-]+\.md)(#[^)]*)?\)", fix, md_text)
+
+
+def risk_document(text, lang):
+    """A risk file without its front matter; the data of the front matter is shown as a table below the heading."""
+    fm, body = risks_lib.parse_front_matter(text)
+    if fm is None:
+        return text
+    head, _, rest = body.partition("\n")
+    return head + "\n\n" + risks_lib.front_matter_table(fm, lang) + rest
 
 
 def render(site, name, title, body_md, available, toc_levels=False):
@@ -150,8 +166,19 @@ def main():
             files = collection_files(a.docs, sub, pattern) if a.docs else []
             index = (Path(a.docs) / sub / "README.md") if a.docs else None
             if files and index is not None and index.exists():
-                parts = [index.read_text()] + [f.read_text() for f in files]
-                pages[name] = (title, rewrite_links("\n\n---\n\n".join(parts), name, anchors))
+                lang = "en" if english else "de"
+                if coll == "risks":
+                    items = risks_lib.load(Path(a.docs) / sub)
+                    anchor = lambda r: "#" + anchors.get((coll, english, r["file"]), r["id"].lower())  # noqa: E731
+                    index_text = index.read_text()
+                    for key, residual in (("heatmap-current", False), ("heatmap-residual", True)):
+                        index_text = re.sub(rf"<!-- risk:{key} -->.*?<!-- /risk:{key} -->",
+                                            lambda m, res=residual: "\n" + risks_lib.heatmap_html(items, res, anchor, lang) + "\n", index_text, flags=re.S)
+                    parts = [index_text] + [risk_document(f.read_text(), lang) for f in files]
+                else:
+                    parts = [index.read_text()] + [f.read_text() for f in files]
+                joined = re.sub(r"<!-- /?risk:[a-z-]+ -->\n?", "", "\n\n---\n\n".join(parts))
+                pages[name] = (title, rewrite_links(joined, name, anchors))
     index = ["# Regressionstests für ha-goecharger-api2", "",
              "Tests und Berichte zur Home-Assistant-Integration [marq24/ha-goecharger-api2](https://github.com/marq24/ha-goecharger-api2) "
              "(go-eCharger). Die Tests liegen im Repository unter `tests/integration`; diese Seite wird aus einem Fork heraus gebaut. Die Tests ändern den Code nicht.", ""]
