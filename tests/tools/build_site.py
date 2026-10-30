@@ -28,9 +28,9 @@ footer{color:var(--muted);font-size:.9rem;margin-top:3rem}
 """
 PAGES = [("index.html", "Übersicht"), ("testreport.html", "Testbericht"), ("testcases.html", "Testfälle"),
          ("testkonzept.html", "Testkonzept"), ("arc42.html", "Architektur (arc42)"),
-         ("adr.html", "Entscheidungen (ADR)"),
+         ("risks.html", "Risikoregister"), ("adr.html", "Entscheidungen (ADR)"),
          ("testkonzept-en.html", "Test concept (EN)"), ("arc42-en.html", "Architecture (arc42, EN)"),
-         ("adr-en.html", "Decisions (ADR, EN)"), ("coverage/index.html", "Abdeckung im Detail")]
+         ("risks-en.html", "Risk register (EN)"), ("adr-en.html", "Decisions (ADR, EN)"), ("coverage/index.html", "Abdeckung im Detail")]
 # the diagrams of the arc42 document are Mermaid; the library is loaded from a CDN with a fixed version
 MERMAID = ('<script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.esm.min.mjs";'
            'mermaid.initialize({startOnLoad:true,theme:matchMedia("(prefers-color-scheme: dark)").matches?"dark":"default"});</script>')
@@ -39,12 +39,15 @@ MERMAID = ('<script type="module">import mermaid from "https://cdn.jsdelivr.net/
 DOC_FILES = {"arc42.html": ("Architektur (arc42)", "architecture/arc42-ha-goecharger-api2.md"),
              "testkonzept.html": ("Testkonzept", "quality/testkonzept-ha-goecharger-api2.md"),
              "arc42-en.html": ("Architecture (arc42, English)", "architecture/arc42-ha-goecharger-api2.en.md"),
-             "testkonzept-en.html": ("Test concept (English)", "quality/testkonzept-ha-goecharger-api2.en.md")}
+             "testkonzept-en.html": ("Test concept (English)", "quality/testkonzept-ha-goecharger-api2.en.md"),
+             "risks.html": ("Risikoregister", "architecture/risk-register.md"),
+             "risks-en.html": ("Risk register (English)", "architecture/risk-register.en.md")}
 # the architecture decision records: one page per language, built from the files in docs/architecture/adr
 ADR_PAGES = {"adr.html": ("Architekturentscheidungen (ADR)", "architecture/adr"),
              "adr-en.html": ("Architecture decisions (ADR, English)", "architecture/adr/en")}
 LINK_TARGETS = {"arc42-ha-goecharger-api2.md": "arc42.html", "arc42-ha-goecharger-api2.en.md": "arc42-en.html",
-                "testkonzept-ha-goecharger-api2.md": "testkonzept.html", "testkonzept-ha-goecharger-api2.en.md": "testkonzept-en.html"}
+                "testkonzept-ha-goecharger-api2.md": "testkonzept.html", "testkonzept-ha-goecharger-api2.en.md": "testkonzept-en.html",
+                "risk-register.md": "risks.html", "risk-register.en.md": "risks-en.html"}
 
 
 def find_doc(docs, rel):
@@ -154,8 +157,9 @@ def main():
               "- [Abdeckung im Detail](coverage/index.html): Zeile für Zeile",
               "- [Testkonzept](testkonzept.html): Ziele, Methoden, Kennzahlen und ihre Grenzen",
               "- [Architektur (arc42)](arc42.html): Aufbau der Integration, Abläufe, Risiken",
+              "- [Risikoregister](risks.html): Risiken und technische Schulden mit Status",
               "- [Entscheidungen (ADR)](adr.html): Architekturentscheidungen, je eine mit Begründung und Folgen",
-              "- English: [Test concept](testkonzept-en.html), [Architecture (arc42)](arc42-en.html), [Decisions (ADR)](adr-en.html)"]
+              "- English: [Test concept](testkonzept-en.html), [Architecture (arc42)](arc42-en.html), [Risk register](risks-en.html), [Decisions (ADR)](adr-en.html)"]
     available = set(pages) | {"index.html"} | ({"coverage/index.html"} if (site / "coverage").exists() else set())
     for name, (title, body, *toc) in pages.items():
         render(site, name, title, body, available, bool(toc))
