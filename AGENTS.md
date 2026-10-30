@@ -61,6 +61,38 @@ These classes of defects were found in this code base (see the risk register). C
 - **Values from callers are not trusted.** Check numbers for finiteness (`NaN`, `inf`) before they go to a charger ([R005](docs/architecture/risks/R005-pgrid-without-a-finiteness-check.md)).
 - **Settings survive a restart.** A value the user set must still be there after a restart ([R030](docs/architecture/risks/R030-max-ampere-is-reset-at-every-restart.md), reported by the maintainer, not yet reproduced).
 
+## Excuses and red flags in this project
+
+These are the excuses that are most tempting here, and the answer to each.
+
+| Excuse | Reality |
+|---|---|
+| "The charger rejects bad values anyway." | A write acts on a physical device, and the device may accept the value. Validate before you send ([R005](docs/architecture/risks/R005-pgrid-without-a-finiteness-check.md), [R029](docs/architecture/risks/R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md)). |
+| "WebSocket is the normal path, HTTP does not matter." | Users without a password use HTTP, and the two paths return different results for the same write ([R027](docs/architecture/risks/R027-false-error-after-a-successful-multiple-write.md), [R001](docs/architecture/risks/R001-stop-charging-locks-the-charger-after-a-write-error.md)). Test both. |
+| "Every charger has this key." | Controllers have no `tcl` and no `cll`, and older firmware lacks keys ([R029](docs/architecture/risks/R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md), #177). Check the key table of the device type. |
+| "The documentation says X, so the code is wrong." | The official documentation is sometimes wrong (the cloud answers 200, not 202: [R015](docs/architecture/risks/R015-cloud-documentation-names-http-202-for-api-set.md)). Mark the test `needs_decision` and ask. Do not change the code on the documentation alone. |
+| "This looks like a bug, I will fix it." | It may be intended ([R020](docs/architecture/risks/R020-old-values-stay-after-a-failed-read.md)). Ask first. |
+| "A small `if tag == ...` is quicker." | The maintainer objected to exactly this (#177). Use the tag mechanism. |
+| "A helper file keeps it clean." | The maintainer does not want extra files for one feature. |
+| "I will mock the bridge to keep the test simple." | Bridge and coordinator are the real code in these tests; only the socket and the HTTP layer are fakes (`tests/integration/factories.py`). Mocking the bridge hides the differences between the two paths. |
+| "The test passes, so the charger behaves the same." | All tests use fakes. |
+| "A risk entry is overkill for a small finding." | Without it the finding is not tracked and the next agent reports it again. It is one file, the script writes the rest. |
+| "The documentation can follow later." | Update what the change touches now, and keep it short. |
+| "That red test is not mine." | Name it in the report. Tests marked `known_bug` or `needs_decision` are red on purpose; any other red test is yours until shown otherwise. |
+| "I will call the service on the real charger to see what happens." | A real charger is not a test bench. Read first; write only with the owner's consent. |
+
+**Red flags: stop and ask a human when you notice one of these.**
+
+- You edit `tests/integration/contract/api_keys.json` or `controller_keys.json` by hand. They are generated from the official tables by `generate_api_keys.py`.
+- You add an entry to `deviations.json` or `classification.json` only to silence a contract test.
+- You run `UPDATE_SNAPSHOT=1` to make the entity ID test pass. Entity IDs of existing users would change.
+- You add a marker (`known_bug`, `needs_decision`), `skip` or `xfail` in the same change that makes the test fail.
+- The change mixes two topics, or reformats code it does not change.
+- The new documentation is much larger than the change it describes.
+- Your report says "should", "probably" or "seems" about something you did not run.
+- A real serial number, token, password or address is in the diff.
+- You add a bare `except` or `except BaseException` that swallows the error.
+
 ## Boundaries
 
 **Always**
