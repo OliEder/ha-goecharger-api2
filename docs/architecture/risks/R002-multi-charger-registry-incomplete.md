@@ -23,7 +23,7 @@ If several go-eChargers are set up in one HA instance and an entry is reloaded, 
 
 **Effect.** The documented multi-charger operation via `configid` does not work for the second charger.
 
-**Addendum to R2:**this is a **regression** from commit `5328e74` ("housekeeping of tasks"). Before, a `GoeChargerApiV2Service` was always created per charger entry and entered its coordinator into the registry, so `configid` worked for every charger. Since `5328e74` the service is only created for the first charger. In addition, after an entry is reloaded (for example by the automatic restart logic after more than 5 connection errors), with several chargers the **old** coordinator stays in the registry; the service then writes through a separate bridge. Read from the diff and the code, not replayed.
+**Addendum to R2:** this is a **regression** from commit `5328e74` ("housekeeping of tasks"). Before, a `GoeChargerApiV2Service` was always created per charger entry and entered its coordinator into the registry, so `configid` worked for every charger. Since `5328e74` the service is only created for the first charger. In addition, after an entry is reloaded (for example by the automatic restart logic after more than 5 connection errors), with several chargers the **old** coordinator stays in the registry; the service then writes through a separate bridge. Read from the diff and the code, not replayed.
 
 ## Assessment
 
