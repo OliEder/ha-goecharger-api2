@@ -1,4 +1,4 @@
-# ADR-0002: Operating mode follows from the password
+# ADR-0006: Hibernation in polling
 
 ## Status
 
@@ -6,18 +6,18 @@ Accepted (reconstructed, date unknown)
 
 ## Context and reasoning
 
-Simple setup
+Reduce device and cloud load
 
 ## Decision
 
-Operating mode = password set
+Hibernation in polling
 
 ## Consequences
 
-No explicit switch; switching only through reconfiguration
+Only a few values current when idle
 
 ## Origin of this entry
 
 Reconstructed from code and comments [Schluss]. The author keeps no decision records; the reasoning is inferred, not proven.
 
-Architecture: [arc42](../../architecture/arc42-ha-goecharger-api2.en.md) | [Back to the index](README.md)
+Architecture: [arc42](../../arc42-ha-goecharger-api2.en.md) | [Back to the index](README.md)

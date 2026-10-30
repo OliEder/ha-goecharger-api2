@@ -28,4 +28,4 @@ Nicht gewählt: festen Standard-Charger bestimmen oder die Reihenfolge stabil ha
 
 Aus Commit, Diff und Tests abgeleitet [Schluss]; die Begründung hat der Maintainer nicht schriftlich gegeben.
 
-Architektur: [arc42](../architecture/arc42-ha-goecharger-api2.md) | [Zurück zum Index](README.md)
+Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Index](README.md)

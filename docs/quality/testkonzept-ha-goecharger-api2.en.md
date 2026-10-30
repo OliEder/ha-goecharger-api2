@@ -6,7 +6,7 @@
 |---|---|
 | **Subject** | Automated tests of the Home Assistant integration `goecharger_api2` (go-eCharger, go-eController) |
 | **State** | 2026-10-30, `main` at `e6ee0c3` |
-| **Reference** | Architecture and risks: [`arc42-ha-goecharger-api2.en.md`](../architecture/arc42-ha-goecharger-api2.en.md), decisions: [`docs/adr/en/`](../adr/en/README.md) (risks R1 to R30). Test strategy and rules: section 5. |
+| **Reference** | Architecture and risks: [`arc42-ha-goecharger-api2.en.md`](../architecture/arc42-ha-goecharger-api2.en.md), decisions: [`docs/architecture/adr/en/`](../architecture/adr/en/README.md) (risks R1 to R30). Test strategy and rules: section 5. |
 | **Status of the tests** | The tests have been in this repository since PR #178 (`738c3c6`); `.github/workflows/tests.yaml` has run them on pushes to `main` and on pull requests since PR #179. The document was written with AI assistance (Claude Code) and reviewed by a human. |
 
 **Note.** All tests run with fakes. They show what the code does and what the documentation says, **not** what a real charger does. Where this matters for a statement, it is noted there.

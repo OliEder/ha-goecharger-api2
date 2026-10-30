@@ -20,4 +20,4 @@ Jede Entscheidung steht in einer eigenen Datei, nummeriert fortlaufend. Die Eint
 
 1. Nächste freie Nummer wählen, Datei `NNNN-kurzer-titel.md` anlegen, Aufbau wie in den vorhandenen Dateien: Status, Kontext und Begründung, Entscheidung, Konsequenzen, Herkunft.
 2. Wird eine Entscheidung abgelöst, den alten Eintrag nicht löschen, sondern den Status auf „Ersetzt durch ADR-NNNN“ setzen.
-3. Die Tabelle oben und das Kapitel 9 der [arc42-Dokumentation](../architecture/arc42-ha-goecharger-api2.md) ergänzen. Die englische Fassung (`en/`) im selben Schritt pflegen.
+3. Die Tabelle oben und das Kapitel 9 der [arc42-Dokumentation](../arc42-ha-goecharger-api2.md) ergänzen. Die englische Fassung (`en/`) im selben Schritt pflegen.

@@ -20,4 +20,4 @@ Vorher fielen Regressionen erst bei Nutzern auf; jetzt prüft die Suite jede Än
 
 Rekonstruiert aus Code und Kommentaren [Schluss]. Der Autor führt keine Entscheidungsprotokolle; die Begründung ist abgeleitet, nicht belegt.
 
-Architektur: [arc42](../architecture/arc42-ha-goecharger-api2.md) | [Zurück zum Index](README.md)
+Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Index](README.md)

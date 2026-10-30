@@ -20,4 +20,4 @@ Every decision is in a file of its own, numbered consecutively. The entries ADR-
 
 1. Pick the next free number, create a file `NNNN-short-title.md`, structured like the existing files: status, context and reasoning, decision, consequences, origin.
 2. When a decision is replaced, do not delete the old entry; set its status to "Superseded by ADR-NNNN".
-3. Add it to the table above and to chapter 9 of the [arc42 documentation](../../architecture/arc42-ha-goecharger-api2.en.md). Maintain the German version (parent folder) in the same step.
+3. Add it to the table above and to chapter 9 of the [arc42 documentation](../../arc42-ha-goecharger-api2.en.md). Maintain the German version (parent folder) in the same step.

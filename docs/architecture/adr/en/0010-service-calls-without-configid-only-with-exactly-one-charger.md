@@ -28,4 +28,4 @@ Not chosen: define a fixed default charger or keep the order stable.
 
 Derived from the commit, diff and tests [Schluss]; the maintainer did not give the reasoning in writing.
 
-Architecture: [arc42](../../architecture/arc42-ha-goecharger-api2.en.md) | [Back to the index](README.md)
+Architecture: [arc42](../../arc42-ha-goecharger-api2.en.md) | [Back to the index](README.md)

@@ -561,21 +561,21 @@ flowchart LR
 
 ## 9. Architecture decisions
 
-The decisions are separate documents in [`docs/adr/en/`](../adr/en/README.md), one file per decision. ADR-0001 to ADR-0009 are reconstructed from code and comments [Schluss]; ADR-0010 and ADR-0011 come from October 2026.
+The decisions are separate documents in [`docs/architecture/adr/en/`](adr/en/README.md), one file per decision. ADR-0001 to ADR-0009 are reconstructed from code and comments [Schluss]; ADR-0010 and ADR-0011 come from October 2026.
 
 | ADR | Decision | Status |
 |---|---|---|
-| [ADR-0001](../adr/en/0001-prefer-websocket-polling-as-fallback.md) | Prefer WebSocket, polling as fallback | Accepted (reconstructed, date unknown) |
-| [ADR-0002](../adr/en/0002-operating-mode-follows-from-the-password.md) | Operating mode follows from the password | Accepted (reconstructed, date unknown) |
-| [ADR-0003](../adr/en/0003-bridge-as-a-sub-library-in-the-same-folder.md) | Bridge as a sub-library in the same folder | Accepted (reconstructed, date unknown) |
-| [ADR-0004](../adr/en/0004-declarative-entity-descriptions.md) | Declarative entity descriptions | Accepted (reconstructed, date unknown) |
-| [ADR-0005](../adr/en/0005-own-chainmap-data-store-instead-of-a-type-model.md) | Own ChainMap data store instead of a type model | Accepted (reconstructed, date unknown) |
-| [ADR-0006](../adr/en/0006-hibernation-in-polling.md) | Hibernation in polling | Accepted (reconstructed, date unknown) |
-| [ADR-0007](../adr/en/0007-pv-data-through-an-ha-automation-instead-of-extra-hardware.md) | PV data through an HA automation instead of extra hardware | Accepted (reconstructed, date unknown) |
-| [ADR-0008](../adr/en/0008-restart-by-config-reload-on-persistent-errors.md) | Restart by config reload on persistent errors | Accepted (reconstructed, date unknown) |
-| [ADR-0009](../adr/en/0009-no-automated-tests-in-the-repository.md) | No automated tests in the repository | Superseded by ADR-0011 |
-| [ADR-0010](../adr/en/0010-service-calls-without-configid-only-with-exactly-one-charger.md) | Service calls without configid only with exactly one charger | Accepted (2026-10-29, commit `4702213`) |
-| [ADR-0011](../adr/en/0011-regression-tests-in-the-repository.md) | Regression tests in the repository | Accepted (2026-10-29, PRs #178 and #179) |
+| [ADR-0001](adr/en/0001-prefer-websocket-polling-as-fallback.md) | Prefer WebSocket, polling as fallback | Accepted (reconstructed, date unknown) |
+| [ADR-0002](adr/en/0002-operating-mode-follows-from-the-password.md) | Operating mode follows from the password | Accepted (reconstructed, date unknown) |
+| [ADR-0003](adr/en/0003-bridge-as-a-sub-library-in-the-same-folder.md) | Bridge as a sub-library in the same folder | Accepted (reconstructed, date unknown) |
+| [ADR-0004](adr/en/0004-declarative-entity-descriptions.md) | Declarative entity descriptions | Accepted (reconstructed, date unknown) |
+| [ADR-0005](adr/en/0005-own-chainmap-data-store-instead-of-a-type-model.md) | Own ChainMap data store instead of a type model | Accepted (reconstructed, date unknown) |
+| [ADR-0006](adr/en/0006-hibernation-in-polling.md) | Hibernation in polling | Accepted (reconstructed, date unknown) |
+| [ADR-0007](adr/en/0007-pv-data-through-an-ha-automation-instead-of-extra-hardware.md) | PV data through an HA automation instead of extra hardware | Accepted (reconstructed, date unknown) |
+| [ADR-0008](adr/en/0008-restart-by-config-reload-on-persistent-errors.md) | Restart by config reload on persistent errors | Accepted (reconstructed, date unknown) |
+| [ADR-0009](adr/en/0009-no-automated-tests-in-the-repository.md) | No automated tests in the repository | Superseded by ADR-0011 |
+| [ADR-0010](adr/en/0010-service-calls-without-configid-only-with-exactly-one-charger.md) | Service calls without configid only with exactly one charger | Accepted (2026-10-29, commit `4702213`) |
+| [ADR-0011](adr/en/0011-regression-tests-in-the-repository.md) | Regression tests in the repository | Accepted (2026-10-29, PRs #178 and #179) |
 
 ---
 

@@ -4,7 +4,7 @@
 |---|---|
 | **Gegenstand** | Automatisierte Tests der Home-Assistant-Integration `goecharger_api2` (go-eCharger, go-eController) |
 | **Stand** | 2026-10-30, `main` bei `e6ee0c3` |
-| **Bezug** | Architektur und Risiken: [`arc42-ha-goecharger-api2.md`](../architecture/arc42-ha-goecharger-api2.md), Entscheidungen: [`docs/adr/`](../adr/README.md) (Risiken R1 bis R30). Teststrategie und Regeln: Abschnitt 5. |
+| **Bezug** | Architektur und Risiken: [`arc42-ha-goecharger-api2.md`](../architecture/arc42-ha-goecharger-api2.md), Entscheidungen: [`docs/architecture/adr/`](../architecture/adr/README.md) (Risiken R1 bis R30). Teststrategie und Regeln: Abschnitt 5. |
 | **Status der Tests** | Die Tests liegen seit PR #178 (`738c3c6`) in diesem Repository, `.github/workflows/tests.yaml` führt sie seit PR #179 bei Push auf `main` und bei Pull Requests aus. Das Dokument wurde mit KI-Unterstützung (Claude Code) erstellt und von einem Menschen geprüft. |
 
 **Lesehinweis.** Alle Tests laufen mit Attrappen. Sie belegen, was der Code tut und was die Doku sagt, **nicht**, was ein echter Charger tut. Wo das für eine Aussage wichtig ist, steht es dabei.

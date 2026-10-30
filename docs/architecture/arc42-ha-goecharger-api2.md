@@ -559,21 +559,21 @@ flowchart LR
 
 ## 9. Architekturentscheidungen
 
-Die Entscheidungen stehen als eigene Dokumente in [`docs/adr/`](../adr/README.md), eine Datei je Entscheidung. ADR-0001 bis ADR-0009 sind aus Code und Kommentaren rekonstruiert [Schluss]; ADR-0010 und ADR-0011 stammen aus dem Oktober 2026.
+Die Entscheidungen stehen als eigene Dokumente in [`docs/architecture/adr/`](adr/README.md), eine Datei je Entscheidung. ADR-0001 bis ADR-0009 sind aus Code und Kommentaren rekonstruiert [Schluss]; ADR-0010 und ADR-0011 stammen aus dem Oktober 2026.
 
 | ADR | Entscheidung | Status |
 |---|---|---|
-| [ADR-0001](../adr/0001-prefer-websocket-polling-as-fallback.md) | WebSocket bevorzugen, Polling als Rückfall | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0002](../adr/0002-operating-mode-follows-from-the-password.md) | Betriebsart ergibt sich aus dem Passwort | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0003](../adr/0003-bridge-as-a-sub-library-in-the-same-folder.md) | Bridge als Teilbibliothek im selben Ordner | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0004](../adr/0004-declarative-entity-descriptions.md) | Deklarative Entity-Beschreibungen | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0005](../adr/0005-own-chainmap-data-store-instead-of-a-type-model.md) | Eigene ChainMap-Datenhaltung statt Typmodell | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0006](../adr/0006-hibernation-in-polling.md) | Hibernation im Polling | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0007](../adr/0007-pv-data-through-an-ha-automation-instead-of-extra-hardware.md) | PV-Daten über eine HA-Automation statt Zusatzhardware | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0008](../adr/0008-restart-by-config-reload-on-persistent-errors.md) | Neustart per Konfigurations-Reload bei dauerhaften Fehlern | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0009](../adr/0009-no-automated-tests-in-the-repository.md) | Keine automatisierten Tests im Repository | Ersetzt durch ADR-0011 |
-| [ADR-0010](../adr/0010-service-calls-without-configid-only-with-exactly-one-charger.md) | Dienstaufrufe ohne configid nur bei genau einem Charger | Akzeptiert (2026-10-29, Commit `4702213`) |
-| [ADR-0011](../adr/0011-regression-tests-in-the-repository.md) | Regressionstests im Repository | Akzeptiert (2026-10-29, PR #178 und #179) |
+| [ADR-0001](adr/0001-prefer-websocket-polling-as-fallback.md) | WebSocket bevorzugen, Polling als Rückfall | Akzeptiert (rekonstruiert, Datum unbekannt) |
+| [ADR-0002](adr/0002-operating-mode-follows-from-the-password.md) | Betriebsart ergibt sich aus dem Passwort | Akzeptiert (rekonstruiert, Datum unbekannt) |
+| [ADR-0003](adr/0003-bridge-as-a-sub-library-in-the-same-folder.md) | Bridge als Teilbibliothek im selben Ordner | Akzeptiert (rekonstruiert, Datum unbekannt) |
+| [ADR-0004](adr/0004-declarative-entity-descriptions.md) | Deklarative Entity-Beschreibungen | Akzeptiert (rekonstruiert, Datum unbekannt) |
+| [ADR-0005](adr/0005-own-chainmap-data-store-instead-of-a-type-model.md) | Eigene ChainMap-Datenhaltung statt Typmodell | Akzeptiert (rekonstruiert, Datum unbekannt) |
+| [ADR-0006](adr/0006-hibernation-in-polling.md) | Hibernation im Polling | Akzeptiert (rekonstruiert, Datum unbekannt) |
+| [ADR-0007](adr/0007-pv-data-through-an-ha-automation-instead-of-extra-hardware.md) | PV-Daten über eine HA-Automation statt Zusatzhardware | Akzeptiert (rekonstruiert, Datum unbekannt) |
+| [ADR-0008](adr/0008-restart-by-config-reload-on-persistent-errors.md) | Neustart per Konfigurations-Reload bei dauerhaften Fehlern | Akzeptiert (rekonstruiert, Datum unbekannt) |
+| [ADR-0009](adr/0009-no-automated-tests-in-the-repository.md) | Keine automatisierten Tests im Repository | Ersetzt durch ADR-0011 |
+| [ADR-0010](adr/0010-service-calls-without-configid-only-with-exactly-one-charger.md) | Dienstaufrufe ohne configid nur bei genau einem Charger | Akzeptiert (2026-10-29, Commit `4702213`) |
+| [ADR-0011](adr/0011-regression-tests-in-the-repository.md) | Regressionstests im Repository | Akzeptiert (2026-10-29, PR #178 und #179) |
 
 ---
 

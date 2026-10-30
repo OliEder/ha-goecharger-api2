@@ -20,4 +20,4 @@ Very large `const.py` (3300 lines); logic hidden in options (`idx`, `tuple_idx`)
 
 Reconstructed from code and comments [Schluss]. The author keeps no decision records; the reasoning is inferred, not proven.
 
-Architecture: [arc42](../../architecture/arc42-ha-goecharger-api2.en.md) | [Back to the index](README.md)
+Architecture: [arc42](../../arc42-ha-goecharger-api2.en.md) | [Back to the index](README.md)
