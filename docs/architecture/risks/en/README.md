@@ -1,6 +1,6 @@
 # Risk register: `ha-goecharger-api2`
 
-All known risks and technical debt of the integration, **one document per risk** (like the architecture decisions in [`../adr/en/`](../../adr/en/README.md)). The register belongs to the [arc42 documentation](../../arc42-ha-goecharger-api2.en.md) (chapter 11). German is the source (the [parent folder](../README.md)); both languages are maintained together.
+All known risks and technical debt of the integration, **one document per risk** (like the architecture decisions in [`adr/en/`](../../adr/en/README.md)). The register belongs to the [arc42 documentation](../../arc42-ha-goecharger-api2.en.md) (chapter 11). German is the source (the [parent folder](../README.md)); both languages are maintained together.
 
 | | |
 |---|---|
