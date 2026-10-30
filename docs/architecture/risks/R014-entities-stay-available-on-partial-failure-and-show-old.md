@@ -19,9 +19,9 @@ If the device partly fails, then the data stays and the entities remain `availab
 
 ## Finding in detail
 
-**Finding.** On partial failure of the device: data stays, entities remain `available` as long as the last update succeeded.
+**Finding.** `available` follows `last_update_success`. A failed HTTP read raises `UpdateFailed`, so the entities become unavailable at once. While a WebSocket is connected, during the two minute error pause and while a restart is planned, `_async_update_data` returns the stored data as a success.
 
-**Effect.** The user sees old values as current.
+**Effect.** In these three situations the user sees old values as current.
 
 ## Assessment
 
@@ -36,7 +36,7 @@ Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 
 
 ## Countermeasure
 
-Set availability to "unavailable" after several failed read cycles or on WebSocket loss. Proposal, not implemented; there is no test for it.
+Mark the data as stale when the WebSocket has delivered nothing for a defined time, and during the error pause. Proposal, not implemented; there is no test for it.
 
 ## Status and history
 
@@ -48,7 +48,7 @@ Open
 
 *Evidence at the time of the finding (not today's state)*
 
-Read from the code (`available` = `last_update_success`). I did not check how a WebSocket loss affects availability.  
+[Code] `available` = `last_update_success`; the three branches that return stored data read in `_async_update_data`. [Inference] How long a connected WebSocket can stay silent was not measured.
 
 ## Note on the assessment
 

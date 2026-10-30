@@ -36,7 +36,7 @@ Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 
 
 ## Countermeasure
 
-The migration should not delete devices. The case now concerns only entries still on 2.0. The HA behaviour is assumed from memory and not replayed.
+The migration should not delete devices. Removing the purge alone would leave the old identifiers, which for cloud entries contained the token ([R022](R022-version-1-entries-leave-old-devices-in-the-registry.md)); the identifiers should be rewritten instead. Entity IDs that users customised are lost as well. `async_migrate_entry` catches `BaseException` and the version is bumped anyway, so a failed purge is not repeated. The case now concerns only entries still on 2.0. The HA behaviour is assumed from memory and not replayed.
 
 ## Status and history
 
