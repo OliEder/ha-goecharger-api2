@@ -28,15 +28,65 @@ footer{color:var(--muted);font-size:.9rem;margin-top:3rem}
 """
 PAGES = [("index.html", "Übersicht"), ("testreport.html", "Testbericht"), ("testcases.html", "Testfälle"),
          ("testkonzept.html", "Testkonzept"), ("arc42.html", "Architektur (arc42)"),
+         ("adr.html", "Entscheidungen (ADR)"),
          ("testkonzept-en.html", "Test concept (EN)"), ("arc42-en.html", "Architecture (arc42, EN)"),
-         ("coverage/index.html", "Abdeckung im Detail")]
+         ("adr-en.html", "Decisions (ADR, EN)"), ("coverage/index.html", "Abdeckung im Detail")]
 # the diagrams of the arc42 document are Mermaid; the library is loaded from a CDN with a fixed version
 MERMAID = ('<script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.esm.min.mjs";'
            'mermaid.initialize({startOnLoad:true,theme:matchMedia("(prefers-color-scheme: dark)").matches?"dark":"default"});</script>')
-DOC_FILES = {"arc42.html": ("Architektur (arc42)", "arc42-ha-goecharger-api2.md"),
-             "testkonzept.html": ("Testkonzept", "testkonzept-ha-goecharger-api2.md"),
-             "arc42-en.html": ("Architecture (arc42, English)", "arc42-ha-goecharger-api2.en.md"),
-             "testkonzept-en.html": ("Test concept (English)", "testkonzept-ha-goecharger-api2.en.md")}
+# page -> (title, file relative to the docs directory); the documents are looked up by their folder
+# (architecture, quality) and, for older layouts, directly in the docs directory
+DOC_FILES = {"arc42.html": ("Architektur (arc42)", "architecture/arc42-ha-goecharger-api2.md"),
+             "testkonzept.html": ("Testkonzept", "quality/testkonzept-ha-goecharger-api2.md"),
+             "arc42-en.html": ("Architecture (arc42, English)", "architecture/arc42-ha-goecharger-api2.en.md"),
+             "testkonzept-en.html": ("Test concept (English)", "quality/testkonzept-ha-goecharger-api2.en.md")}
+# the architecture decision records: one page per language, built from the files in docs/adr
+ADR_PAGES = {"adr.html": ("Architekturentscheidungen (ADR)", "adr"), "adr-en.html": ("Architecture decisions (ADR, English)", "adr/en")}
+LINK_TARGETS = {"arc42-ha-goecharger-api2.md": "arc42.html", "arc42-ha-goecharger-api2.en.md": "arc42-en.html",
+                "testkonzept-ha-goecharger-api2.md": "testkonzept.html", "testkonzept-ha-goecharger-api2.en.md": "testkonzept-en.html"}
+
+
+def find_doc(docs, rel):
+    root = Path(docs)
+    for candidate in (root / rel, root / Path(rel).name):
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def adr_files(docs, folder):
+    directory = Path(docs) / folder
+    if not directory.is_dir():
+        return []
+    return sorted(f for f in directory.glob("*.md") if f.name != "README.md")
+
+
+def adr_anchors(docs):
+    """File name -> heading id on the ADR page (the first line of each file is its heading)."""
+    from markdown.extensions.toc import slugify
+    anchors = {}
+    for folder in ("adr", "adr/en"):
+        for f in adr_files(docs, folder):
+            anchors[(folder.endswith("en"), f.name)] = slugify(f.read_text().splitlines()[0].lstrip("# ").strip(), "-")
+    return anchors
+
+
+def rewrite_links(md_text, page, anchors):
+    """Links between the Markdown documents point to the generated pages."""
+    english_adr = page == "adr-en.html"
+
+    def fix(m):
+        path, name, frag = m.group(1), m.group(2), m.group(3) or ""
+        if name in LINK_TARGETS:
+            return f"]({LINK_TARGETS[name]}{frag})"
+        is_en = "adr/en/" in path or english_adr
+        if name == "README.md":
+            return f"](adr-en.html{frag})" if is_en else f"](adr.html{frag})"
+        key = (is_en, name)
+        if key in anchors:
+            return f"](adr{'-en' if is_en else ''}.html#{anchors[key]})"
+        return m.group(0)
+    return re.sub(r"\]\(([^)#]*?)([A-Za-z0-9_.-]+\.md)(#[^)]*)?\)", fix, md_text)
 
 
 def render(site, name, title, body_md, available, toc_levels=False):
@@ -81,9 +131,17 @@ def main():
             shutil.copytree(Path(a.report) / "html-all", site / "coverage", dirs_exist_ok=True)
     if a.testcases and Path(a.testcases).exists():
         pages["testcases.html"] = ("Testfälle", Path(a.testcases).read_text())
+    anchors = adr_anchors(a.docs) if a.docs else {}
     for name, (title, filename) in DOC_FILES.items():
-        if a.docs and (Path(a.docs) / filename).exists():
-            pages[name] = (title, (Path(a.docs) / filename).read_text(), True)
+        found = find_doc(a.docs, filename) if a.docs else None
+        if found is not None:
+            pages[name] = (title, rewrite_links(found.read_text(), name, anchors), True)
+    for name, (title, folder) in ADR_PAGES.items():
+        files = adr_files(a.docs, folder) if a.docs else []
+        index = (Path(a.docs) / folder / "README.md") if a.docs else None
+        if files and index is not None and index.exists():
+            parts = [index.read_text()] + [f.read_text() for f in files]
+            pages[name] = (title, rewrite_links("\n\n---\n\n".join(parts), name, anchors))
     index = ["# Regressionstests für ha-goecharger-api2", "",
              "Tests und Berichte zur Home-Assistant-Integration [marq24/ha-goecharger-api2](https://github.com/marq24/ha-goecharger-api2) "
              "(go-eCharger). Die Tests liegen im Repository unter `tests/integration`; diese Seite wird aus einem Fork heraus gebaut. Die Tests ändern den Code nicht.", ""]
@@ -94,8 +152,9 @@ def main():
               "- [Testfälle](testcases.html): jede Testfunktion in einer Zeile",
               "- [Abdeckung im Detail](coverage/index.html): Zeile für Zeile",
               "- [Testkonzept](testkonzept.html): Ziele, Methoden, Kennzahlen und ihre Grenzen",
-              "- [Architektur (arc42)](arc42.html): Aufbau der Integration, Risiken, Entscheidungen",
-              "- [Test concept](testkonzept-en.html) and [Architecture (arc42)](arc42-en.html): English versions"]
+              "- [Architektur (arc42)](arc42.html): Aufbau der Integration, Abläufe, Risiken",
+              "- [Entscheidungen (ADR)](adr.html): Architekturentscheidungen, je eine mit Begründung und Folgen",
+              "- English: [Test concept](testkonzept-en.html), [Architecture (arc42)](arc42-en.html), [Decisions (ADR)](adr-en.html)"]
     available = set(pages) | {"index.html"} | ({"coverage/index.html"} if (site / "coverage").exists() else set())
     for name, (title, body, *toc) in pages.items():
         render(site, name, title, body, available, bool(toc))
