@@ -4,7 +4,7 @@
 |---|---|
 | **Gegenstand** | Automatisierte Tests der Home-Assistant-Integration `goecharger_api2` (go-eCharger, go-eController) |
 | **Stand** | 2026-10-30, `main` bei `e6ee0c3` |
-| **Bezug** | Architektur und Risiken: `arc42-ha-goecharger-api2.md` (Risiken R1 bis R30). Teststrategie und Regeln: Abschnitt 5. |
+| **Bezug** | Architektur und Risiken: [`arc42-ha-goecharger-api2.md`](../architecture/arc42-ha-goecharger-api2.md), Entscheidungen: [`docs/adr/`](../adr/README.md) (Risiken R1 bis R30). Teststrategie und Regeln: Abschnitt 5. |
 | **Status der Tests** | Die Tests liegen seit PR #178 (`738c3c6`) in diesem Repository, `.github/workflows/tests.yaml` führt sie seit PR #179 bei Push auf `main` und bei Pull Requests aus. Das Dokument wurde mit KI-Unterstützung (Claude Code) erstellt und von einem Menschen geprüft. |
 
 **Lesehinweis.** Alle Tests laufen mit Attrappen. Sie belegen, was der Code tut und was die Doku sagt, **nicht**, was ein echter Charger tut. Wo das für eine Aussage wichtig ist, steht es dabei.
@@ -67,7 +67,7 @@ Reihenfolge der Testtiefe nach Auswirkung auf den Betrieb (steuert ein physische
 | R1 `stop_charging` WebSocket (`TypeError`) | `test_stop_charging_in_websocket_mode_sends_lock_and_unlock` | behoben, Test grün |
 | R1 Flag `_stop_in_progress` bleibt hängen | `test_failed_lock_write_...`, `test_failed_unlock_write_...` | behoben seit `9e7d62a`, grün |
 | R2 Multi-Charger-Register | `test_second_charger_is_reachable_...`, `test_reloaded_charger_...` | behoben, grün |
-| R2 / E10 kein stiller Standard-Charger | `test_without_configid_and_with_two_chargers_no_charger_is_guessed`, `test_with_an_empty_registry_no_charger_can_be_chosen` | Entscheidung E10, grün (auf Versionen vor `4702213` übersprungen) |
+| R2 / ADR-0010 kein stiller Standard-Charger | `test_without_configid_and_with_two_chargers_no_charger_is_guessed`, `test_with_an_empty_registry_no_charger_can_be_chosen` | Entscheidung ADR-0010, grün (auf Versionen vor `4702213` übersprungen) |
 | R3 Zähler `ACTIVE_CHARGER_COUNTER` | zwei Tests in `test_services_and_unload.py` | behoben seit `eb5da46`, grün |
 | R4 `__init__.py:674` | `test_write_multiple_keys_connection_error_is_counted` | behoben, grün |
 | R5 `pgrid` ohne Endlichkeitsprüfung | `test_non_finite_grid_value_is_rejected` | behoben seit `eb5da46`, grün |

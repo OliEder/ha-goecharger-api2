@@ -6,7 +6,7 @@
 |---|---|
 | **Subject** | Automated tests of the Home Assistant integration `goecharger_api2` (go-eCharger, go-eController) |
 | **State** | 2026-10-30, `main` at `e6ee0c3` |
-| **Reference** | Architecture and risks: `arc42-ha-goecharger-api2.en.md` (risks R1 to R30). Test strategy and rules: section 5. |
+| **Reference** | Architecture and risks: [`arc42-ha-goecharger-api2.en.md`](../architecture/arc42-ha-goecharger-api2.en.md), decisions: [`docs/adr/en/`](../adr/en/README.md) (risks R1 to R30). Test strategy and rules: section 5. |
 | **Status of the tests** | The tests have been in this repository since PR #178 (`738c3c6`); `.github/workflows/tests.yaml` has run them on pushes to `main` and on pull requests since PR #179. The document was written with AI assistance (Claude Code) and reviewed by a human. |
 
 **Note.** All tests run with fakes. They show what the code does and what the documentation says, **not** what a real charger does. Where this matters for a statement, it is noted there.
@@ -69,7 +69,7 @@ Order of test depth by impact on operation (controls a physical device) and by p
 | R1 `stop_charging` WebSocket (`TypeError`) | `test_stop_charging_in_websocket_mode_sends_lock_and_unlock` | fixed, test green |
 | R1 flag `_stop_in_progress` stays stuck | `test_failed_lock_write_...`, `test_failed_unlock_write_...` | fixed since `9e7d62a`, green |
 | R2 multi-charger registry | `test_second_charger_is_reachable_...`, `test_reloaded_charger_...` | fixed, green |
-| R2 / E10 no silent default charger | `test_without_configid_and_with_two_chargers_no_charger_is_guessed`, `test_with_an_empty_registry_no_charger_can_be_chosen` | decision E10, green (skipped on versions before `4702213`) |
+| R2 / ADR-0010 no silent default charger | `test_without_configid_and_with_two_chargers_no_charger_is_guessed`, `test_with_an_empty_registry_no_charger_can_be_chosen` | decision ADR-0010, green (skipped on versions before `4702213`) |
 | R3 counter `ACTIVE_CHARGER_COUNTER` | two tests in `test_services_and_unload.py` | fixed since `eb5da46`, green |
 | R4 `__init__.py:674` | `test_write_multiple_keys_connection_error_is_counted` | fixed, green |
 | R5 `pgrid` without finiteness check | `test_non_finite_grid_value_is_rejected` | fixed since `eb5da46`, green |

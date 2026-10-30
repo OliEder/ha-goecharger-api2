@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Gegenstand** | Home-Assistant-Integration `goecharger_api2` für go-eCharger-Wallboxen und go-eController |
-| **Quelle** | `marq24/ha-goecharger-api2`, Branch `main`, Commit `e6ee0c3` (2026-10-30). Letzte Version (Release) ist `2026.10.8` (Commit `03b0fc3`, 2026-10-27); `main` enthält danach unter anderem die 16-A-Erkennung über `cll`, das temporäre Stromlimit `tcl` (PR #177), die Entscheidung E10 und mehrere Fehlerbehebungen. Risiken und Bausteine wurden am 2026-10-30 gegen diesen Stand geprüft |
+| **Quelle** | `marq24/ha-goecharger-api2`, Branch `main`, Commit `e6ee0c3` (2026-10-30). Letzte Version (Release) ist `2026.10.8` (Commit `03b0fc3`, 2026-10-27); `main` enthält danach unter anderem die 16-A-Erkennung über `cll`, das temporäre Stromlimit `tcl` (PR #177), die Entscheidung ADR-0010 und mehrere Fehlerbehebungen. Risiken und Bausteine wurden am 2026-10-30 gegen diesen Stand geprüft |
 | **Erstellt** | 2026-10-27, rekonstruiert aus Code, README, `docs/PVSURPLUS.md`, Workflows und Commit-Historie |
 | **Status** | Arbeitsunterlage, mit KI-Unterstützung (Claude Code) erstellt und von einem Menschen geprüft. Der Maintainer war an der Erstellung nicht beteiligt; die Unterlagen liegen seit PR #178 im Repository. |
 
@@ -200,7 +200,7 @@ flowchart TB
 | `GoeChargerBaseEntity` (`__init__.py`) | Gemeinsame Basis: Übersetzungsschlüssel, Entity-ID, `unique_id`, `device_info`, Verfügbarkeit | Entity-ID `…goe_<serial>_<schlüssel>` (LAN) oder `…goe_wan_<serial>_…` (Cloud). |
 | `CustomFriendlyNameEntity` (`entity.py`) | Überschreibt den Anzeigenamen ab HA 2026.2 | Greift auf die private Methode `_Entity__async_calculate_state` zu, also fragil bei HA-Updates [Schluss]. |
 | Plattformen | Legen Entitäten aus den Beschreibungslisten an; filtern über `is_valid_charger_entity()` | Wertzugriff mit `idx` (Listen), `tuple_idx` (verschachtelt), `lookup` (Zahl→Text), `factor`, `differential_base_key`. |
-| `service.py` | Drei HA-Dienste | `set_pv_data`: Netzleistung Pflicht, PV und Batterie optional. `stop_charging`: setzt `frc=1`, wartet 300 s, setzt `frc=0` (beide Schreibzugriffe mit Bestätigung, siehe 6.8). `set_temporary_current_limit`: setzt `tcl` mit Bestätigung (6.8). Ein Register der Charger (`add_config_entry_to_service`, `remove_config_entry_from_service`) bildet `configid` auf den Koordinator ab; `get_coordinator` lehnt unbekannte oder deaktivierte Entries mit `ServiceValidationError` ab. Ohne `configid` wird nur dann ein Charger gewählt, wenn genau einer registriert ist, sonst folgt ebenfalls ein `ServiceValidationError` (E10). |
+| `service.py` | Drei HA-Dienste | `set_pv_data`: Netzleistung Pflicht, PV und Batterie optional. `stop_charging`: setzt `frc=1`, wartet 300 s, setzt `frc=0` (beide Schreibzugriffe mit Bestätigung, siehe 6.8). `set_temporary_current_limit`: setzt `tcl` mit Bestätigung (6.8). Ein Register der Charger (`add_config_entry_to_service`, `remove_config_entry_from_service`) bildet `configid` auf den Koordinator ab; `get_coordinator` lehnt unbekannte oder deaktivierte Entries mit `ServiceValidationError` ab. Ohne `configid` wird nur dann ein Charger gewählt, wenn genau einer registriert ist, sonst folgt ebenfalls ein `ServiceValidationError` (ADR-0010). |
 | `config_flow.py` | Assistent LAN/Cloud, Verbindungstest über WebSocket oder HTTP, Rekonfiguration | Titel und Typ aus den gelesenen Gerätedaten. |
 | `const.py` / `pygoecharger_ha/const.py` | Entity-Beschreibungen; API-Filter (welche Schlüssel für welchen Zyklus); Übersetzungen; Enums (`CAR_VALUES`, `CT_VALUES`) | `FILTER_*`-Zeichenketten bestimmen den Datenumfang je Zyklus. |
 | `example/blueprint/…` | Blueprint für den PV-Überschuss | Eigene Qualitätssicherung im Blueprint (Messwertprüfung, Zielcharger) seit PR #171. |
@@ -327,7 +327,7 @@ sequenceDiagram
 
 ### 6.5 PV-Überschuss (`set_pv_data`)
 
-1. Blueprint ruft alle 5 Sekunden den Dienst mit `pgrid`, `ppv`, `pakku` auf (und `configid`; bei mehreren Chargern ist sie seit `4702213` Pflicht, siehe E10).
+1. Blueprint ruft alle 5 Sekunden den Dienst mit `pgrid`, `ppv`, `pakku` auf (und `configid`; bei mehreren Chargern ist sie seit `4702213` Pflicht, siehe ADR-0010).
 2. Cloud-Betrieb: Ist kein Fahrzeug verbunden (`car < 2`), wird **nichts** gesendet (Last-Schutz).
 3. Der Dienst schreibt den Schlüssel `ids` mit `{"pGrid", "pPv", "pAkku"}`.
 4. Im HTTP-Betrieb setzt die Bridge danach ein Flag, damit im Leerlauf zusätzlich `pakku, ppv, pgrid` gelesen werden.
@@ -418,7 +418,7 @@ flowchart TD
     C -- nein --> E["ServiceValidationError: disabled or invalid"]
     B -- nein --> F{"Genau ein Charger im Register?"}
     F -- ja --> D
-    F -- nein --> G["ServiceValidationError: No config_id provided BUT zero or multiple ... (E10)"]
+    F -- nein --> G["ServiceValidationError: No config_id provided BUT zero or multiple ... (ADR-0010)"]
 ```
 
 Das Register enthält nur Charger (R3, behoben). Controller haben keine Dienste.
@@ -559,20 +559,21 @@ flowchart LR
 
 ## 9. Architekturentscheidungen
 
-Der Autor führt keine Entscheidungsprotokolle. Die folgenden Einträge sind aus Code und Kommentaren rekonstruiert [Schluss].
+Die Entscheidungen stehen als eigene Dokumente in [`docs/adr/`](../adr/README.md), eine Datei je Entscheidung. ADR-0001 bis ADR-0009 sind aus Code und Kommentaren rekonstruiert [Schluss]; ADR-0010 und ADR-0011 stammen aus dem Oktober 2026.
 
-| # | Entscheidung | Begründung (abgeleitet) | Konsequenz |
-|---|---|---|---|
-| E1 | WebSocket bevorzugen, Polling als Rückfall | Effizienz; einige Geräte (Wattpilot) bieten kein HTTP-API [Doku] | Zwei Datenpfade mit unterschiedlichem Schreibergebnis (`None` gegenüber Dictionary) |
-| E2 | Betriebsart = Passwort gesetzt | Einfache Einrichtung | Kein expliziter Schalter; Umschalten nur über Rekonfiguration |
-| E3 | Eine Bridge-Teilbibliothek im selben Ordner | Trennung von Protokoll und HA | Nicht separat veröffentlicht; Abhängigkeiten nicht im Manifest vollständig |
-| E4 | Deklarative Entity-Beschreibungen | Hunderte Entitäten mit wenig Code | Sehr große `const.py` (3300 Zeilen); Logik versteckt in Optionen (`idx`, `tuple_idx`) |
-| E5 | Eigene `ChainMap`-Datenhaltung statt Typmodell | Schnelle Anpassung an neue Schlüssel | Kein Schema; Fehler zeigen sich erst zur Laufzeit (`KeyError` werden abgefangen) |
-| E6 | Hibernation im Polling | Geräte- und Cloud-Last senken | Im Leerlauf nur wenige Werte aktuell |
-| E7 | PV-Daten über HA-Automation statt Zusatzhardware | Kein Zusatzgerät nötig | Qualität liegt im Blueprint und in den Messwerten des Nutzers |
-| E8 | Neustart per Konfigurations-Reload bei dauerhaften Fehlern | Hängende Verbindung selbst heilen | Reload aller Entitäten für ein Verbindungsproblem |
-| E9 | Keine automatisierten Tests im Repo (überholt: seit PR #178, `738c3c6`, liegen die Tests in `tests/integration`) | Aufwand/Haltung des Autors | Vorher fielen Regressionen erst bei Nutzern auf; jetzt prüft die Suite jede Änderung gegen den Vertrag zur offiziellen API |
-| E10 | Dienste (`set_pv_data`, `stop_charging`) ohne `configid`: nur bei genau einem registrierten Charger wird dieser verwendet, sonst `ServiceValidationError` (Commit `4702213`, 2026-10-29; Entscheidung des Maintainers im Code, im Issue #172 nicht begründet) | Vorher wurde der zuerst registrierte Charger genommen. Nach dem Neuladen eines Entries rückte dieser ans Ende der Liste, der Standard wechselte dann stillschweigend auf einen anderen Charger. Ein falscher Charger bei Schreibzugriffen (Strom, Stopp) wird vermieden [Schluss, aus Diff und Testfund]. | **Verhaltensänderung:** Wer mehrere Charger hat und `configid` bisher wegließ (zum Beispiel ein Blueprint oder eine Automation), bekommt jetzt einen Fehler statt eines Zugriffs auf den ersten Charger. Mit einem Charger oder mit `configid` ändert sich nichts. Alternativen, die nicht gewählt wurden: festen Standard-Charger bestimmen oder die Reihenfolge stabil halten. Tests: `test_without_configid_and_with_two_chargers_no_charger_is_guessed`, `test_with_an_empty_registry_no_charger_can_be_chosen`. `docs/PVSURPLUS.md` verlangt `configid` bei mehreren Chargern bereits; das Blueprint selbst enthält keine `configid` (per `grep` geprüft), ein Aufruf aus dem Blueprint mit mehreren Chargern scheitert deshalb jetzt, sofern der Nutzer sie nicht ergänzt. Am Gerät nicht nachgespielt. |
+| ADR | Entscheidung | Status |
+|---|---|---|
+| [ADR-0001](../adr/0001-prefer-websocket-polling-as-fallback.md) | WebSocket bevorzugen, Polling als Rückfall | Akzeptiert (rekonstruiert, Datum unbekannt) |
+| [ADR-0002](../adr/0002-operating-mode-follows-from-the-password.md) | Betriebsart ergibt sich aus dem Passwort | Akzeptiert (rekonstruiert, Datum unbekannt) |
+| [ADR-0003](../adr/0003-bridge-as-a-sub-library-in-the-same-folder.md) | Bridge als Teilbibliothek im selben Ordner | Akzeptiert (rekonstruiert, Datum unbekannt) |
+| [ADR-0004](../adr/0004-declarative-entity-descriptions.md) | Deklarative Entity-Beschreibungen | Akzeptiert (rekonstruiert, Datum unbekannt) |
+| [ADR-0005](../adr/0005-own-chainmap-data-store-instead-of-a-type-model.md) | Eigene ChainMap-Datenhaltung statt Typmodell | Akzeptiert (rekonstruiert, Datum unbekannt) |
+| [ADR-0006](../adr/0006-hibernation-in-polling.md) | Hibernation im Polling | Akzeptiert (rekonstruiert, Datum unbekannt) |
+| [ADR-0007](../adr/0007-pv-data-through-an-ha-automation-instead-of-extra-hardware.md) | PV-Daten über eine HA-Automation statt Zusatzhardware | Akzeptiert (rekonstruiert, Datum unbekannt) |
+| [ADR-0008](../adr/0008-restart-by-config-reload-on-persistent-errors.md) | Neustart per Konfigurations-Reload bei dauerhaften Fehlern | Akzeptiert (rekonstruiert, Datum unbekannt) |
+| [ADR-0009](../adr/0009-no-automated-tests-in-the-repository.md) | Keine automatisierten Tests im Repository | Ersetzt durch ADR-0011 |
+| [ADR-0010](../adr/0010-service-calls-without-configid-only-with-exactly-one-charger.md) | Dienstaufrufe ohne configid nur bei genau einem Charger | Akzeptiert (2026-10-29, Commit `4702213`) |
+| [ADR-0011](../adr/0011-regression-tests-in-the-repository.md) | Regressionstests im Repository | Akzeptiert (2026-10-29, PR #178 und #179) |
 
 ---
 
@@ -607,7 +608,7 @@ Qualität
 | Q2 | Firmware-Update ändert Schlüssel (60.0) | Integration läuft weiter | Weichen für `cards` und `cll` vorhanden [Code] |
 | Q3 | PV-Automation fällt aus | Kein ungewolltes Netzladen | Liegt im Blueprint; die Integration prüft Eingaben nur auf Zahl und Endlichkeit (`ppv`, `pakku`) |
 | Q4 | `stop_charging` im WebSocket-Modus | Laden aus für 5 min, dann wieder frei | **Erfüllt** seit `03b0fc3` und `9e7d62a`: `frc=1`, Wartezeit, `frc=0`, Flag wird immer zurückgesetzt (R1). Früher `TypeError`. Am Gerät nicht geprüft. |
-| Q5 | Zwei Charger in einer HA-Instanz | Dienst wirkt auf den gewählten Charger | **Erfüllt** mit `configid`; ohne `configid` gibt es einen Fehler statt eines stillen Standards (R2 behoben, E10). Am Gerät nicht geprüft. |
+| Q5 | Zwei Charger in einer HA-Instanz | Dienst wirkt auf den gewählten Charger | **Erfüllt** mit `configid`; ohne `configid` gibt es einen Fehler statt eines stillen Standards (R2 behoben, ADR-0010). Am Gerät nicht geprüft. |
 | Q6 | Nutzer ohne Admin-Rechte | Keine Zugangsdaten lesbar | Der Token steht seit `8cb62b2` nicht mehr in der Geräteinfo. Passwort und Token liegen weiter im Config-Entry (HA-Eigenschaft). |
 
 ---
@@ -639,7 +640,7 @@ Nummerierung nur für diese Liste. Die Tabelle beschreibt den **Befund bei der E
 | # | Stand | Anmerkung |
 |---|---|---|
 | R1 | **behoben** | Der `TypeError` im WebSocket-Modus ist weg (`write_value_to_key` liefert `{key: value}`), `_stop_in_progress` wird seit `9e7d62a` in einem `finally` zurückgesetzt. Beide Tests sind grün. |
-| R2 | **behoben** | Register wird für jeden Charger gepflegt, Neuladen ersetzt den alten Koordinator. Der wechselnde Standard-Charger ist seit `4702213` über E10 entschieden (kein Standard bei mehreren Chargern). |
+| R2 | **behoben** | Register wird für jeden Charger gepflegt, Neuladen ersetzt den alten Koordinator. Der wechselnde Standard-Charger ist seit `4702213` über ADR-0010 entschieden (kein Standard bei mehreren Chargern). |
 | R3 | **behoben** | Seit `eb5da46` werden Zähler und Dienste nur für Charger angepasst. |
 | R4 | **behoben** | Aufruf hat jetzt zwei Argumente. |
 | R5 | **behoben** | Seit `eb5da46` prüft `set_pv_data` auch `pgrid` auf Endlichkeit. |
