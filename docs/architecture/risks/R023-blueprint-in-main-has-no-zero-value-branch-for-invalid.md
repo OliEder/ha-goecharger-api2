@@ -1,5 +1,5 @@
 ---
-id: R23
+id: R023
 date: 2026-10-29
 category: INT
 probability: 3
@@ -11,7 +11,7 @@ status: open
 owner:
 review: release
 ---
-# R23: Blueprint in `main` has no zero-value branch for invalid measurements
+# R023: Blueprint in `main` has no zero-value branch for invalid measurements
 
 ## Risk description
 

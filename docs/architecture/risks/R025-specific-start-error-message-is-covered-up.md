@@ -1,5 +1,5 @@
 ---
-id: R25
+id: R025
 date: 2026-10-29
 category: ARCH
 probability: 3
@@ -11,7 +11,7 @@ status: fixed
 owner:
 review: release
 ---
-# R25: Specific start error message is covered up
+# R025: Specific start error message is covered up
 
 ## Risk description
 

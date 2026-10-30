@@ -1,5 +1,5 @@
 ---
-id: R16
+id: R016
 date: 2026-10-29
 category: INT
 probability: 3
@@ -11,7 +11,7 @@ status: open
 owner:
 review: release
 ---
-# R16: WebSocket interface is not officially documented
+# R016: WebSocket interface is not officially documented
 
 ## Risk description
 

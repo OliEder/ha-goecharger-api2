@@ -1,5 +1,5 @@
 ---
-id: R9
+id: R009
 date: 2026-10-27
 category: MAINT
 probability: 2
@@ -11,7 +11,7 @@ status: open
 owner:
 review: release
 ---
-# R9: Global variable `SCAN_INTERVAL` is overwritten in the constructor
+# R009: Global variable `SCAN_INTERVAL` is overwritten in the constructor
 
 ## Risk description
 

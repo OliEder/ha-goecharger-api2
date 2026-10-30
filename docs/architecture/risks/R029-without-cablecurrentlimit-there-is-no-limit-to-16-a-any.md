@@ -1,5 +1,5 @@
 ---
-id: R29
+id: R029
 date: 2026-10-29
 category: INT
 probability: 3
@@ -11,7 +11,7 @@ status: open
 owner:
 review: release
 ---
-# R29: Without `cableCurrentLimit` there is no limit to 16 A any more
+# R029: Without `cableCurrentLimit` there is no limit to 16 A any more
 
 ## Risk description
 

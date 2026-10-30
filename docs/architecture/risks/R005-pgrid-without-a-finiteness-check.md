@@ -1,5 +1,5 @@
 ---
-id: R5
+id: R005
 date: 2026-10-27
 category: ARCH
 probability: 1
@@ -11,7 +11,7 @@ status: fixed
 owner:
 review: release
 ---
-# R5: `pgrid` without a finiteness check
+# R005: `pgrid` without a finiteness check
 
 ## Risk description
 

@@ -1,5 +1,5 @@
 ---
-id: R12
+id: R012
 date: 2026-10-27
 category: INT
 probability: 3
@@ -11,7 +11,7 @@ status: open
 owner:
 review: release
 ---
-# R12: `CustomFriendlyNameEntity` overrides a private HA method
+# R012: `CustomFriendlyNameEntity` overrides a private HA method
 
 ## Risk description
 

@@ -1,5 +1,5 @@
 ---
-id: R3
+id: R003
 date: 2026-10-27
 category: ARCH
 probability: 2
@@ -11,7 +11,7 @@ status: fixed
 owner:
 review: release
 ---
-# R3: Active charger counter with controller entries
+# R003: Active charger counter with controller entries
 
 ## Risk description
 

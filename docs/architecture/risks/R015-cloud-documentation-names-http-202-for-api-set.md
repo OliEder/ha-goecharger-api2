@@ -1,5 +1,5 @@
 ---
-id: R15
+id: R015
 date: 2026-10-29
 category: INT
 probability: 2
@@ -11,7 +11,7 @@ status: settled
 owner:
 review: release
 ---
-# R15: Cloud documentation names HTTP 202 for `/api/set`
+# R015: Cloud documentation names HTTP 202 for `/api/set`
 
 ## Risk description
 

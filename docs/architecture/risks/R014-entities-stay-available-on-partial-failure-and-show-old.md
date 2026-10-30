@@ -1,5 +1,5 @@
 ---
-id: R14
+id: R014
 date: 2026-10-27
 category: ARCH
 probability: 3
@@ -11,7 +11,7 @@ status: open
 owner:
 review: release
 ---
-# R14: Entities stay `available` on partial failure and show old values
+# R014: Entities stay `available` on partial failure and show old values
 
 ## Risk description
 

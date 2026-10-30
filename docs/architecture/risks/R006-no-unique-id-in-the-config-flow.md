@@ -1,5 +1,5 @@
 ---
-id: R6
+id: R006
 date: 2026-10-27
 category: ARCH
 probability: 3
@@ -11,7 +11,7 @@ status: open
 owner:
 review: release
 ---
-# R6: No `unique_id` in the config flow
+# R006: No `unique_id` in the config flow
 
 ## Risk description
 

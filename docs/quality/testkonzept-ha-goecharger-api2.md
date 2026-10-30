@@ -4,7 +4,7 @@
 |---|---|
 | **Subject** | Automated tests of the Home Assistant integration `goecharger_api2` (go-eCharger, go-eController) |
 | **State** | 2026-10-30, `main` at `e6ee0c3` |
-| **Reference** | Architecture: [`arc42-ha-goecharger-api2.md`](../architecture/arc42-ha-goecharger-api2.md); risk register: [`risks/`](../architecture/risks/README.md) ([R1](../architecture/risks/R001-stop-charging-locks-the-charger-after-a-write-error.md) to [R30](../architecture/risks/R030-max-ampere-is-reset-at-every-restart.md)); decisions: [`adr/`](../architecture/adr/README.md). Test strategy and rules: section 5. |
+| **Reference** | Architecture: [`arc42-ha-goecharger-api2.md`](../architecture/arc42-ha-goecharger-api2.md); risk register: [`risks/`](../architecture/risks/README.md) ([R001](../architecture/risks/R001-stop-charging-locks-the-charger-after-a-write-error.md) to [R030](../architecture/risks/R030-max-ampere-is-reset-at-every-restart.md)); decisions: [`adr/`](../architecture/adr/README.md). Test strategy and rules: section 5. |
 | **Status of the tests** | The tests have been in this repository since PR #178 (`738c3c6`); `.github/workflows/tests.yaml` has run them on pushes to `main` and on pull requests since PR #179. The document was written with AI assistance (Claude Code) and reviewed by a human. |
 
 **Note.** All tests run with fakes. They show what the code does and what the documentation says, **not** what a real charger does. Where this matters for a statement, it is noted there.
@@ -64,25 +64,25 @@ Order of test depth by impact on operation (controls a physical device) and by p
 
 | Risk | Test | State |
 |---|---|---|
-| [R1](../architecture/risks/R001-stop-charging-locks-the-charger-after-a-write-error.md) `stop_charging` WebSocket (`TypeError`) | `test_stop_charging_in_websocket_mode_sends_lock_and_unlock` | fixed, test green |
-| [R1](../architecture/risks/R001-stop-charging-locks-the-charger-after-a-write-error.md) flag `_stop_in_progress` stays stuck | `test_failed_lock_write_...`, `test_failed_unlock_write_...` | fixed since `9e7d62a`, green |
-| [R2](../architecture/risks/R002-multi-charger-registry-incomplete.md) multi-charger registry | `test_second_charger_is_reachable_...`, `test_reloaded_charger_...` | fixed, green |
-| [R2](../architecture/risks/R002-multi-charger-registry-incomplete.md) / ADR-0010 no silent default charger | `test_without_configid_and_with_two_chargers_no_charger_is_guessed`, `test_with_an_empty_registry_no_charger_can_be_chosen` | decision ADR-0010, green (skipped on versions before `4702213`) |
-| [R3](../architecture/risks/R003-active-charger-counter-with-controller-entries.md) counter `ACTIVE_CHARGER_COUNTER` | two tests in `test_services_and_unload.py` | fixed since `eb5da46`, green |
-| [R4](../architecture/risks/R004-error-handling-for-multiple-writes-calls-the-wrong-sign.md) wrong signature in the error handling of multiple writes (`__init__.py:674`) | `test_write_multiple_keys_connection_error_is_counted` | fixed, green |
-| [R5](../architecture/risks/R005-pgrid-without-a-finiteness-check.md) `pgrid` without finiteness check | `test_non_finite_grid_value_is_rejected` | fixed since `eb5da46`, green |
-| [R6](../architecture/risks/R006-no-unique-id-in-the-config-flow.md) no `unique_id` in the config flow (no protection against creating twice) | – | **not covered** |
-| [R7](../architecture/risks/R007-readme-and-code-state-different-read-intervals-for-the.md) README "24 h", code "1 h" | `test_read_all_reads_the_configuration_only_every_hour` | code behaviour recorded (deviation from the README remains) |
-| [R8](../architecture/risks/R008-credentials-are-stored-in-plain-text-in-the-config-entr.md) credentials | – | deliberately not part of the tests |
-| [R15](../architecture/risks/R015-cloud-documentation-names-http-202-for-api-set.md) cloud answer | `test_cloud_write_succeeds_with_http_200` | green; documentation says 202, the maintainer confirms 200 |
-| [R16](../architecture/risks/R016-websocket-interface-is-not-officially-documented.md) WebSocket not documented | `test_ws_protocol.py`, `test_ws_login_failures.py` | behaviour recorded |
-| [R17](../architecture/risks/R017-cloud-data-can-be-up-to-30-seconds-old.md) cloud `age` not set | – | **not covered** |
-| [R18](../architecture/risks/R018-negative-ppv-standby-cannot-be-set.md) `ppv` negative (standby) | – | **not covered** |
-| [R20](../architecture/risks/R020-old-values-stay-after-a-failed-read.md) old values after a failed read | `test_failed_full_read_keeps_the_previous_states` | behaviour recorded; intended according to the maintainer (#173) |
-| [R21](../architecture/risks/R021-migration-from-2-0-to-2-1-deletes-all-devices.md) migration deletes devices | `test_version_2_0_deletes_the_devices_and_moves_to_2_1` | behaviour recorded |
-| [R25](../architecture/risks/R025-specific-start-error-message-is-covered-up.md) message of `ConfigEntryNotReady` is covered up | `test_missing_device_data_is_reported_with_its_own_message` | fixed since `eb5da46`, green |
-| [R24](../architecture/risks/R024-error-text-of-the-charger-counts-as-success.md) error text of the charger counts as success | `test_write_rejected_by_charger_returns_err` | green on `9e7d62a` |
-| [R27](../architecture/risks/R027-false-error-after-a-successful-multiple-write.md) false `ERROR` after multiple write in WebSocket mode | `test_websocket_multi_write_logs_no_error_on_success` | fixed since `9e7d62a`, green |
+| [R001](../architecture/risks/R001-stop-charging-locks-the-charger-after-a-write-error.md) `stop_charging` WebSocket (`TypeError`) | `test_stop_charging_in_websocket_mode_sends_lock_and_unlock` | fixed, test green |
+| [R001](../architecture/risks/R001-stop-charging-locks-the-charger-after-a-write-error.md) flag `_stop_in_progress` stays stuck | `test_failed_lock_write_...`, `test_failed_unlock_write_...` | fixed since `9e7d62a`, green |
+| [R002](../architecture/risks/R002-multi-charger-registry-incomplete.md) multi-charger registry | `test_second_charger_is_reachable_...`, `test_reloaded_charger_...` | fixed, green |
+| [R002](../architecture/risks/R002-multi-charger-registry-incomplete.md) / ADR-0010 no silent default charger | `test_without_configid_and_with_two_chargers_no_charger_is_guessed`, `test_with_an_empty_registry_no_charger_can_be_chosen` | decision ADR-0010, green (skipped on versions before `4702213`) |
+| [R003](../architecture/risks/R003-active-charger-counter-with-controller-entries.md) counter `ACTIVE_CHARGER_COUNTER` | two tests in `test_services_and_unload.py` | fixed since `eb5da46`, green |
+| [R004](../architecture/risks/R004-error-handling-for-multiple-writes-calls-the-wrong-sign.md) wrong signature in the error handling of multiple writes (`__init__.py:674`) | `test_write_multiple_keys_connection_error_is_counted` | fixed, green |
+| [R005](../architecture/risks/R005-pgrid-without-a-finiteness-check.md) `pgrid` without finiteness check | `test_non_finite_grid_value_is_rejected` | fixed since `eb5da46`, green |
+| [R006](../architecture/risks/R006-no-unique-id-in-the-config-flow.md) no `unique_id` in the config flow (no protection against creating twice) | – | **not covered** |
+| [R007](../architecture/risks/R007-readme-and-code-state-different-read-intervals-for-the.md) README "24 h", code "1 h" | `test_read_all_reads_the_configuration_only_every_hour` | code behaviour recorded (deviation from the README remains) |
+| [R008](../architecture/risks/R008-credentials-are-stored-in-plain-text-in-the-config-entr.md) credentials | – | deliberately not part of the tests |
+| [R015](../architecture/risks/R015-cloud-documentation-names-http-202-for-api-set.md) cloud answer | `test_cloud_write_succeeds_with_http_200` | green; documentation says 202, the maintainer confirms 200 |
+| [R016](../architecture/risks/R016-websocket-interface-is-not-officially-documented.md) WebSocket not documented | `test_ws_protocol.py`, `test_ws_login_failures.py` | behaviour recorded |
+| [R017](../architecture/risks/R017-cloud-data-can-be-up-to-30-seconds-old.md) cloud `age` not set | – | **not covered** |
+| [R018](../architecture/risks/R018-negative-ppv-standby-cannot-be-set.md) `ppv` negative (standby) | – | **not covered** |
+| [R020](../architecture/risks/R020-old-values-stay-after-a-failed-read.md) old values after a failed read | `test_failed_full_read_keeps_the_previous_states` | behaviour recorded; intended according to the maintainer (#173) |
+| [R021](../architecture/risks/R021-migration-from-2-0-to-2-1-deletes-all-devices.md) migration deletes devices | `test_version_2_0_deletes_the_devices_and_moves_to_2_1` | behaviour recorded |
+| [R025](../architecture/risks/R025-specific-start-error-message-is-covered-up.md) message of `ConfigEntryNotReady` is covered up | `test_missing_device_data_is_reported_with_its_own_message` | fixed since `eb5da46`, green |
+| [R024](../architecture/risks/R024-error-text-of-the-charger-counts-as-success.md) error text of the charger counts as success | `test_write_rejected_by_charger_returns_err` | green on `9e7d62a` |
+| [R027](../architecture/risks/R027-false-error-after-a-successful-multiple-write.md) false `ERROR` after multiple write in WebSocket mode | `test_websocket_multi_write_logs_no_error_on_success` | fixed since `9e7d62a`, green |
 | `set_temporary_current_limit`, `tcl`, acknowledged writing (PR #177) | – | **not covered** (section 10, item 11) |
 
 ---
@@ -201,14 +201,14 @@ State 2026-10-29 (measured after extending with controller contract, value range
 Done since the first version: platforms, read cycle in polling, write paths, coordinator runtime (16 A limiter, reconnect, watchdog), start and end of an entry, successful login via WebSocket, config flow paths.
 
 1. **K1 and K2 first:** the report (section 5.1) names per function where base paths are certainly still missing, for example in `check_and_write_to_16a`, `async_migrate_entry`, `ws_connect`, `read_versions` of the coordinator and `read_all_states`.
-2. **[R20](../architecture/risks/R020-old-values-stay-after-a-failed-read.md) (old values after a failed read, cloud):** the behaviour is recorded as a characterisation (`test_failed_full_read_keeps_the_previous_states`); the maintainer confirmed in #173 that keeping the old values is intended, so no test for a different behaviour is planned. **[R7](../architecture/risks/R007-readme-and-code-state-different-read-intervals-for-the.md) (configuration interval):** the code behaviour is recorded; the README statement still differs.
+2. **[R020](../architecture/risks/R020-old-values-stay-after-a-failed-read.md) (old values after a failed read, cloud):** the behaviour is recorded as a characterisation (`test_failed_full_read_keeps_the_previous_states`); the maintainer confirmed in #173 that keeping the old values is intended, so no test for a different behaviour is planned. **[R007](../architecture/risks/R007-readme-and-code-state-different-read-intervals-for-the.md) (configuration interval):** the code behaviour is recorded; the README statement still differs.
 3. **Endpoint contracts:** cloud 403, 404, 422, `age`, `last-modified`, `token` as a GET parameter, several keys in one `set`; plus a schema of the endpoints from `http-en.md` and `cloudapi-en.md`.
 4. **Write encoding per key type** and **boundary values** (rule "explicit limits"): only where the documentation names type or range. For 98 keys with a placeholder type this is not possible.
 5. **Reading comparison on a real charger:** check the contract data (status codes, keys, types) against `GET /api/status`. Reading only, no `frc`, no `ids`. Only this proves that the fakes correspond to the device.
 6. **Read side per firmware:** sample answers from the lists for 59.4, 60.2, 60.3 and 60.4.
 7. **Entity creation:** `async_setup_entry` per platform and `entity.py` (display name) are not yet exercised.
 8. **Connection loss during running WebSocket operation:** availability of the entities.
-9. **[R6](../architecture/risks/R006-no-unique-id-in-the-config-flow.md) (`unique_id`):** prevent creating a device twice.
+9. **[R006](../architecture/risks/R006-no-unique-id-in-the-config-flow.md) (`unique_id`):** prevent creating a device twice.
 10. **Structure:** apply Arrange-Act-Assert consistently (the new tests mostly follow the pattern without it being checked); automate a coverage lower bound and a marker warning.
 11. **Temporary current limit and acknowledged writing (PR #177):** there are no tests of their own for `set_temporary_current_limit`, the `tcl` entity, the input check (`_TCLTagLogic`) and the acknowledged writing with a 3 second timeout (`require_ack`, `_ws_pending_ack`) (checked with `grep` in `tests/integration`). The test for `stop_charging` replaces `async_write_key` with a fake and therefore does not check the acknowledgement.
 

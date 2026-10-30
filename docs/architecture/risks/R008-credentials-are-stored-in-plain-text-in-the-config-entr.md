@@ -1,5 +1,5 @@
 ---
-id: R8
+id: R008
 date: 2026-10-27
 category: SEC
 probability: 2
@@ -11,7 +11,7 @@ status: note
 owner:
 review: release
 ---
-# R8: Credentials are stored in plain text in the config entry
+# R008: Credentials are stored in plain text in the config entry
 
 ## Risk description
 
