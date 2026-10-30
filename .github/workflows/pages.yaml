@@ -1,6 +1,6 @@
 name: Test report and documentation (GitHub Pages)
 
-# Fork only. Takes the current main of marq24/ha-goecharger-api2 (tests, tools and docs/quality live there),
+# Fork only. Takes the current main of marq24/ha-goecharger-api2 (tests, tools and docs live there),
 # runs the tests with coverage and path measurement and publishes the result with GitHub Pages:
 # test report, list of all test cases, arc42, test concept, coverage in detail.
 # Nothing is committed anywhere. Scheduled workflows only run from the default branch, so this branch
@@ -12,8 +12,12 @@ on:
     - cron: "17 4 * * *"
   workflow_dispatch:
     inputs:
+      repository:
+        description: "Repository to build from (empty = marq24/ha-goecharger-api2, e.g. OliEder/ha-goecharger-api2 for a preview)"
+        required: false
+        default: ""
       ref:
-        description: "Branch or tag of marq24/ha-goecharger-api2 (empty = main)"
+        description: "Branch or tag of that repository (empty = main)"
         required: false
         default: ""
 
@@ -35,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: marq24/ha-goecharger-api2
+          repository: ${{ inputs.repository || 'marq24/ha-goecharger-api2' }}
           ref: ${{ inputs.ref || 'main' }}
 
       - uses: actions/setup-python@v5
@@ -86,7 +90,8 @@ jobs:
             args="--report $report --testcases testcases.md"
           fi
           [ -f "$RUNNER_TEMP/summary.md" ] && args="$args --regression $RUNNER_TEMP/summary.md"
-          python tests/tools/build_site.py _site --docs docs/quality $args
+          docs=docs; [ -d docs/architecture ] || docs=docs/quality
+          python tests/tools/build_site.py _site --docs "$docs" $args
 
       - uses: actions/upload-pages-artifact@v3
         with:
