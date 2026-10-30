@@ -121,27 +121,55 @@ An integration behaves as it does inside a real Home Assistant, not as the code 
 
 If your agent already works with [Superpowers](https://github.com/obra/superpowers) (the skills `test-driven-development`, `systematic-debugging` and `verification-before-completion` are loaded), **you do not need to read on.** Follow the rules of those skills; everything above is the project-specific part and applies in addition.
 
-Everything below is a short summary for agents without Superpowers. It is adapted from the Superpowers skills (MIT licence), which are the full reference:
+Everything below is a summary for agents without Superpowers. It follows the three skills closely (MIT licence, by Jesse Vincent), leaves out their examples, and each part ends with the source. **If you can read URLs, read the full skill before you start work of that kind. If you cannot, the summary here is enough.**
 
-- [`test-driven-development`](https://github.com/obra/superpowers/blob/main/skills/test-driven-development/SKILL.md)
-- [`systematic-debugging`](https://github.com/obra/superpowers/blob/main/skills/systematic-debugging/SKILL.md)
-- [`verification-before-completion`](https://github.com/obra/superpowers/blob/main/skills/verification-before-completion/SKILL.md)
-
-### Test first, in short
+### Test first (summary of `test-driven-development`)
 
 ```
 NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST
 ```
 
-1. **Red:** write one small test for one behaviour. Run it and watch it fail, for the right reason (the behaviour is missing, not a typo). A test that passes at once tests existing behaviour.
-2. **Green:** write the least code that makes it pass. Run the whole blocking set.
-3. **Refactor:** clean up while everything stays green. Add no behaviour.
-4. A bug fix starts with a test that reproduces the bug. Never fix a bug without one.
-5. Code written before its test is deleted and written again from the test.
+- **Red.** Write one minimal test for one behaviour, with a name that says what should happen. Use real code; mock only what you cannot avoid. Run it and confirm that it *fails* (not errors), with the message you expect, because the behaviour is missing and not because of a typo. A test that passes at once tests existing behaviour: fix the test.
+- **Green.** Write the simplest code that passes. Add no feature, no refactoring of other code, no improvement beyond the test. Run it and confirm: the test passes, the other tests of the project still pass (the whole suite, not only your file), the output is clean. **If a test fails, fix the code, not the test.** Name every failure that run shows, also one you did not cause.
+- **Refactor.** Only after green: remove duplication, improve names, extract helpers. Add no behaviour. Keep it green.
+- **Bug fix.** Write a failing test that reproduces the bug first. Never fix a bug without one.
+- **Code that exists before its test is deleted**, not kept as a reference and not adapted while writing the test. Implement it again from the test.
+- **Excuses that all mean "test first":** too simple to test, I will test after, tests after achieve the same, I tested it by hand, deleting my work is wasteful, keep it as a reference, I need to explore first, the test is hard to write (then the design is unclear), TDD is dogmatic, this case is different. If you notice one, stop and start over with the test.
+- **Done only when:** every new behaviour has a test, you watched each test fail first for the expected reason, you wrote minimal code, all tests pass with clean output, edge cases and errors are covered.
 
-"Too simple to test", "I will test after", "I tested it by hand", "deleting my work is wasteful", "the test is wrong, I will adjust it": all of these mean the test comes first, or that you show evidence for the change of the test. If you notice one of them, start over.
+Source: <https://github.com/obra/superpowers/blob/main/skills/test-driven-development/SKILL.md>
 
-### Debugging and finishing, in short
+### Systematic debugging (summary of `systematic-debugging`)
 
-- Find the cause before you change code. Reproduce, read the error, check what changed. A guess is not a fix.
-- Do not say "done" or "fixed" before you have run the check that proves it and read its output.
+```
+NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
+```
+
+Apply it to every failure, bug or unexpected behaviour, above all when you are in a hurry, when a quick fix looks obvious, or when an earlier fix did not work. Finish each phase before the next.
+
+1. **Find the root cause.** Read error messages and stack traces completely. Reproduce the problem reliably; if you cannot, gather more data and do not guess. Check what changed recently (diff, commits, dependencies, configuration). Where several components are involved (here: entity, coordinator, bridge, device), log what enters and leaves each boundary and find out where it breaks before you fix anything. Trace a bad value back to where it comes from and fix it there, not at the symptom.
+2. **Find the pattern.** Find similar working code in the same code base and compare it with the broken code. List every difference, however small, and the dependencies and assumptions involved.
+3. **Test one hypothesis.** State it ("I think X is the cause because Y"), make the smallest change that tests it, change one variable at a time. If it did not work, form a new hypothesis; do not stack fixes. If you do not understand something, say so.
+4. **Fix.** Write the failing test first, make one change for the root cause, no "while I am here" improvements, then verify the fix and that nothing else broke. **If three fixes failed, stop and question the design with the maintainer before you try a fourth.**
+
+Source: <https://github.com/obra/superpowers/blob/main/skills/systematic-debugging/SKILL.md>
+
+### Verification before completion (summary of `verification-before-completion`)
+
+```
+NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE
+```
+
+Before you say that something is done, fixed or passing (and before you commit or open a pull request): **identify** the command that proves the claim, **run** it completely and freshly, **read** the whole output, the exit code and the number of failures, and only then **state** the result together with the evidence. If the output does not confirm the claim, report the real status.
+
+| Claim | Needs | Not enough |
+|---|---|---|
+| Tests pass | the test command shows 0 failures | an earlier run, "should pass" |
+| Bug fixed | the test of the original symptom passes | the code was changed |
+| Regression test works | red-green verified: passes, fix reverted, **fails**, fix restored, passes | it passed once |
+| Delegated work is done | the diff shows the changes | the other agent reports success |
+| Requirements met | a line-by-line check against the requirements | the tests pass |
+
+"Should", "probably" and "seems" are warning signs, as is any expression of satisfaction before the check ("Done!"). The rule covers paraphrases and implications too.
+
+Source: <https://github.com/obra/superpowers/blob/main/skills/verification-before-completion/SKILL.md>
