@@ -11,14 +11,16 @@ on:
       - "custom_components/**"
       - "tests/**"
       - "requirements_dev.txt"
-      - "docs/architecture/risks/**"
+      - "docs/architecture/**"
+      - "docs/quality/**"
       - ".github/workflows/tests.yaml"
   pull_request:
     paths:
       - "custom_components/**"
       - "tests/**"
       - "requirements_dev.txt"
-      - "docs/architecture/risks/**"
+      - "docs/architecture/**"
+      - "docs/quality/**"
       - ".github/workflows/tests.yaml"
   workflow_dispatch:
 
