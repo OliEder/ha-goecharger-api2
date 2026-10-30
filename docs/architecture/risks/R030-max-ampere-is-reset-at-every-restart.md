@@ -7,7 +7,7 @@ impact: 3
 residual_probability: 1
 residual_impact: 3
 strategy: mitigate
-status: open
+status: fixed
 owner:
 review: release
 ---
@@ -19,9 +19,9 @@ If Home Assistant or the integration restarts, then according to the maintainer 
 
 ## Finding in detail
 
-**Finding.** According to the maintainer (issue #176) the integration resets the maximum current (Max Ampere) at every restart.
+**Finding.** According to the maintainer (issue #176) the integration reset the maximum current (Max Ampere) at every restart.
 
-**Effect.** A previously set value is lost; the limit then no longer applies until it is set again.
+**Effect.** A previously set value was lost; the limit then no longer applied until it was set again. The cause was the 16 A limiter, since changed.
 
 ## Assessment
 
@@ -36,13 +36,15 @@ Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 
 
 ## Countermeasure
 
-Reproduce the behaviour and record it in a test; then clarify the cause (16 A limiter or taking over values at start). Statement of the maintainer, not replayed by us.
+Done in `4c7207c` and `98af3e0` (limiter no longer decides from the `adi` fallback alone). A test that restarts with a 32 A charger and keeps the value is still missing.
 
 ## Status and history
 
 <!-- risk:status -->
-Open
+Closed (fixed)
 <!-- /risk:status -->
+
+The cause was the 16 A limiter, which used the `adi` fallback (see [R029](R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md)); changed in `4c7207c` and `98af3e0`. The reporter wrote "Working ;)" on 2026-10-29. Issue #176 is still open. The limiter stays for chargers that really are limited to 16 A. Not checked on a real device by us.
 
 ## Evidence
 

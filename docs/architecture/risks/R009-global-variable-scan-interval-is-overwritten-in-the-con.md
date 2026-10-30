@@ -3,9 +3,9 @@ id: R009
 date: 2026-10-27
 category: MAINT
 probability: 2
-impact: 2
+impact: 1
 residual_probability: 1
-residual_impact: 2
+residual_impact: 1
 strategy: mitigate
 status: open
 owner:
@@ -19,17 +19,17 @@ If several entries with different intervals are set up, then every constructor o
 
 ## Finding in detail
 
-**Finding.** `SCAN_INTERVAL` is a global variable that is overwritten in the constructor.
+**Finding.** `SCAN_INTERVAL` is a module-level default (10 s) that the coordinator constructor assigns for each entry (`__init__.py`, constructor and the two places that use it).
 
-**Effect.** With several entries the last value set applies to the default. The coordinator, however, uses the interval via `update_interval=SCAN_INTERVAL` in the call right after, so mostly harmless.
+**Effect.** With several entries the last value set is the global default. Nothing else in the integration reads the global `SCAN_INTERVAL`; each coordinator uses the interval it has just set for itself, so there is no wrong interval today. The risk is a future reader of the global.
 
 ## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Assessment | 2 | 2 | 4 | low |
-| Residual risk after the countermeasure | 1 | 2 | 2 | low |
+| Assessment | 2 | 1 | 2 | low |
+| Residual risk after the countermeasure | 1 | 1 | 1 | low |
 
 Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
@@ -48,7 +48,7 @@ Open
 
 *Evidence at the time of the finding (not today's state)*
 
-Read from the code.  
+[Code] Searched all uses of `SCAN_INTERVAL` in `custom_components/goecharger_api2`: the definition, the assignment in the constructor and the uses right after it. No other reader.
 
 ## Note on the assessment
 

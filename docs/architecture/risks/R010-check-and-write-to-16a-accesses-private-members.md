@@ -15,7 +15,7 @@ review: release
 
 ## Risk description
 
-If the bridge is restructured internally, then `check_and_write_to_16a` breaks because, as a module-level function, it calls the private method `bridge._read_filtered_data`, which means the 16 A limiter silently fails.
+If the bridge is restructured internally, then `check_and_write_to_16a` breaks because, as a module-level function, it calls the private method `bridge._read_filtered_data`, which means the 16 A limiter fails; the error is logged by the surrounding `except Exception`, but the limit is not applied.
 
 ## Finding in detail
 
@@ -48,7 +48,7 @@ Open
 
 *Evidence at the time of the finding (not today's state)*
 
-Read from the code.  
+[Code] Read from `__init__.py` (call of `bridge._read_filtered_data` inside the function). See also [R033](R033-16-a-limiter-reads-over-http-also-in-websocket-mode.md).
 
 ## Note on the assessment
 

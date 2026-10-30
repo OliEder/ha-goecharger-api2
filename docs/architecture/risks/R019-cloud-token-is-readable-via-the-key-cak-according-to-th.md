@@ -19,9 +19,9 @@ If the key `cak` is readable locally without login, then anyone on the network c
 
 ## Finding in detail
 
-**Finding.** Officially the cloud token is readable via the key `cak` (so also via the local API, as far as the key is available there).
+**Finding.** The cloud API documentation (`cloudapi-en.md`, lines 13 and 15) says the cloud token is readable via the key `cak`. The key also appears in the WebSocket data (debug log in issue #176).
 
-**Effect.** A measure of the integration to protect the token only in the config entry would then be only partly effective. I did not check whether `cak` is really readable locally without login.
+**Effect.** A measure of the integration to protect the token only in the config entry would then be only partly effective. I did not check whether `cak` is readable locally without login.
 
 ## Assessment
 
@@ -48,7 +48,7 @@ Open
 
 *Evidence at the time of the finding (not today's state)*
 
-Documentation only read.  
+[Docs] `cloudapi-en.md` lines 13 and 15; `cak` is not listed in `apikeys-en.md`. [Code] The integration does not request `cak` itself. Not checked on a device.
 
 ## Note on the assessment
 

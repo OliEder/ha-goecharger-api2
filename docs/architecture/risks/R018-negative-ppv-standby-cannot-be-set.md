@@ -19,7 +19,7 @@ If a user wants to report the standby state of the PV system via `set_pv_data`, 
 
 ## Finding in detail
 
-**Finding.** Officially `pPv < 0` means "standby", the service `set_pv_data` limits `ppv` in the UI to values from 0.
+**Finding.** Officially `pPv < 0` means "standby". The service `set_pv_data` is registered without a schema; the UI selector limits `ppv` to values from 0, but a negative value passes through a direct service call. If `ppv` is omitted, the service sends `pPv=0` and `pAkku=0`.
 
 **Effect.** Standby cannot be set through the UI. Whether this is intended is unclear.
 

@@ -48,7 +48,7 @@ Open
 
 *Evidence at the time of the finding (not today's state)*
 
-Read from the diff.  
+[Code] Read from the diff; the identifier format before and after is in the migration function of `__init__.py`.
 
 ## Note on the assessment
 

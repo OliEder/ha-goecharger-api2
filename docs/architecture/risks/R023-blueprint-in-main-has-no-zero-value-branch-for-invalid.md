@@ -19,9 +19,9 @@ If a sensor of the PV blueprint fails during the day, then the blueprint skips t
 
 ## Finding in detail
 
-**Finding.** The blueprint version merged into `main` (PR #171 plus #174, built in manually by marq24) does **not** contain the extensions of the original version of PR #171: on invalid measurements the day's delivery is **skipped** (no zero value), on a wrong target selection `stop` with `error: true` every 5 seconds, `mode: single` without `max_exceeded: silent`, no battery switch, no grace period. The behaviour is stated in the blueprint text as a deliberate decision ("does not clear its previous averages").
+**Finding.** The blueprint version merged into `main` (PR #171 plus #174, built in manually by marq24) does **not** contain the extensions of the original version of PR #171: on invalid measurements the day's delivery is **skipped** (no zero value), on a wrong target selection `stop` with `error: true` every 5 seconds, `mode: single` without `max_exceeded: silent`, no grace period. The extensions are proposed in the fork branch `proposal/invalid-data-policy`. The behaviour is stated in the blueprint text as a deliberate decision ("does not clear its previous averages").
 
-**Effect.** If a sensor fails during the day, the moving averages of the wallbox stand still. "Send zero values" would avoid this risk.
+**Effect.** If a sensor fails during the day, the moving averages of the wallbox stand still. [Inference] Unwanted charging from the grid is then possible. "Send zero values" would avoid this risk.
 
 ## Assessment
 
