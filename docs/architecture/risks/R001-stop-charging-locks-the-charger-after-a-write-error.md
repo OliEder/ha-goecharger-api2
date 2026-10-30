@@ -15,7 +15,7 @@ review: release
 
 ## Risk description
 
-If the service `stop_charging` is called in WebSocket mode and the first write (`frc=1`) or the second one (`frc=0`) fails, then the charger stays locked and the flag `_stop_in_progress` stays set, which means the user cannot charge any more and further stop requests are rejected with "already in progress".
+If the service `stop_charging` is called in WebSocket mode, then an uncaught `TypeError` after the first write (`frc=1`) leaves the flag `_stop_in_progress` set and `frc=0` is never sent, which means the user cannot charge any more and further stop requests are rejected with "already in progress". A failed or unconfirmed unlock after the wait is tracked as [R031](R031-stop-charging-does-not-check-the-unlock-and-may-report.md).
 
 ## Finding in detail
 

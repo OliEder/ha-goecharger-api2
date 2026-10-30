@@ -18,6 +18,6 @@ No schema; errors show only at runtime (`KeyError` are caught)
 
 ## Origin of this entry
 
-Reconstructed from code and comments [Inference]. The author keeps no decision records; the reasoning is inferred, not proven.
+Reconstructed from code and comments [Inference]. There is no decision record for it; the reasoning is inferred, not proven.
 
 Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the index](README.md)
