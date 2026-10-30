@@ -42,6 +42,16 @@ CI (`.github/workflows`): hassfest, HACS validation, `tests.yaml` (the first two
 | `docs/architecture/` | arc42, risk register (`risks/`), decisions (`adr/`) |
 | `docs/quality/` | Test concept |
 
+## Instructions for specific folders
+
+**Before you change files in one of these folders, read its `AGENTS.md`.** It holds the details that do not belong here.
+
+| Folder | Read for |
+|---|---|
+| `custom_components/goecharger_api2/AGENTS.md` | the two data paths and what a write returns, how to add a key or an entity, chargers and controllers, pitfalls found in this code |
+| `tests/AGENTS.md` | the test helpers, the contract data, the entity ID snapshot, how to write a test here |
+| `docs/AGENTS.md` | how to write arc42, an ADR and a risk, and the script that generates the risk documents |
+
 ## Code style
 
 - There is no formatter or linter configured. **Match the surrounding code**: naming, comment density, `_LOGGER` levels, f-strings, 4 spaces. Do not reformat lines you do not change.
@@ -49,17 +59,6 @@ CI (`.github/workflows`): hassfest, HACS validation, `tests.yaml` (the first two
 - Write code comments, commit messages and pull request text in English.
 - Do not log or store tokens and passwords (not in logs, device info, tests or documents).
 - No blocking input or output in the event loop (the integration is asynchronous).
-
-## Known pitfalls
-
-These classes of defects were found in this code base (see the risk register). Check them before you change the related code.
-
-- **Two data paths.** The WebSocket path and the HTTP path return different results for the same write (an empty `{}` or a dict with the value) and are changed separately: [R027](docs/architecture/risks/R027-false-error-after-a-successful-multiple-write.md), [R001](docs/architecture/risks/R001-stop-charging-locks-the-charger-after-a-write-error.md), [R004](docs/architecture/risks/R004-error-handling-for-multiple-writes-calls-the-wrong-sign.md). Test a change on both paths (`test_versions_transport_parity.py` is an example).
-- **Chargers and controllers.** A controller has no `tcl` and no `cll`. Code that reads or writes a key must not assume it exists ([R029](docs/architecture/risks/R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md), #177). Check the key table of the device type.
-- **Several chargers in one Home Assistant.** State per entry (service registry, counters) is added and removed per entry ([R002](docs/architecture/risks/R002-multi-charger-registry-incomplete.md), [R003](docs/architecture/risks/R003-active-charger-counter-with-controller-entries.md)). Without `configid` a service call is refused when more than one charger exists (ADR-0010).
-- **Broad `except`.** `except BaseException` also catches cancellation and replaces a specific message by a general one ([R025](docs/architecture/risks/R025-specific-start-error-message-is-covered-up.md)). Catch what you can handle.
-- **Values from callers are not trusted.** Check numbers for finiteness (`NaN`, `inf`) before they go to a charger ([R005](docs/architecture/risks/R005-pgrid-without-a-finiteness-check.md)).
-- **Settings survive a restart.** A value the user set must still be there after a restart ([R030](docs/architecture/risks/R030-max-ampere-is-reset-at-every-restart.md), reported by the maintainer, not yet reproduced).
 
 ## Excuses and red flags in this project
 
@@ -85,7 +84,7 @@ These are the excuses that are most tempting here, and the answer to each.
 
 - You edit `tests/integration/contract/api_keys.json` or `controller_keys.json` by hand. They are generated from the official tables by `generate_api_keys.py`.
 - You add an entry to `deviations.json` or `classification.json` only to silence a contract test.
-- You run `UPDATE_SNAPSHOT=1` to make the entity ID test pass. Entity IDs of existing users would change.
+- You run `UPDATE_SNAPSHOT=1` and the diff of the snapshot **removes or renames** an ID. Adding the IDs of a new entity is fine; removing or renaming changes the entities of existing users.
 - You add a marker (`known_bug`, `needs_decision`), `skip` or `xfail` in the same change that makes the test fail.
 - The change mixes two topics, or reformats code it does not change.
 - The new documentation is much larger than the change it describes.
@@ -135,7 +134,7 @@ Do not report "this is a bug" without:
 - **Where:** file and line, or the quoted line of the official documentation.
 - **What was checked:** the test that shows it (name), or the reading of code or documentation. Mark the level `[Code]`, `[Docs]` or `[Inference]`.
 - **What was not tried:** for example "not tried on a real charger".
-- **Its risk:** an entry in `docs/architecture/risks/`. Copy a neighbouring file, fill the front matter (probability and impact 1 to 5, residual values, strategy, status) and write the "if cause, then event, which leads to impact" sentence. Run `python tests/tools/build_risk_register.py`; it writes the tables, heat maps and links. When the risk is fixed, close the entry and name the commit.
+- **Its risk:** an entry in `docs/architecture/risks/`, with probability and impact (1 to 5) and a strategy, written as "if cause, then event, which leads to impact". How to write it and the script to run: `docs/AGENTS.md`. When the risk is fixed, close the entry and name the commit.
 
 Probability, impact and strategy are assessments. Mark them as such until the maintainer confirms them. Report findings as short, concrete points.
 
