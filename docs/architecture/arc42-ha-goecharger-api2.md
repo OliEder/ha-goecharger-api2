@@ -542,7 +542,7 @@ flowchart LR
 - Many broad `except BaseException`: 13 places in `custom_components/` [Code, counted]. They also catch `CancelledError` and `KeyboardInterrupt`.
 
 ### 8.5 Security
-- **Credentials:** password and cloud token are in the HA config entry in plain text (HA provides no vault). Further observations about credentials were passed to the maintainer directly and are deliberately not listed here.
+- **Credentials:** password and cloud token are in the HA config entry in plain text (HA provides no vault). At DEBUG level the WebSocket login writes a fragment of the hashed password (first and last three characters) to the log ([R008](risks/R008-credentials-are-stored-in-plain-text-in-the-config-entr.md)).
 - **Trust boundary:** the LAN HTTP API has no authentication; protection lies in the network.
 
 ### 8.6 Concurrency
