@@ -137,6 +137,16 @@ async def test_stop_charging_locks_waits_and_unlocks(hass):
     assert [c.args for c in coordinator.async_write_key.await_args_list] == [(Tag.FRC.key, 1), (Tag.FRC.key, 0)]
 
 
+@pytest.mark.known_bug("R031: the answer of the unlock write is not checked, a failed unlock is reported as success")
+@pytest.mark.parametrize("unlock_answer", [{}, {"err": "rejected"}], ids=["not_confirmed", "rejected"])
+async def test_stop_charging_reports_an_error_when_the_unlock_is_not_confirmed(hass, unlock_answer):
+    service, coordinator = _service(hass)
+    coordinator.async_write_key.side_effect = [{Tag.FRC.key: 1}, unlock_answer]
+    with patch(f"{PKG}.service.asyncio.sleep", AsyncMock()):
+        result = await service.stop_charging(_call())
+    assert "error" in result and "success" not in result
+
+
 async def test_stop_charging_without_wanted_answer_still_unlocks(hass):
     service, coordinator = _service(hass)
     coordinator.async_write_key.side_effect = [{Tag.FRC.key: 1}, {Tag.FRC.key: 0}]

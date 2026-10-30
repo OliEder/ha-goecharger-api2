@@ -20,7 +20,7 @@ from custom_components.goecharger_api2.const import DOMAIN
 from custom_components.goecharger_api2.pygoecharger_ha import NonNullDict
 from custom_components.goecharger_api2.pygoecharger_ha.keys import Tag
 
-from .factories import make_coordinator
+from .factories import make_bridge, make_coordinator
 
 PKG = "custom_components.goecharger_api2"
 
@@ -152,6 +152,18 @@ async def test_limiter_survives_a_failing_read(hass, caplog):
         await check_and_write_to_16a(hass, "entry", bridge, False)
     assert "Error while forcing 16A settings" in caplog.text
     bridge.write_value_to_key.assert_not_awaited()
+
+
+@pytest.mark.known_bug("R033: the limiter reads over HTTP also in WebSocket mode, so it fails on a charger without the HTTP API")
+async def test_limiter_in_websocket_mode_reads_from_the_websocket_and_lowers_the_value(hass, aioclient_mock):
+    # a charger that has no HTTP API v2 (README: some devices are WebSocket only): every HTTP read fails
+    aioclient_mock.get("http://192.0.2.10/api/status", status=404)
+    bridge = make_bridge(hass, password="secret", websocket=True)
+    bridge._ws_states = {"amp": 20}
+    bridge.write_value_to_key = AsyncMock()
+    with patch(f"{PKG}.entity_reg.async_entries_for_config_entry", return_value=[_current_entity("amp")]):
+        await check_and_write_to_16a(hass, "entry", bridge, False)
+    bridge.write_value_to_key.assert_awaited_once_with("amp", 16)
 
 
 async def test_limiter_task_waits_and_then_runs_the_check(hass):
