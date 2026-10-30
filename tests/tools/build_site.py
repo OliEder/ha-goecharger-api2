@@ -86,7 +86,8 @@ def rewrite_links(md_text, page, anchors):
             return f"]({LINK_TARGETS[name]}{frag})"
         coll = next((c for c, v in COLLECTIONS.items() if re.match(v[2], name)), None)
         if name == "README.md":
-            coll = next((c for c in COLLECTIONS if f"{c}/" in path), page_coll)
+            # a README of a collection, or the one next to this page's file; any other README stays as it is
+            coll = next((c for c in COLLECTIONS if f"{c}/" in path), page_coll if path.strip("./") == "" else None)
         if coll is None:
             return m.group(0)
         if name == "README.md":

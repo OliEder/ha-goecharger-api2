@@ -62,7 +62,7 @@ def load(folder):
             if fm[k] not in table:
                 raise SystemExit(f"{f}: unknown {k} '{fm[k]}'")
         fm = dict(fm, w=int(fm["probability"]), a=int(fm["impact"]), rw=int(fm["residual_probability"]),
-                  ra=int(fm["residual_impact"]), file=f.name, n=int(fm["id"][1:]), title=body.splitlines()[0].split(":", 1)[1].strip())
+                  ra=int(fm["residual_impact"]), file=f.name, n=int(fm["id"][1:]), title=body.splitlines()[0].partition(":")[2].strip() or body.splitlines()[0].lstrip("# ").strip())
         risks.append(fm)
     return sorted(risks, key=lambda r: r["n"])
 
@@ -155,7 +155,7 @@ def link_refs(text, path, files):
             continue
         if line.startswith("```"):
             fence = not fence
-        if fence or line.startswith("```") or line.startswith("# ") or "<!--" in line:
+        if fence or line.startswith("```") or line.lstrip().startswith("#") or "<!--" in line:
             out.append(line)
             continue
 
@@ -163,7 +163,7 @@ def link_refs(text, path, files):
             n = int(m.group(1))
             if n not in files or files[n] == path:
                 return m.group(0)
-            return f"[R{n:03d}]({os.path.relpath(files[n], path.parent)})"
+            return f"[R{n:03d}]({Path(os.path.relpath(files[n], path.parent)).as_posix()})"
         # leave inline code alone
         parts = re.split(r"(`[^`]*`)", line)
         out.append("".join(p if p.startswith("`") else REF.sub(link, p) for p in parts))
