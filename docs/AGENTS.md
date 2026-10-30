@@ -26,7 +26,8 @@ Read the [root `AGENTS.md`](../AGENTS.md) first. This file adds how to write the
 - Write the description as "If cause, then event, which leads to impact", then the finding in detail with its evidence and the countermeasure.
 - **Run `python tests/tools/build_risk_register.py` after every change.** It writes the assessment table, the status line, the heat maps, the overview and the links for references like `R015`. Never edit the blocks between `<!-- risk:... -->` markers by hand. CI runs it with `--check`.
 - Probability, impact and strategy are assessments. Do not present them as measured.
-- A fixed risk is not deleted: set `status: fixed` and name the change that fixed it.
+- A fixed risk is not deleted: set `status: fixed` and name the change that fixed it. Never change the original assessment of a closed risk; write what was done and which residual risk remains (accepted or not) under "Countermeasure" and "Status and history".
+- An open risk may be reassessed when new facts justify it. Add a "Reassessment" entry under "Status and history" with the date, the old and the new values and the reason; never overwrite an assessment silently. Do not inflate a risk: close it and record what remains as a new risk.
 
 ## `quality/testkonzept-ha-goecharger-api2.md`: test concept
 
