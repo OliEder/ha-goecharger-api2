@@ -3,9 +3,9 @@
 | | |
 |---|---|
 | **Gegenstand** | Automatisierte Tests der Home-Assistant-Integration `goecharger_api2` (go-eCharger, go-eController) |
-| **Stand** | 2026-10-29, `main` bei `9e7d62a` (die Tests entstanden im Fork `OliEder/ha-goecharger-api2`, Branch `tests/regression-suite`) |
-| **Bezug** | Architektur und Risiken: `arc42-ha-goecharger-api2.md` (Risiken R1 bis R30). Regeln: `CLAUDE.md` / `AGENTS.md` der Arbeitsumgebung. |
-| **Status der Tests** | Die Tests liegen seit PR #178 (`738c3c6`) in diesem Repository, `.github/workflows/tests.yaml` führt sie seit PR #179 bei Push auf `main` und bei Pull Requests aus. Das Dokument wurde mit KI-Unterstützung (Claude Code) erstellt und von Oliver geprüft. |
+| **Stand** | 2026-10-30, `main` bei `e6ee0c3` |
+| **Bezug** | Architektur und Risiken: `arc42-ha-goecharger-api2.md` (Risiken R1 bis R30). Teststrategie und Regeln: Abschnitt 5. |
+| **Status der Tests** | Die Tests liegen seit PR #178 (`738c3c6`) in diesem Repository, `.github/workflows/tests.yaml` führt sie seit PR #179 bei Push auf `main` und bei Pull Requests aus. Das Dokument wurde mit KI-Unterstützung (Claude Code) erstellt und von einem Menschen geprüft. |
 
 **Lesehinweis.** Alle Tests laufen mit Attrappen. Sie belegen, was der Code tut und was die Doku sagt, **nicht**, was ein echter Charger tut. Wo das für eine Aussage wichtig ist, steht es dabei.
 
@@ -18,11 +18,11 @@
 **Im Geltungsbereich**
 - Bridge (`pygoecharger_ha`): HTTP lokal und Cloud, WebSocket (Anmeldung, Nachrichten, Befehle).
 - Koordinator: Lesen, Schreiben, Fehlerzähler, Pause, Neustart, Start (`ConfigEntryNotReady`).
-- Dienste (`set_pv_data`, `stop_charging`), Multi-Charger-Register, Entladen von Entries.
+- Dienste (`set_pv_data`, `stop_charging`; `set_temporary_current_limit` noch nicht, siehe Abschnitt 10), Multi-Charger-Register, Entladen von Entries.
 - Config-Flow (Anlegen, Fehlerfälle), Migration der Config-Entries.
 - Stabilität der Entity-IDs.
 - Vertrag zwischen offizieller Schlüsseltabelle und `keys.py`.
-- Das PV-Blueprint hat eigene Tests (240 Fälle, Branch `proposal/invalid-data-policy`). Sie sind **nicht** Teil dieses Konzepts.
+- Das PV-Blueprint wird von dieser Suite **nicht** getestet.
 
 **Nicht im Geltungsbereich (bewusst)**
 - Prüfung gegen einen echten Charger im Dauerbetrieb, Last- und Leistungstests.
@@ -65,12 +65,12 @@ Reihenfolge der Testtiefe nach Auswirkung auf den Betrieb (steuert ein physische
 | Risiko | Test | Stand |
 |---|---|---|
 | R1 `stop_charging` WebSocket (`TypeError`) | `test_stop_charging_in_websocket_mode_sends_lock_and_unlock` | behoben, Test grün |
-| R1 Flag `_stop_in_progress` bleibt hängen | `test_failed_lock_write_...`, `test_failed_unlock_write_...` | `known_bug`, rot |
+| R1 Flag `_stop_in_progress` bleibt hängen | `test_failed_lock_write_...`, `test_failed_unlock_write_...` | behoben seit `9e7d62a`, grün |
 | R2 Multi-Charger-Register | `test_second_charger_is_reachable_...`, `test_reloaded_charger_...` | behoben, grün |
-| R2 Standard-Charger wechselt nach Reload | `test_default_charger_does_not_change_after_reload` | `known_bug`, rot |
-| R3 Zähler `ACTIVE_CHARGER_COUNTER` | zwei Tests in `test_services_and_unload.py` | `known_bug`, rot |
+| R2 / E10 kein stiller Standard-Charger | `test_without_configid_and_with_two_chargers_no_charger_is_guessed`, `test_with_an_empty_registry_no_charger_can_be_chosen` | Entscheidung E10, grün (auf Versionen vor `4702213` übersprungen) |
+| R3 Zähler `ACTIVE_CHARGER_COUNTER` | zwei Tests in `test_services_and_unload.py` | behoben seit `eb5da46`, grün |
 | R4 `__init__.py:674` | `test_write_multiple_keys_connection_error_is_counted` | behoben, grün |
-| R5 `pgrid` ohne Endlichkeitsprüfung | `test_non_finite_grid_value_is_rejected` | `known_bug`, rot |
+| R5 `pgrid` ohne Endlichkeitsprüfung | `test_non_finite_grid_value_is_rejected` | behoben seit `eb5da46`, grün |
 | R6 keine `unique_id` im Config-Flow (kein Schutz vor Doppelanlage) | – | **nicht abgedeckt** |
 | R7 README „24 h“, Code „1 h“ | `test_read_all_reads_the_configuration_only_every_hour` | Code-Verhalten festgehalten (Abweichung zum README bleibt) |
 | R8 Zugangsdaten | – | bewusst nicht Teil der Tests |
@@ -80,8 +80,10 @@ Reihenfolge der Testtiefe nach Auswirkung auf den Betrieb (steuert ein physische
 | R18 `ppv` negativ (Standby) | – | **nicht abgedeckt** |
 | R20 alte Werte nach fehlgeschlagenem Lesen | `test_failed_full_read_keeps_the_previous_states` | Verhalten festgehalten, Absicht ungeklärt |
 | R21 Migration löscht Geräte | `test_version_2_0_deletes_the_devices_and_moves_to_2_1` | Verhalten festgehalten |
-| Fehlermeldung bei `ConfigEntryNotReady` wird überdeckt (neu) | `test_missing_device_data_is_reported_with_its_own_message` | `known_bug`, rot |
-| Fehlertext des Chargers gilt als Erfolg (neu) | `test_write_rejected_by_charger_returns_err` | `known_bug`, rot |
+| R25 Fehlermeldung bei `ConfigEntryNotReady` wird überdeckt | `test_missing_device_data_is_reported_with_its_own_message` | behoben seit `eb5da46`, grün |
+| R24 Fehlertext des Chargers gilt als Erfolg | `test_write_rejected_by_charger_returns_err` | grün auf `9e7d62a` |
+| R27 falscher `ERROR` nach Mehrfachschreiben im WebSocket-Modus | `test_websocket_multi_write_logs_no_error_on_success` | behoben seit `9e7d62a`, grün |
+| `set_temporary_current_limit`, `tcl`, bestätigtes Schreiben (PR #177) | – | **nicht abgedeckt** (Abschnitt 10, Punkt 11) |
 
 ---
 
@@ -103,7 +105,7 @@ Nicht vorhanden: Ende-zu-Ende gegen ein echtes Gerät, Komponententests der Enti
 
 ## 5. Teststrategie und Regeln
 
-Verbindlich nach `CLAUDE.md` / `AGENTS.md`. Der Stand wird hier ehrlich festgehalten:
+Grundlage sind fünf Testregeln (Arrange-Act-Assert, zwei Fehlerfälle je externem Zugriff, explizite Grenzwerte, Seam-Tests, formale API-Schemas). Der Stand wird hier ehrlich festgehalten:
 
 | Regel | Stand | Maßnahme |
 |---|---|---|
@@ -144,7 +146,7 @@ Verbindlich nach `CLAUDE.md` / `AGENTS.md`. Der Stand wird hier ehrlich festgeha
 | `api_keys.json` | Offizielle Schlüsseltabelle (Namen, R/W, Typ, Kategorie) | Bei 98 von 272 Zeilen steht als Typ nur `TYPE`; keine Beschreibungen gespeichert (kein Lizenztext im offiziellen Repo) |
 | Beispieldaten | `123456`, `192.0.2.10` (reservierter Bereich), erfundene Tokens | enthalten keine echten Daten |
 
-**Grenze aller Attrappen:** Sie kodieren unsere Annahmen. Dass der Charger sich so verhält, belegt erst der lesende Abgleich am echten Gerät (Abschnitt 10, Punkt 4).
+**Grenze aller Attrappen:** Sie kodieren die Annahmen der Tests. Dass der Charger sich so verhält, belegt erst der lesende Abgleich am echten Gerät (Abschnitt 10, Punkt 4).
 
 ---
 
@@ -168,7 +170,7 @@ Stand 2026-10-29 (Messung nach dem Ausbau um Controller-Vertrag, Wertebereiche u
 
 | Kennzahl | Wert |
 |---|---|
-| Tests gesammelt | 989, davon 420 parametrisierte Vertragsprüfungen je Schlüssel; **567 Verhaltens- und Fehlertests** |
+| Tests gesammelt | 989, davon 420 parametrisierte Vertragsprüfungen je Schlüssel; **569 Verhaltens- und Fehlertests** |
 | Ergebnis | 972 bestanden, 17 beabsichtigt rot (alle `needs_decision`); blockierende Menge 972 von 972 grün (mit PR #180, sonst 961 blockierend und 28 rot) |
 | Zeilenabdeckung | 92,9 % (vorher 55,2 %) |
 | Zweigabdeckung | 84,9 % (vorher 31,8 %) |
@@ -200,7 +202,7 @@ Erledigt seit der ersten Fassung: Plattformen, Lesezyklus im Polling, Schreibpfa
 
 1. **K1 und K2 zuerst:** Der Report (Abschnitt 5.1) nennt je Funktion, wo sicher noch Basispfade fehlen, zum Beispiel in `check_and_write_to_16a`, `async_migrate_entry`, `ws_connect`, `read_versions` des Koordinators und `read_all_states`.
 2. **R20 (alte Werte nach fehlgeschlagenem Lesen, Cloud) und R7 (Konfigurationsintervall):** Das Verhalten wird jetzt als Charakterisierung festgehalten (`test_failed_full_read_keeps_the_previous_states`); ein Test auf das gewünschte Verhalten fehlt, weil der Maintainer die Absicht nicht geklärt hat.
-3. **Endpunkt-Verträge:** Cloud 403, 404, 422, 202, `age`, `last-modified`, `token` als GET-Parameter, mehrere Schlüssel in einem `set`; dazu ein Schema der Endpunkte aus `http-en.md` und `cloudapi-en.md`.
+3. **Endpunkt-Verträge:** Cloud 403, 404, 422, `age`, `last-modified`, `token` als GET-Parameter, mehrere Schlüssel in einem `set`; dazu ein Schema der Endpunkte aus `http-en.md` und `cloudapi-en.md`.
 4. **Schreib-Kodierung je Schlüsseltyp** und **Grenzwerte** (Regel „explizite Grenzen“): nur dort, wo die Doku Typ oder Bereich nennt. Bei 98 Schlüsseln mit Platzhalter-Typ geht das nicht.
 5. **Lesender Abgleich am echten Charger:** die Vertragsdaten (Statuscodes, Schlüssel, Typen) gegen `GET /api/status` prüfen. Nur lesend, kein `frc`, kein `ids`. Erst das belegt, dass die Attrappen dem Gerät entsprechen.
 6. **Lese-Seite je Firmware:** Beispiel-Antworten aus den Listen für 59.4, 60.2, 60.3 und 60.4.
@@ -208,6 +210,7 @@ Erledigt seit der ersten Fassung: Plattformen, Lesezyklus im Polling, Schreibpfa
 8. **Verbindungsverlust im laufenden WebSocket-Betrieb:** Verfügbarkeit der Entitäten.
 9. **R6 (`unique_id`):** Doppelanlage verhindern.
 10. **Struktur:** Arrange-Act-Assert konsequent anwenden (die neuen Tests folgen dem Muster weitgehend, ohne dass es geprüft wird); Abdeckungs-Untergrenze und Marker-Warnung automatisieren.
+11. **Temporäres Stromlimit und bestätigtes Schreiben (PR #177):** Für `set_temporary_current_limit`, die `tcl`-Entität, die Eingabeprüfung (`_TCLTagLogic`) und das bestätigte Schreiben mit 3-Sekunden-Zeitlimit (`require_ack`, `_ws_pending_ack`) gibt es keine eigenen Tests (per `grep` in `tests/integration` geprüft). Der Test zu `stop_charging` ersetzt `async_write_key` durch eine Attrappe und prüft die Bestätigung deshalb nicht.
 
 ---
 
@@ -217,7 +220,7 @@ Erledigt seit der ersten Fassung: Plattformen, Lesezyklus im Polling, Schreibpfa
 - **Positivkontrollen** für die Attrappen (Anmeldung, Config-Flow).
 - **Stabilität:** Die blockierende Menge lief dreimal hintereinander grün (kein flackerndes Verhalten festgestellt).
 - **Unabhängige Zweitprüfung:** für die Tests selbst nicht durchgeführt.
-- **Bekannte Schwächen:** Die Zahl 420 in der Vertragsdatei verzerrt die Gesamtzahl; die Pfadzahl ist eine obere Schranke und steigerbar; die Attrappen kodieren unsere Annahmen.
+- **Bekannte Schwächen:** Die Zahl 420 in der Vertragsdatei verzerrt die Gesamtzahl; die Pfadzahl ist eine obere Schranke und steigerbar; die Attrappen kodieren die Annahmen der Tests.
 
 ---
 
@@ -231,7 +234,7 @@ Erledigt seit der ersten Fassung: Plattformen, Lesezyklus im Polling, Schreibpfa
 | Neue Entität oder neuer Schlüssel | Vertragstest schlägt an; Schlüssel zuordnen oder in die Klassifikation aufnehmen |
 | Abweichung `needs_decision` geklärt | Eintrag entfernen oder Doku-Lücke vermerken und Marker entfernen |
 
-**Zuständig:** Oliver (Tests und Doku). Änderungen am Code macht der Maintainer; Oliver schlägt sie höchstens vor.
+**Zuständig:** @OliEder (Tests und Doku). Änderungen am Code macht der Maintainer.
 
 ---
 
@@ -245,6 +248,6 @@ Erledigt seit der ersten Fassung: Plattformen, Lesezyklus im Polling, Schreibpfa
 
 ## 14. Annahmen, Grenzen, offene Entscheidungen
 
-- Die Tests prüfen den Code gegen Doku und gegen unsere Annahmen, nicht gegen das Gerät.
-- Ob die 11 `known_bug`- und 14 `needs_decision`-Fälle Fehler sind, ist teils offen (siehe `tests/integration/contract/deviations.json`).
+- Die Tests prüfen den Code gegen Doku und gegen die Annahmen der Tests, nicht gegen das Gerät.
+- Ob die 17 `needs_decision`-Fälle (14 Abweichungen zur Schlüsseltabelle, 3 Controller-Schlüssel) Fehler sind, ist offen (siehe `tests/integration/contract/deviations.json`).
 - Offen: Soll es Mutationstests automatisiert geben (zum Beispiel `mutmut`)? Das wäre ein Aufwand von einem halben bis einem Tag, ohne Gewähr für Nutzen bei einer Codebasis dieser Struktur.
