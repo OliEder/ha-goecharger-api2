@@ -154,7 +154,7 @@ w(f"""# Testreport und Testabdeckung: `ha-goecharger-api2`
 |---|---|
 | **Datum** | {date.today().isoformat()} |
 | **Geprüfter Code** | `marq24/ha-goecharger-api2` `{os.environ.get('SOURCE_REF', 'main')}`, Commit `{src_commit}` |
-| **Tests** | Fork `OliEder/ha-goecharger-api2`, Branch `tests/regression-suite`, Commit `{tests_commit}` |
+| **Tests** | `tests/integration` im Repository `marq24/ha-goecharger-api2`, Commit `{tests_commit}` |
 | **Umgebung** | Python 3.14.3, Home Assistant 2026.10.4, coverage {cov['meta']['version']}, radon 6.0.1 |
 | **Rohdaten** | `coverage-all.json`, `coverage-blocking.json`, `junit-all.xml`, `pathtrace-all.json`, HTML-Bericht in `html-all/index.html` |
 

@@ -28,15 +28,19 @@ footer{color:var(--muted);font-size:.9rem;margin-top:3rem}
 """
 PAGES = [("index.html", "Übersicht"), ("testreport.html", "Testbericht"), ("testcases.html", "Testfälle"),
          ("testkonzept.html", "Testkonzept"), ("arc42.html", "Architektur (arc42)"),
+         ("testkonzept-en.html", "Test concept (EN)"), ("arc42-en.html", "Architecture (arc42, EN)"),
          ("coverage/index.html", "Abdeckung im Detail")]
 # the diagrams of the arc42 document are Mermaid; the library is loaded from a CDN with a fixed version
 MERMAID = ('<script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.esm.min.mjs";'
            'mermaid.initialize({startOnLoad:true,theme:matchMedia("(prefers-color-scheme: dark)").matches?"dark":"default"});</script>')
 DOC_FILES = {"arc42.html": ("Architektur (arc42)", "arc42-ha-goecharger-api2.md"),
-             "testkonzept.html": ("Testkonzept", "testkonzept-ha-goecharger-api2.md")}
+             "testkonzept.html": ("Testkonzept", "testkonzept-ha-goecharger-api2.md"),
+             "arc42-en.html": ("Architecture (arc42, English)", "arc42-ha-goecharger-api2.en.md"),
+             "testkonzept-en.html": ("Test concept (English)", "testkonzept-ha-goecharger-api2.en.md")}
 
 
 def render(site, name, title, body_md, available, toc_levels=False):
+    english = name.endswith("-en.html")
     nav = "".join(f'<a href="{href}">{label}</a>' for href, label in PAGES if href in available)
     md = markdown.Markdown(extensions=["tables", "fenced_code", "toc"])
     body = md.convert(body_md)
@@ -46,14 +50,18 @@ def render(site, name, title, body_md, available, toc_levels=False):
     if toc_levels:
         entries = [t for top in md.toc_tokens for t in (top["children"] if top["level"] == 1 else [top])]
         items = "".join(f'<li><a href="#{t["id"]}">{html.escape(t["name"])}</a></li>' for t in entries)
-        body = body.replace("</h1>", f"</h1><details><summary>Inhalt</summary><ol>{items}</ol></details>", 1)
+        body = body.replace("</h1>", f"</h1><details><summary>{"Contents" if english else "Inhalt"}</summary><ol>{items}</ol></details>", 1)
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    if english:
+        footer = (f"Generated {stamp}. The tests and documents were written with AI assistance (Claude Code) and reviewed by a human. "
+                  'Source: <a href="https://github.com/marq24/ha-goecharger-api2">marq24/ha-goecharger-api2</a> (tests/, docs/quality).')
+    else:
+        footer = (f"Erzeugt am {stamp}. Die Tests und Dokumente wurden mit KI-Unterstützung (Claude Code) erstellt und von einem Menschen geprüft. "
+                  'Quelle: <a href="https://github.com/marq24/ha-goecharger-api2">marq24/ha-goecharger-api2</a> (tests/, docs/quality).')
     (site / name).write_text(
-        f'<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+        f'<!doctype html><html lang="{"en" if english else "de"}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
         f"<title>{html.escape(title)}</title><style>{CSS}</style></head><body><nav><div>{nav}</div></nav>"
-        f"<main>{body}{MERMAID if mermaid else ''}<footer>Erzeugt am {stamp}. Die Tests wurden mit KI-Unterstützung (Claude Code) erstellt und von Oliver geprüft. "
-        f'Quelle: <a href="https://github.com/OliEder/ha-goecharger-api2/tree/tests/regression-suite">Fork OliEder/ha-goecharger-api2</a>.'
-        f"</footer></main></body></html>")
+        f"<main>{body}{MERMAID if mermaid else ''}<footer>{footer}</footer></main></body></html>")
 
 
 def main():
@@ -78,7 +86,7 @@ def main():
             pages[name] = (title, (Path(a.docs) / filename).read_text(), True)
     index = ["# Regressionstests für ha-goecharger-api2", "",
              "Tests und Berichte zur Home-Assistant-Integration [marq24/ha-goecharger-api2](https://github.com/marq24/ha-goecharger-api2) "
-             "(go-eCharger). Die Tests laufen in einem Fork gegen den Code des Original-Repos und ändern dieses nicht.", ""]
+             "(go-eCharger). Die Tests liegen im Repository unter `tests/integration`; diese Seite wird aus einem Fork heraus gebaut. Die Tests ändern den Code nicht.", ""]
     if a.regression and Path(a.regression).exists():
         index += ["## Letzter Lauf gegen eine Version des Original-Repos", "", Path(a.regression).read_text().replace("\n## ", "\n### ")
                   .replace("## Regression", "### Regression", 1), ""]
@@ -86,7 +94,8 @@ def main():
               "- [Testfälle](testcases.html): jede Testfunktion in einer Zeile",
               "- [Abdeckung im Detail](coverage/index.html): Zeile für Zeile",
               "- [Testkonzept](testkonzept.html): Ziele, Methoden, Kennzahlen und ihre Grenzen",
-              "- [Architektur (arc42)](arc42.html): Aufbau der Integration, Risiken, Entscheidungen"]
+              "- [Architektur (arc42)](arc42.html): Aufbau der Integration, Risiken, Entscheidungen",
+              "- [Test concept](testkonzept-en.html) and [Architecture (arc42)](arc42-en.html): English versions"]
     available = set(pages) | {"index.html"} | ({"coverage/index.html"} if (site / "coverage").exists() else set())
     for name, (title, body, *toc) in pages.items():
         render(site, name, title, body, available, bool(toc))
