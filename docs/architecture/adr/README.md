@@ -18,6 +18,6 @@ Every decision is in a file of its own, numbered consecutively. The entries ADR-
 
 ## Recording a new decision
 
-1. Pick the next free number, create a file `NNNN-short-title.md`, structured like the existing files: status, context and reasoning, decision, consequences, origin.
+1. Copy [`_template.md`](_template.md) to `NNNN-short-title.md` with the next free number (four digits) and fill it in: status, context and reasoning, decision, consequences, origin. The comment in the template lists the rules; delete it when you are done.
 2. When a decision is replaced, do not delete the old entry; set its status to "Superseded by ADR-NNNN".
 3. Add it to the table above and to chapter 9 of the [arc42 documentation](../arc42-ha-goecharger-api2.md).
