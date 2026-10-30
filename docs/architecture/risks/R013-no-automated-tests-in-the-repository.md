@@ -50,7 +50,7 @@ PR #178, #179.
 
 *Evidence at the time of the finding (not today's state)*
 
-Repo content.  
+[Docs] PR #178 ("let's add the tests to main") was merged on 2026-10-29 at 18:23 UTC and PR #179 (CI) at 20:17 UTC.
 
 ## Note on the assessment
 

@@ -19,7 +19,7 @@ If go-e changes firmware or cloud, then the reverse-engineered WebSocket login o
 
 ## Finding in detail
 
-**Finding.** The preferred data path (WebSocket) is not officially documented; login procedure and messages are reverse engineered.
+**Finding.** The preferred data path (WebSocket) is not officially documented: the official go-e documentation has no WebSocket document, and the README calls it "(undocumented)" (line 136). Login procedure and messages are reverse engineered.
 
 **Effect.** A firmware or cloud change by go-e can break it without warning. The README already mentions connection problems with firmware 60.2 and a race with the go-e app during the update from 60.3 to 60.4.
 
@@ -48,7 +48,7 @@ Open
 
 *Evidence at the time of the finding (not today's state)*
 
-Documentation and README read.  
+[Docs] Listing of the official documentation repository (cloud, http, mqtt, modbus, ocpp and others, no WebSocket); README lines 31, 38 to 42 and 136.
 
 ## Note on the assessment
 
