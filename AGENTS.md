@@ -36,11 +36,36 @@ This repository accepts AI help for documentation and tests only. A human stands
 - Say what was not tried on a real charger. All tests here run with fakes.
 - Correct a mistake where it stands: edit the sentence, keep the old wording visible ("Edited: …").
 
-## Tests
+## Writing tests
 
-- A test comes from something outside the code under test: the official API tables, the observed answer of a device, a decision of the maintainer.
-- Do not change a test only to make it pass. A known defect gets the marker `known_bug` with a one-line reason; the pull request that fixes it removes the marker.
-- Before you say a change is done, run `python -m pytest tests/integration -p no:cacheprovider -q -m "not known_bug and not needs_decision"` and name every failure, also one you did not cause.
+Tests live in `tests/integration/`. The bridge and the coordinator are the real code; only the HTTP layer (`aioclient_mock`) and the WebSocket connection are fakes. Read `tests/integration/README.md` first.
+
+- **Where and how.** Add a test to the file of its area (the README lists them); create a new file only for a new area. Build entries, coordinators and bridges with `factories.py`. Use invented data (serial `123456`, address `192.0.2.10`), never a real serial number, token or address. Patch `asyncio.sleep` where the code waits; a test must not take real seconds.
+- **Name the break.** Before you write the body, name the change in the integration that should make the test fail, and say whether that change would be a bug or a decision. If you cannot name one, do not add the test. A test defends something a user or a caller can observe: a result, a state change, an error that reaches the user, a parsing rule.
+- **The expected value comes from outside the code under test:** the official API tables, the Modbus profile, the observed answer of a device, or a decision of the maintainer. A value that the code itself computes passes whatever the code does.
+- **Test behaviour, not wording or text.** Do not assert the exact text of a message or the value of a constant unless someone reads or parses it. Assert the exception type and a stable part. Never read a source file and assert on its text.
+- **No echo and no copies.** Do not assert that a builder copied its input into a field. Each row of a parametrised test covers a different branch. Do not repeat through a mock what an integration test already proves.
+- **A test that waits or retries asserts a bounded result:** the number of attempts, the error that surfaces, the state afterwards.
+- **Leave no state behind.** A test must pass in the full run, not only alone. Anything it changes at module level is reset by a fixture; a patch lives only inside its test.
+- **One behaviour per test, arrange, act, assert,** and a docstring whose first line is a plain sentence: `tests/tools/build_testcases.py` publishes it as the test case list.
+- **Generated files are not edited by hand.** `tests/integration/contract/api_keys.json` and `controller_keys.json` are written by `generate_api_keys.py`; the entity ID snapshot changes only with `UPDATE_SNAPSHOT=1` and the diff may only add IDs. A test may read them but asserts the rule they encode.
+- **Mutation check before you finish.** Change the integration in your head: a wrong constant, a wrong branch, a missing check. Would a test fail? If no test fails, it is not finished.
+- **Do not change a test only to make it pass.** A known defect gets the marker `known_bug` with a one-line reason, a difference that needs the maintainer's decision gets `needs_decision`; the pull request that fixes it removes the marker. Never hide your own failure with a marker or `skip`.
+- Before you say a change is done, run `python -m pytest tests/integration -p no:cacheprovider -q -m "not known_bug and not needs_decision"` and name every failure, also one you did not cause. All tests run with fakes and say nothing about a real charger; say so.
+- Ship the tests the behaviour needs and only those. A test written to satisfy a process costs maintenance for good.
+
+## Writing documentation
+
+The documents are `docs/PVSURPLUS.md` (user documentation of the PV blueprint), `docs/quality/arc42-ha-goecharger-api2.md`, `docs/quality/testkonzept-ha-goecharger-api2.md`, `docs/quality/README.md` and `tests/integration/README.md`.
+
+- **Update what exists, briefly.** Change the document that a change touches and nothing else; do not add a new long document for what fits into an old one. No wall of text: one fact per sentence, no text that repeats the code or the diff.
+- **Match the document.** Write in the language the document is written in, keep its structure, and do not renumber the chapters of the arc42 document; other texts refer to them.
+- **Say where each statement comes from:** `[Code]` read in the source (file and line), `[Docs]` taken from a document (name it), `[Inference]` concluded and not stated by the author. Say what was not tried on a real charger.
+- **A statement that the code does not do something** needs the lines you read and the whole path of the data (read, store, show), not a search for a name. Write which decision does not use a value, not that the code "does not read" it.
+- **A number names what was counted and how,** and is counted again when the document changes. Figures come from a run, and the text says which run. Do not count text that every file contains.
+- **User documentation changes only for a change that users see.** `docs/PVSURPLUS.md` is for the blueprint and its settings.
+- Mermaid diagrams: put labels with brackets, commas or colons in quotes, and look at the rendered page; a broken diagram shows as an error and does not fail a build.
+- Do not describe as a defect what the maintainer decided on purpose (see the list above).
 
 ## Posting
 
