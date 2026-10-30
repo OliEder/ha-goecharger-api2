@@ -433,7 +433,7 @@ flowchart TD
     B -- no --> F{"Core wallbox?"}
     F -- no --> G["adi as fallback (grid-side adapter): adapter detected = limit"]
     F -- yes --> H["no value known"]
-    B -- yes --> C{"cableCurrentLimit (same as cbl, car-side cable [Inference]) greater than 0?"}
+    B -- yes --> C{"cableCurrentLimit (same value as cbl) greater than 0?"}
     C -- yes --> D["limit if that value is 16 A or less"]
     C -- no --> E["no limit from cll (since 98af3e0), adi is not checked, adapterCurrentLimit is not part of the decision"]
     G --> I
