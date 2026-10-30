@@ -59,7 +59,8 @@ CI (`.github/workflows`): hassfest, HACS validation, `tests.yaml` (the blocking 
 - There is no formatter or linter configured. **Match the surrounding code**: naming, comment density, `_LOGGER` levels, f-strings, 4 spaces. Do not reformat lines you do not change.
 - New entities and keys go into the existing mechanisms: a `Tag` in `keys.py`, an entity description in `const.py`, the read filter in `pygoecharger_ha/const.py`, texts in all three translation files.
 - Write code comments, commit messages and pull request text in English.
-- Do not log or store tokens and passwords (not in logs, device info, tests or documents).
+- Do not log or store tokens and passwords, **not even a part of them** (not in logs, device info, tests or documents; [R008](docs/architecture/risks/R008-credentials-are-stored-in-plain-text-in-the-config-entr.md) is a log line that writes the first and last characters of a hash).
+- The rules for writing integration code (search before you write, behaviour in the descriptions, imports, exceptions, private members, constants, annotations) are in `custom_components/goecharger_api2/AGENTS.md`.
 - No blocking input or output in the event loop (the integration is asynchronous).
 
 ## Excuses and red flags in this project
@@ -116,7 +117,7 @@ These are the excuses that are most tempting here, and the answer to each.
 - Add `if new_tag: ... else: ...` branches to the platforms, or a new production module for a single feature.
 - Open a pull request, comment or issue without a human's go-ahead.
 - Copy a password or token from a config entry into code, tests, documents, issues or pull requests.
-- Edit the generated blocks between `<!-- risk:... -->` markers by hand.
+- Edit a generated file by hand: the blocks between `<!-- risk:... -->` markers, `tests/integration/contract/api_keys.json` and `controller_keys.json`, the entity ID snapshot. Fix the source or the generator, regenerate, and commit both. A test checks the rule the file encodes, not the generated file itself, so that it survives a regeneration.
 - Add a new long document. Documents named in the section "Documentation" are updated in short, factual changes.
 
 ## Testing
@@ -125,6 +126,7 @@ These are the excuses that are most tempting here, and the answer to each.
 - **When a test fails, change the code, not the test.** A test changes only when the requirement changed (maintainer, official documentation, observed device answer); the pull request says which.
 - **The markers are for findings.** A known defect gets a test marked `known_bug`, a deviation that needs the maintainer's decision gets `needs_decision`. Remove the marker in the same change that fixes the defect.
 - All tests run with fakes and say nothing about the real charger. Say so where it matters.
+- Test what the code does, not how it looks or what it is called: never read a source file and assert on its text, and do not pin the exact wording of a message or the value of a constant unless a consumer depends on it. Details and the reasons: `tests/AGENTS.md`.
 
 ## Findings need evidence and a risk
 
@@ -149,7 +151,7 @@ Update only what the change touches, and keep it short and factual:
 |---|---|
 | is visible to users (services, entities, options) | `README.md`, `docs/PVSURPLUS.md`, `services.yaml`, the translations |
 | changes how the integration works (flows, building blocks, interfaces) | `docs/architecture/arc42-ha-goecharger-api2.md` (and its diagrams) |
-| decides something with consequences (new default, removed option, changed behaviour) | a new record in `docs/architecture/adr/` (copy the last one, next number, update the index) |
+| decides something with consequences (new default, removed option, changed behaviour) | a new record in `docs/architecture/adr/` (copy `_template.md`, next number, update the index) |
 | adds, changes or closes a risk | `docs/architecture/risks/` |
 | adds tests or changes their rules | `docs/quality/testkonzept-ha-goecharger-api2.md` (numbers and the risk coverage table) |
 
@@ -158,7 +160,30 @@ Update only what the change touches, and keep it short and factual:
 - **Start from the current `main`**, on a branch of your fork. **One topic per pull request.** General infrastructure goes into its own pull request, apart from the feature that needs it.
 - Commit subject: short and in the imperative, for example `fix: stop_charging resets _stop_in_progress after a failed write`. Existing history is informal, so what matters is that it says what changed.
 - The pull request says what changed and why, what was tested and what was not (no real charger), and which documents were updated.
+- **The description holds at least one sentence the human contributor wrote in their own words** about what changed and why. If it is missing, ask for it; never write a substitute. Keep that sentence when you edit the description. The maintainer does not want to question in his free time whether a change makes sense or whether someone just asked an AI ([#177](https://github.com/marq24/ha-goecharger-api2/pull/177)); this sentence shows that a person stands behind the change.
+- Read what the repository asks for before you write the description (`.github/ISSUE_TEMPLATE`, a pull request template if one exists). After you create or edit a pull request, read the published description back. Tick only the checks you really ran, and say under testing what you skipped.
 - Do not mix reformatting with a change.
+
+### Posting on GitHub
+
+- Before you post a comment, create an issue, or open or edit a pull request, **show the target and the exact text and wait for the human's confirmation.** An explicit instruction to post given text to a given target counts as that confirmation.
+- Permission to work on a pull request is not permission to comment on it or to open issues. A request to address feedback lets you draft replies, not post them. A request only to read comments is read-only.
+- Never resolve a review thread whose reply the human did not approve, or when posting the reply failed.
+- Write to the maintainer privately (not in a public issue) about anything that concerns security, for example credentials.
+
+(Adapted from the rules of [oh-my-pi](https://github.com/can1357/oh-my-pi/blob/main/AGENTS.md); the maintainer here wants the same control.)
+
+## Decided: do not propose again
+
+These were decided. Do not report them as defects or propose to change them without new facts; the register entry or decision says why.
+
+| Decided | Source |
+|---|---|
+| Old values stay after a failed read (cloud 403 or 404) | [#173](https://github.com/marq24/ha-goecharger-api2/pull/173), [R020](docs/architecture/risks/R020-old-values-stay-after-a-failed-read.md) |
+| The cloud answers `/api/set` with HTTP 200; the documentation that says 202 is wrong | [#172](https://github.com/marq24/ha-goecharger-api2/issues/172), [R015](docs/architecture/risks/R015-cloud-documentation-names-http-202-for-api-set.md) |
+| A service call without `configid` works only with exactly one charger | ADR-0010 |
+| The regression tests live in this repository and run on every pull request | ADR-0011 |
+| No `if new_tag: ... else` branches in the platforms, no extra Python file for one function | [#177](https://github.com/marq24/ha-goecharger-api2/pull/177) |
 
 ## Use the Home Assistant MCP server
 

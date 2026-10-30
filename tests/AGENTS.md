@@ -44,6 +44,17 @@ and **read the diff of the snapshot. It may only add IDs.** If it removes or ren
 - A test follows an outside source: the official tables, the Modbus profile, an observed device answer or a decision of the maintainer. Say which in the docstring where it is not obvious.
 - Test both data paths (WebSocket and HTTP) when you change reading or writing; `test_versions_transport_parity.py` is an example.
 - A known defect gets the marker `known_bug`, an open decision `needs_decision`, both with a one-line reason. Never use a marker or `skip` to hide a failure of your own change.
+- **Name what a consumer sees if the test fails.** If you cannot, do not add the test. A new test defends one externally observable contract: behaviour, output, a state change, an error that reaches the user, or a parsing boundary.
+- **Do not assert wording or constants.** Assert the exception type and a stable part (a key, a translation key, a value the behaviour depends on). An exact message or the value of a constant is a contract only when someone reads it or parses it, and the docstring then says so ([R032](../docs/architecture/risks/R032-tests-assert-the-exact-wording-of-messages.md)). "A failing call is retried five times" is a test; "the limit is 5" is not.
+- **Never test the text of a source file.** A test that reads an implementation file and asserts on its text breaks on a harmless rename and passes while the behaviour is broken. Run the code and assert what it does. Two tests read source with `inspect.getsource` (`test_services_and_setup.py`, `test_versions_16a.py`); they only decide whether a rule exists in the release under test, they assert nothing about the code, and they are not a pattern to copy.
+- **No static echo, no passthrough.** Do not assert that a builder copied a fixture into a field, or that a function returns what was already valid input. Assert a transformation, a rejection or a downstream effect.
+- **Each row of a parametrised test covers a different branch.** Delete rows that run the same path.
+- **Do not test the same behaviour on two levels.** If an integration test already proves it, drop the narrower test that restates it through mocks.
+- **A test that waits or retries asserts a bounded result** (the retry count, the error that surfaces, the state afterwards), not only that nothing was raised.
+- **Leave no state behind.** A test must pass in the full run, not only alone. Anything it changes at module level (for example `service_module._COORDINATOR_PER_CONFIG_ENTRY_ID_MAP`) is reset by a fixture, as `clean_registry` does, and a patch lives only inside its test.
+- **A generated file is not edited and not asserted on.** Test the rule it encodes (the flags of a `Tag` against the official table), so that a regeneration does not break the test.
+
+(Adapted from the testing rules of [oh-my-pi](https://github.com/can1357/oh-my-pi/blob/main/AGENTS.md) and from `writing-good-tests`, summarised below.)
 
 ## Tools (`tools/`)
 
