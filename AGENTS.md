@@ -46,7 +46,20 @@ CI (`.github/workflows`): hassfest, HACS validation, `tests.yaml` (the first two
 
 - There is no formatter or linter configured. **Match the surrounding code**: naming, comment density, `_LOGGER` levels, f-strings, 4 spaces. Do not reformat lines you do not change.
 - New entities and keys go into the existing mechanisms: a `Tag` in `keys.py`, an entity description in `const.py`, the read filter in `pygoecharger_ha/const.py`, texts in all three translation files.
+- Write code comments, commit messages and pull request text in English.
 - Do not log or store tokens and passwords (not in logs, device info, tests or documents).
+- No blocking input or output in the event loop (the integration is asynchronous).
+
+## Known pitfalls
+
+These classes of defects were found in this code base (see the risk register). Check them before you change the related code.
+
+- **Two data paths.** The WebSocket path and the HTTP path return different results for the same write (an empty `{}` or a dict with the value) and are changed separately: [R027](docs/architecture/risks/R027-false-error-after-a-successful-multiple-write.md), [R001](docs/architecture/risks/R001-stop-charging-locks-the-charger-after-a-write-error.md), [R004](docs/architecture/risks/R004-error-handling-for-multiple-writes-calls-the-wrong-sign.md). Test a change on both paths (`test_versions_transport_parity.py` is an example).
+- **Chargers and controllers.** A controller has no `tcl` and no `cll`. Code that reads or writes a key must not assume it exists ([R029](docs/architecture/risks/R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md), #177). Check the key table of the device type.
+- **Several chargers in one Home Assistant.** State per entry (service registry, counters) is added and removed per entry ([R002](docs/architecture/risks/R002-multi-charger-registry-incomplete.md), [R003](docs/architecture/risks/R003-active-charger-counter-with-controller-entries.md)). Without `configid` a service call is refused when more than one charger exists (ADR-0010).
+- **Broad `except`.** `except BaseException` also catches cancellation and replaces a specific message by a general one ([R025](docs/architecture/risks/R025-specific-start-error-message-is-covered-up.md)). Catch what you can handle.
+- **Values from callers are not trusted.** Check numbers for finiteness (`NaN`, `inf`) before they go to a charger ([R005](docs/architecture/risks/R005-pgrid-without-a-finiteness-check.md)).
+- **Settings survive a restart.** A value the user set must still be there after a restart ([R030](docs/architecture/risks/R030-max-ampere-is-reset-at-every-restart.md), reported by the maintainer, not yet reproduced).
 
 ## Boundaries
 
@@ -60,6 +73,7 @@ CI (`.github/workflows`): hassfest, HACS validation, `tests.yaml` (the first two
 **Ask first**
 - Behaviour that looks like a bug but may be intended (for example keeping the last values when a read fails, #173).
 - A new file or module, a new dependency, `manifest.json`, `hacs.json`, the minimum Home Assistant version, or a version number.
+- A Home Assistant API that is newer than the minimum version in `hacs.json` ([R011](docs/architecture/risks/R011-bcrypt-missing-in-the-manifest-minimum-home-assistant-v.md)).
 - Anything that changes entity IDs or `unique_id`s (existing users would lose their entities; `test_entity_ids.py` guards this).
 - Removing or renaming a service, an option or a key.
 - Anything that writes to a real charger.
@@ -77,9 +91,12 @@ CI (`.github/workflows`): hassfest, HACS validation, `tests.yaml` (the first two
 - **A test comes from something outside the code under test:** the official go-e API tables, the Modbus profile, an observed device answer, a decision of the maintainer. A test that only repeats what generated code does proves nothing.
 - **When a test fails, change the code, not the test.** A test changes only when the requirement changed (maintainer, official documentation, observed device answer); the pull request says which.
 - **The markers are for findings.** A known defect gets a test marked `known_bug`, a deviation that needs the maintainer's decision gets `needs_decision`. Remove the marker in the same change that fixes the defect.
+- Use invented test data (serial `123456`, address `192.0.2.10`), never a real serial number, token or address.
 - All tests run with fakes and say nothing about the real charger. Say so where it matters.
 
 ## Findings need evidence and a risk
+
+Before you report anything, look at the risk register (`docs/architecture/risks/`), the decisions (`docs/architecture/adr/`) and the open and closed issues. If the behaviour is already listed, or marked as intended, do not report it again.
 
 Do not report "this is a bug" without:
 
@@ -104,7 +121,7 @@ Update only what the change touches:
 
 ## Commits and pull requests
 
-- **One topic per pull request.** General infrastructure goes into its own pull request, apart from the feature that needs it.
+- **Start from the current `main`**, on a branch of your fork. **One topic per pull request.** General infrastructure goes into its own pull request, apart from the feature that needs it.
 - Commit subject: short and in the imperative, for example `fix: stop_charging resets _stop_in_progress after a failed write`. Existing history is informal, so what matters is that it says what changed.
 - The pull request says what changed and why, what was tested and what was not (no real charger), and which documents were updated.
 - Do not mix reformatting with a change.
