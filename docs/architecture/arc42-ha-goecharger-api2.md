@@ -126,7 +126,7 @@ Quelle: GitHub-Repository [`goecharger/go-eCharger-API-v2`](https://github.com/g
 | `gridapi-en.md` | „Coming soon“, ohne Inhalt | Nein |
 | `Changelogs_Gemini/`, `Changelogs_PRO/` | Firmware-Änderungen 60.3 bis 60.5 | Nur als Hintergrund |
 
-**Wichtig:** Eine **WebSocket-Schnittstelle ist in der offiziellen Dokumentation nicht beschrieben.** Das README der Integration nennt sie „undocumented“. Anmeldung und Nachrichtenformat sind nachgebaut (Beobachtung der App und des Wattpilot-Projekts, siehe Kommentare in `ws_connect` und `_ws_compute_hashed_password`). Damit liegt der bevorzugte Datenpfad außerhalb dessen, was go-e zusichert ([Risikoregister](risk-register.md), R16).
+**Wichtig:** Eine **WebSocket-Schnittstelle ist in der offiziellen Dokumentation nicht beschrieben.** Das README der Integration nennt sie „undocumented“. Anmeldung und Nachrichtenformat sind nachgebaut (Beobachtung der App und des Wattpilot-Projekts, siehe Kommentare in `ws_connect` und `_ws_compute_hashed_password`). Damit liegt der bevorzugte Datenpfad außerhalb dessen, was go-e zusichert ([Risikoregister](risks/README.md), R16).
 
 **Was die offizielle Doku für die Integration festlegt**
 
@@ -142,7 +142,7 @@ Quelle: GitHub-Repository [`goecharger/go-eCharger-API-v2`](https://github.com/g
 | Cloud-Token | In der App sichtbar oder über den Schlüssel `cak` lesbar; neuer Token durch Setzen von `cak` | Integration liest `cak` nicht, speichert aber den Token im Config-Entry |
 | Cloud-Rate-Limit | Keins, aber nicht öfter als einmal pro Sekunde abfragen | Integration: Cloud-Intervall mindestens 30 s |
 | Cloud `/api/status` | 403 offline oder Cloud-API aus; 404 keine aktuellen Daten; 200 mit Daten, Header `last-modified`. Parameter `age` (Standard 30 s), `filter` | Integration wertet nur 200 und 400 aus und nutzt `age` nicht |
-| Cloud `/api/set` | 403, 404 (Charger offline), 422 (alle Schlüssel abgelehnt), **202** laut Doku (mindestens ein Schlüssel gesendet, ohne Garantie); laut Maintainer liefert die echte Cloud 200 und die Doku ist hier falsch | Integration behandelt in `_write_values_int` nur 200 und 500 als Antwort ([Risikoregister](risk-register.md), R15, kein Fehler) |
+| Cloud `/api/set` | 403, 404 (Charger offline), 422 (alle Schlüssel abgelehnt), **202** laut Doku (mindestens ein Schlüssel gesendet, ohne Garantie); laut Maintainer liefert die echte Cloud 200 und die Doku ist hier falsch | Integration behandelt in `_write_values_int` nur 200 und 500 als Antwort ([Risikoregister](risks/README.md), R15, kein Fehler) |
 
 ---
 
@@ -615,7 +615,7 @@ Qualität
 
 ## 11. Risiken und technische Schulden
 
-Die Risiken stehen in einem eigenen Dokument: [Risikoregister](risk-register.md), ein Eintrag je Befund mit Status, Wirkung, Beleg und der Änderung, die ihn behoben hat. Dort stehen auch die offenen Annahmen. Im Text dieses Dokuments verweisen Angaben wie „R15“ auf das Register.
+Die Risiken stehen in eigenen Dokumenten: [Risikoregister](risks/README.md), ein Dokument je Risiko (Beschreibung, Bewertung, Gegenmaßnahme, Status, Beleg) mit einer Übersicht und einer Heatmap. Dort stehen auch die offenen Annahmen. Im Text dieses Dokuments verweisen Angaben wie „R15“ auf das Register.
 
 ---
 

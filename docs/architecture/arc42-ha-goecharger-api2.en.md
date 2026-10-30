@@ -128,7 +128,7 @@ Source: GitHub repository [`goecharger/go-eCharger-API-v2`](https://github.com/g
 | `gridapi-en.md` | "Coming soon", no content | No |
 | `Changelogs_Gemini/`, `Changelogs_PRO/` | Firmware changes 60.3 to 60.5 | Only as background |
 
-**Important:** A **WebSocket interface is not described in the official documentation.** The README of the integration calls it "undocumented". Login and message format are reverse engineered (observation of the app and of the Wattpilot project, see comments in `ws_connect` and `_ws_compute_hashed_password`). The preferred data path is therefore outside of what go-e guarantees ([risk register](risk-register.en.md), R16).
+**Important:** A **WebSocket interface is not described in the official documentation.** The README of the integration calls it "undocumented". Login and message format are reverse engineered (observation of the app and of the Wattpilot project, see comments in `ws_connect` and `_ws_compute_hashed_password`). The preferred data path is therefore outside of what go-e guarantees ([risk register](risks/en/README.md), R16).
 
 **What the official documentation defines for the integration**
 
@@ -144,7 +144,7 @@ Source: GitHub repository [`goecharger/go-eCharger-API-v2`](https://github.com/g
 | Cloud token | Visible in the app or readable via key `cak`; a new token is created by setting `cak` | The integration does not read `cak` but stores the token in the config entry |
 | Cloud rate limit | None, but do not query more than once per second | Integration: cloud interval at least 30 s |
 | Cloud `/api/status` | 403 offline or cloud API off; 404 no current data; 200 with data, header `last-modified`. Parameters `age` (default 30 s), `filter` | The integration evaluates only 200 and 400 and does not use `age` |
-| Cloud `/api/set` | 403, 404 (charger offline), 422 (all keys rejected), **202** according to the documentation (at least one key sent, no guarantee); according to the maintainer the real cloud answers 200 and the documentation is wrong here | In `_write_values_int` the integration treats only 200 and 500 as an answer ([risk register](risk-register.en.md), R15, not a defect) |
+| Cloud `/api/set` | 403, 404 (charger offline), 422 (all keys rejected), **202** according to the documentation (at least one key sent, no guarantee); according to the maintainer the real cloud answers 200 and the documentation is wrong here | In `_write_values_int` the integration treats only 200 and 500 as an answer ([risk register](risks/en/README.md), R15, not a defect) |
 
 ---
 
@@ -617,7 +617,7 @@ Quality
 
 ## 11. Risks and technical debt
 
-The risks are in a document of their own: [risk register](risk-register.en.md), one entry per finding with status, effect, evidence and the change that fixed it. The open assumptions are listed there as well. In the text of this document, references like "R15" point to the register.
+The risks are in documents of their own: [risk register](risks/en/README.md), one document per risk (description, assessment, countermeasure, status, evidence) with an overview and a heat map. The open assumptions are listed there as well. In the text of this document, references like "R15" point to the register.
 
 ---
 

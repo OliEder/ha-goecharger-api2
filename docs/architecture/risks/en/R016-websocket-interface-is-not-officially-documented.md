@@ -1,0 +1,49 @@
+# R16: WebSocket interface is not officially documented
+
+| Field | Value |
+|---|---|
+| ID | R16 |
+| Date recorded | 2026-10-29 |
+| Category | Integration / third party |
+| Status | Open |
+| Risk owner | not named (to be set by the maintainer) |
+| Next review | with every new release |
+
+## Risk description
+
+If go-e changes firmware or cloud, then the reverse-engineered WebSocket login or message format breaks without warning, which means all users in the preferred mode (with password) no longer receive data.
+
+## Finding in detail
+
+**Finding.** The preferred data path (WebSocket) is not officially documented; login procedure and messages are reverse engineered.
+
+**Effect.** A firmware or cloud change by go-e can break it without warning. The README already mentions this for firmware 60.2 and 60.4.
+
+## Assessment
+
+| | W | A | Risk score | |
+|---|---|---|---|---|
+| Assessment | 3 | 4 | 12 | medium |
+| Residual risk after the countermeasure | 2 | 3 | 6 | medium |
+
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
+
+## Countermeasure
+
+Watch firmware changes by go-e, secure the login with tests (the fakes do not detect a change by go-e) and check whether a fallback to HTTP is possible on failure. Proposal.
+
+## Status and history
+
+Open.
+
+## Evidence
+
+*Evidence at the time of the finding (not today's state)*
+
+Documentation and README read.  
+
+## Note on the assessment
+
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Schluss]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
+
+Architecture: [arc42](../../arc42-ha-goecharger-api2.en.md) | [Back to the register](README.md)
