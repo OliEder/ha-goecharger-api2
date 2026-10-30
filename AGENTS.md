@@ -186,9 +186,10 @@ NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST
 - **Bug fix.** Write a failing test that reproduces the bug first. Never fix a bug without one.
 - **Code that exists before its test is deleted**, not kept as a reference and not adapted while writing the test. Implement it again from the test.
 - **Excuses that all mean "test first":** too simple to test, I will test after, tests after achieve the same, I tested it by hand, deleting my work is wasteful, keep it as a reference, I need to explore first, the test is hard to write (then the design is unclear), TDD is dogmatic, this case is different. If you notice one, stop and start over with the test. Exceptions (throwaway prototypes, generated code, configuration files) only with the permission of a human.
+- **Test quality.** When you write or change a test: name the production change that should make it fail, derive the expected value without the code under test, and never assert on a mock. The summary of the guide `writing-good-tests` is in `tests/AGENTS.md`.
 - **Done only when:** every new behaviour has a test, you watched each test fail first for the expected reason, you wrote minimal code, all tests pass with clean output, edge cases and errors are covered.
 
-Source: <https://github.com/obra/superpowers/blob/main/skills/test-driven-development/SKILL.md>
+Source: <https://github.com/obra/superpowers/blob/main/skills/test-driven-development/SKILL.md> and, for the tests themselves, <https://github.com/obra/superpowers/blob/main/skills/test-driven-development/writing-good-tests.md>
 
 ### Systematic debugging (summary of `systematic-debugging`)
 
