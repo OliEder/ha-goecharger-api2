@@ -163,7 +163,7 @@ def link_refs(text, path, files):
             n = int(m.group(1))
             if n not in files or files[n] == path:
                 return m.group(0)
-            return f"[R{n}]({os.path.relpath(files[n], path.parent)})"
+            return f"[R{n:03d}]({os.path.relpath(files[n], path.parent)})"
         # leave inline code alone
         parts = re.split(r"(`[^`]*`)", line)
         out.append("".join(p if p.startswith("`") else REF.sub(link, p) for p in parts))

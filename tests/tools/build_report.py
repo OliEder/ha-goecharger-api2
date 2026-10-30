@@ -284,7 +284,7 @@ The platforms are now tested (value display and writing of the entities). Not ex
 ## 10. Recommendations (by effect)
 
 1. K1 and K2 first: the tables in section 5.1 list where base paths are certainly still missing. They also show error paths that were not taken.
-2. Missing tests for known risks: R20 (old values after a failed read, cloud mode) and R7 (configuration interval).
+2. Missing tests for known risks: see the risk register in `docs/architecture/risks/` (for example R007, the configuration interval).
 3. Carry out a reading comparison on a real charger; only that proves that the fakes correspond to the device.
 4. Build a lower bound for the coverage into the run (for example the branch coverage of the core modules) so that it does not drop unnoticed.
 5. Split `ws_connect` and `read_versions` when they are changed later; only then can their paths be checked individually in a sensible way.
