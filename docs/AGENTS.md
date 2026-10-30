@@ -15,13 +15,13 @@ Read the [root `AGENTS.md`](../AGENTS.md) first. This file adds how to write the
 
 ## `architecture/adr/`: decisions
 
-- One file per decision, `NNNN-short-title.md`, the next free number. Copy the last one: Status, Context and reasoning, Decision, Consequences, Origin (and Alternatives or Evidence where they exist).
+- One file per decision, `NNNN-short-title.md`, the next free number. Copy [`architecture/adr/_template.md`](architecture/adr/_template.md): Status, Context and reasoning, Decision, Consequences, Origin. Its comment lists the rules; delete it when done.
 - A decision that is replaced stays: set its status to `Superseded by ADR-NNNN`. Add the entry to the table in `adr/README.md` and in chapter 9 of the arc42 document.
 - Write who decided and when only if you know it. A decision rebuilt from code is marked `[Inference]` and "reconstructed".
 
 ## `architecture/risks/`: risks
 
-- One file per risk, `RNNN-short-title.md`, **three-digit id** (`R031`, not `R31`), the number after the highest in the register.
+- One file per risk, `RNNN-short-title.md`, **three-digit id** (`R031`, not `R31`), the number after the highest in the register. Copy [`architecture/risks/_template.md`](architecture/risks/_template.md); its comment explains the front matter and the rules, delete it when done.
 - The file starts with a front matter block. Copy a neighbouring file and set: `id`, `date`, `category` (`ARCH`, `SEC`, `INT`, `QA`, `DOC`, `MAINT`), `probability` and `impact` (1 to 5), `residual_probability` and `residual_impact`, `strategy` (`mitigate`, `accept`, `avoid`, `transfer`), `status` (`open`, `fixed`, `settled`, `superseded`, `note`), `owner` (empty until the maintainer names one), `review`.
 - Write the description as "If cause, then event, which leads to impact", then the finding in detail with its evidence and the countermeasure.
 - **Run `python tests/tools/build_risk_register.py` after every change.** It writes the assessment table, the status line, the heat maps, the overview and the links for references like `R015`. Never edit the blocks between `<!-- risk:... -->` markers by hand. CI runs it with `--check`.
