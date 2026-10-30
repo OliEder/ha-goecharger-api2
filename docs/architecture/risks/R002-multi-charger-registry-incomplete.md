@@ -52,7 +52,7 @@ Closed (fixed)
 
 *Evidence at the time of the finding (not today's state)*
 
-Read from the code (`service.py:17,33,41`, `__init__.py:153`ff). **Not replayed.**  
+[Code] `service.py` lines 17 to 41, `__init__.py` lines 150 to 211. [Test] The finding was replayed by the test suite, which is green on `main` (`e6ee0c3`) on 2026-10-30: `test_second_charger_shares_the_services_and_joins_the_registry`, `test_unloading_one_of_two_chargers_keeps_the_services`, `test_unloading_the_last_charger_removes_the_services`, `test_configid_of_an_entry_missing_in_the_registry_is_refused`. The fakes replace platform loading, polling and the WebSocket start; the original defect was not run in a real Home Assistant.  
 
 ## Note on the assessment
 

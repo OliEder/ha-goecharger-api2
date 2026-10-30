@@ -19,9 +19,9 @@ If an entry of version 2.0 is migrated, then `async_migrate_entry` deletes all d
 
 ## Finding in detail
 
-**Finding.** The migration from 2.0 to 2.1 deletes **all devices** of the entry (`async_remove_device`). To my knowledge HA thereby also removes the related entries of the entity registry.
+**Finding.** The migration from 2.0 to 2.1 deletes **all devices** of the entry (`async_remove_device`, `__init__.py`, lines 86 to 94). Home Assistant thereby also removes every entity registry entry of that device, including disabled ones (`async_device_modified` in `helpers/entity_registry.py`, Home Assistant 2026.10.4).
 
-**Effect.** Names, areas, labels and manually enabled entities (many sensors are off by default) adjusted by users are probably lost and must be set again. The entity IDs stay the same because they are generated in the code.
+**Effect.** Names, areas, labels, renamed entity IDs and manually enabled entities (many sensors are off by default) adjusted by users are lost and must be set again. Default entity IDs stay the same because the code builds them from the serial number and the key (`__init__.py`, lines 908 and 910); an entity ID the user renamed is not kept.
 
 ## Assessment
 
@@ -48,7 +48,7 @@ Open
 
 *Evidence at the time of the finding (not today's state)*
 
-HA behaviour from memory, in the code only the call is proven. **Not replayed.**  
+[Code] `__init__.py` lines 86 to 94; `helpers/entity_registry.py` of Home Assistant 2026.10.4 (the installed test version). [Test] Replayed on 2026-10-30 with real registries in a throw-away test (not added to the suite): an entity renamed to `sensor.my_wallbox_power` with a custom name was gone from the entity registry after `async_migrate_entry` on a 2.0 entry, and the entry stood at version 2.1. Not tried in a running Home Assistant and not with older versions.  
 
 ## Note on the assessment
 
