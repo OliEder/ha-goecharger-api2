@@ -40,8 +40,9 @@ DOC_FILES = {"arc42.html": ("Architektur (arc42)", "architecture/arc42-ha-goecha
              "testkonzept.html": ("Testkonzept", "quality/testkonzept-ha-goecharger-api2.md"),
              "arc42-en.html": ("Architecture (arc42, English)", "architecture/arc42-ha-goecharger-api2.en.md"),
              "testkonzept-en.html": ("Test concept (English)", "quality/testkonzept-ha-goecharger-api2.en.md")}
-# the architecture decision records: one page per language, built from the files in docs/adr
-ADR_PAGES = {"adr.html": ("Architekturentscheidungen (ADR)", "adr"), "adr-en.html": ("Architecture decisions (ADR, English)", "adr/en")}
+# the architecture decision records: one page per language, built from the files in docs/architecture/adr
+ADR_PAGES = {"adr.html": ("Architekturentscheidungen (ADR)", "architecture/adr"),
+             "adr-en.html": ("Architecture decisions (ADR, English)", "architecture/adr/en")}
 LINK_TARGETS = {"arc42-ha-goecharger-api2.md": "arc42.html", "arc42-ha-goecharger-api2.en.md": "arc42-en.html",
                 "testkonzept-ha-goecharger-api2.md": "testkonzept.html", "testkonzept-ha-goecharger-api2.en.md": "testkonzept-en.html"}
 
@@ -65,7 +66,7 @@ def adr_anchors(docs):
     """File name -> heading id on the ADR page (the first line of each file is its heading)."""
     from markdown.extensions.toc import slugify
     anchors = {}
-    for folder in ("adr", "adr/en"):
+    for folder in ("architecture/adr", "architecture/adr/en"):
         for f in adr_files(docs, folder):
             anchors[(folder.endswith("en"), f.name)] = slugify(f.read_text().splitlines()[0].lstrip("# ").strip(), "-")
     return anchors
