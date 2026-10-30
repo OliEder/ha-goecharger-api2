@@ -1,6 +1,6 @@
 # AGENTS.md for `custom_components/goecharger_api2/`
 
-Read the [root `AGENTS.md`](../../AGENTS.md) first. This file adds what you need when you change the integration code. The maintainer should look at this file closely: it describes how his code is meant to be changed.
+Read the [root `AGENTS.md`](../../AGENTS.md) first. This file adds what you need when you change the integration code.
 
 ## Two data paths, and what a write returns
 
@@ -10,18 +10,19 @@ The integration reads and writes over a **WebSocket** (when the config entry has
 |---|---|---|
 | `write_value_to_key(key, value)` | sends `setValue` and returns `{key: value}` at once; with `require_ack=True` it waits up to 3 seconds for the device's answer and returns `{}` if it does not confirm | `GET /api/set`, returns `{key: value}` or `{"err": ...}` |
 | `write_multiple_values_to_keys(...)` | sends the keys one after another and returns `{}` | one request, returns the result dict |
+| a failed write | `{}` if the send fails | `{}` on a status other than 200 or on an exception |
 
-`GoeChargerDataUpdateCoordinator.async_write_key(...)` and `async_write_multiple_keys(...)` wrap these calls, refuse to write during the error pause (2 minutes after a connection error) or a planned restart (`ValueError`), and pass the result to `handle_write_result`. An entity writes through the coordinator, never through the bridge.
+A button press is answered with `{key: value}` on the WebSocket (it has no effect there). `GoeChargerDataUpdateCoordinator.async_write_key(...)` and `async_write_multiple_keys(...)` wrap these calls, refuse to write during the error pause (2 minutes after a connection error) or a planned restart (`ValueError`), and pass the result to `handle_write_result`. An entity writes through the coordinator, never through the bridge.
 
 ## Add a key or an entity
 
 1. **Look the key up in the official table** (name, read/write, type, category). Do not rely on memory or on another integration.
 2. **`pygoecharger_ha/keys.py`:** add a `Tag` with `ApiKey(key=..., cat=CAT.CONFIG|STATUS|OTHER|CONSTANT, writeable=...)`. The flags must match the official table (`test_write_flag_matches_documentation`, `test_category_matches_documentation`). If the key was listed as unsupported in `tests/integration/contract/classification.json`, remove that entry.
-3. **`pygoecharger_ha/const.py`:** HTTP polling reads only keys that are in a filter. Add a status key to `FILTER_ALL_STATES`, a configuration key to `FILTER_ALL_CONFIG`, and a controller key to the matching `FILTER_CONTROLER_*`. The WebSocket delivers keys without a filter, except those in `API_KEYS_TO_IGNORE_FROM_WS`.
-4. **`const.py`:** add an entity description to the list of its platform (`SENSOR_SENSORS`, `NUMBER_SENSORS`, `SELECT_SENSORS`, `SWITCH_SENSORS`, `BINARY_SENSORS`, `BUTTONS`), or to the `CONTROLLER_*` list for a controller. Copy a neighbouring description (for example `LBR` in `NUMBER_SENSORS`). Rarely needed entities are disabled by default (`entity_registry_enabled_default=False`). A current that a 16 A limit must cap has `check_16a_limit=True`.
-5. **`translations/en.json`, `de.json`, `fr.json`:** add the name under `entity.<platform>.<key>.name` in all three.
+3. **`pygoecharger_ha/const.py`:** **both paths read only keys that are in a filter.** HTTP asks the device for the filter, and the WebSocket path takes the filtered keys out of the messages it received. Add a status key to `FILTER_ALL_STATES`, a configuration key to `FILTER_ALL_CONFIG`, and a controller key to the matching `FILTER_CONTROLER_*`. (`API_KEYS_TO_IGNORE_FROM_WS` drops keys from the WebSocket delta messages only.) No test checks the filters; check them by hand.
+4. **`const.py`:** add an entity description to the list of its platform (`SENSOR_SENSORS`, `NUMBER_SENSORS`, `SELECT_SENSORS`, `SWITCH_SENSORS`, `BINARY_SENSORS`, `BUTTONS`), or to the `CONTROLLER_*` list for a controller. Copy a neighbouring description (for example `LBR` in `NUMBER_SENSORS`). Rarely needed entities are disabled by default (`entity_registry_enabled_default=False`). A current that a 16 A limit must cap has `check_16a_limit=True` (number entities only): it also makes the integration write a lower value to the charger about 15 seconds after setup (`check_and_write_to_16a`, which reads over HTTP). Some keys are excluded on Core wallboxes in `is_valid_charger_entity`. The lists `STRING_INPUT` and `OTHER` in `const.py` are not used; a description there creates no entity.
+5. **`translations/`:** add the name under `entity.<platform>.<translation key>.name` in `en.json` and `de.json`, and in `fr.json` where you can (it already lacks entries). The translation key is the lower-case key for a plain entity, `<key>_<idx>` for an entry of a list, `<key>_value` for a lookup and `<key>_delta` for a differential value; an entity with `tuple_idx` needs its `translation_key`. No test checks translations; a missing one only shows up in the log at run time.
 6. **Do not write a platform-specific branch for the new key.** The platforms are generic classes that read the description. A key that needs its own behaviour is a question for the maintainer (see below).
-7. **Tests first** (root rules): the contract tests and `test_entity_ids.py` (it will list your new entity as `added`; see `tests/AGENTS.md`) show where the new key must appear.
+7. **Tests first** (root rules). The contract tests check the `Tag` flags and the key lists (a key the official table does not list must be explained in `classification.json` under `undocumented_in_code`; a key newer than the stored table needs `generate_api_keys.py`, see `tests/AGENTS.md`). `test_entity_ids.py` lists your new entity as `added` (see `tests/AGENTS.md`).
 
 ## Chargers and controllers
 
@@ -41,7 +42,7 @@ Check these before you change the related code (the risk register has the eviden
 - **Two data paths.** See above ([R027](../../docs/architecture/risks/R027-false-error-after-a-successful-multiple-write.md), [R001](../../docs/architecture/risks/R001-stop-charging-locks-the-charger-after-a-write-error.md), [R004](../../docs/architecture/risks/R004-error-handling-for-multiple-writes-calls-the-wrong-sign.md)).
 - **Chargers and controllers differ** ([R029](../../docs/architecture/risks/R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md), #177).
 - **Several chargers in one Home Assistant.** State per entry (service registry, counters) is added and removed per entry ([R002](../../docs/architecture/risks/R002-multi-charger-registry-incomplete.md), [R003](../../docs/architecture/risks/R003-active-charger-counter-with-controller-entries.md)).
-- **Broad `except`.** `except BaseException` also catches cancellation and replaces a specific message by a general one ([R025](../../docs/architecture/risks/R025-specific-start-error-message-is-covered-up.md)). Catch what you can handle.
+- **Broad `except`.** `except BaseException` also catches cancellation and replaces a specific message by a general one; the message problem is fixed, but `async_setup_entry` still has the pattern ([R025](../../docs/architecture/risks/R025-specific-start-error-message-is-covered-up.md)). Catch what you can handle.
 - **Values from callers are not trusted.** Check numbers for finiteness (`NaN`, `inf`) before they go to a charger ([R005](../../docs/architecture/risks/R005-pgrid-without-a-finiteness-check.md)).
 - **Settings survive a restart.** A value the user set must still be there afterwards ([R030](../../docs/architecture/risks/R030-max-ampere-is-reset-at-every-restart.md), reported by the maintainer, not yet reproduced).
 - **Old values after a failed read are intended** ([R020](../../docs/architecture/risks/R020-old-values-stay-after-a-failed-read.md)). Do not "fix" it.

@@ -21,7 +21,7 @@ Read the [root `AGENTS.md`](../AGENTS.md) first. This file adds how to write the
 
 ## `architecture/risks/`: risks
 
-- One file per risk, `RNNN-short-title.md`, **three-digit id** (`R031`, not `R31`), the next free number.
+- One file per risk, `RNNN-short-title.md`, **three-digit id** (`R031`, not `R31`), the number after the highest in the register.
 - The file starts with a front matter block. Copy a neighbouring file and set: `id`, `date`, `category` (`ARCH`, `SEC`, `INT`, `QA`, `DOC`, `MAINT`), `probability` and `impact` (1 to 5), `residual_probability` and `residual_impact`, `strategy` (`mitigate`, `accept`, `avoid`, `transfer`), `status` (`open`, `fixed`, `settled`, `superseded`, `note`), `owner` (empty until the maintainer names one), `review`.
 - Write the description as "If cause, then event, which leads to impact", then the finding in detail with its evidence and the countermeasure.
 - **Run `python tests/tools/build_risk_register.py` after every change.** It writes the assessment table, the status line, the heat maps, the overview and the links for references like `R015`. Never edit the blocks between `<!-- risk:... -->` markers by hand. CI runs it with `--check`.

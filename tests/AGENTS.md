@@ -23,8 +23,8 @@ The whole blocking set runs in seconds. Find the file for your area in the table
 
 | File | What it is | May you edit it? |
 |---|---|---|
-| `api_keys.json`, `controller_keys.json` | Key names and flags from the **official** tables, written by `generate_api_keys.py` | **No.** Regenerate with the script and the commit of the official repository. |
-| `classification.json` | Documented keys the integration does not support, with group and decision; also explains keys the code uses that the table does not list | Yes, when a key becomes supported (remove its entry) or when you add an unsupported key knowingly. Stale entries fail a test. |
+| `api_keys.json`, `controller_keys.json` | Key names and flags from the **official** tables, written by `generate_api_keys.py` | **No.** Regenerate: `python tests/integration/contract/generate_api_keys.py <path to apikeys-en.md of a checkout of the official repository> <its commit sha> <date> [controller]`. |
+| `classification.json` | Documented keys the integration does not support, with group and decision; also explains keys the code uses that the table does not list (group `undocumented_in_code`) | Yes, when a key becomes supported (remove its entry) or when you add an unsupported key knowingly. Stale entries fail a test. |
 | `deviations.json` | Known differences between the table and the code (read/write flag, category); their tests are `needs_decision` | Only with a decision of the maintainer. A **new** difference has no marker and blocks at once. |
 
 ## Entity IDs
