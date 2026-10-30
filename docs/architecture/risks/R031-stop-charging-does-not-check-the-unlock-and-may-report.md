@@ -21,6 +21,8 @@ If the unlock write (`frc=0`) after the five minute lock fails or is not confirm
 
 **Finding.** In `service.py` (line 118) the result of the second write `async_write_key(Tag.FRC.key, 0, require_ack=True)` is not checked. On the HTTP path a non-200 answer returns `{}` and a rejection returns `{"err": ...}`; on the WebSocket path an unconfirmed write returns `{}`. `handle_write_result` only logs, and the service returns `success`. A `ValueError` is caught further down and returned as an error, but `frc` stays `1`.
 
+[R001](R001-stop-charging-locks-the-charger-after-a-write-error.md) (fixed) covers the flag `_stop_in_progress`, which a `finally` resets; the unlock itself is this risk.
+
 **Effect.** The user may not be able to charge after a stop request, and the automation that called the service is told that all went well. [Inference] If Home Assistant cancels the service call during the 300 s sleep, the unlock is skipped as well.
 
 ## Assessment

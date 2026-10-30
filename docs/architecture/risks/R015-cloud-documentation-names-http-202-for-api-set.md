@@ -46,6 +46,8 @@ Closed (settled, not a defect)
 
 Maintainer, Issue #172.
 
+The residual impact is lower than the original one because the code handles the answer the cloud really sends (200, maintainer in issue #172); only the documentation is wrong. The original assessment is kept because the risk is settled.
+
 ## Evidence
 
 *Evidence at the time of the finding (not today's state)*

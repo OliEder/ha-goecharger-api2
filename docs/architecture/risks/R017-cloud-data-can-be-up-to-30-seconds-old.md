@@ -44,6 +44,8 @@ Set `age` or evaluate the header `last-modified`. Proposal, not implemented.
 Open
 <!-- /risk:status -->
 
+Assessment reviewed on 2026-10-30 after the independent review and kept: it affects cloud polling only (cloud WebSocket is not affected) and the 404 caps the staleness at 30 s, but in cloud polling it always occurs, so W 3 and A 2 stay.
+
 ## Evidence
 
 *Evidence at the time of the finding (not today's state)*

@@ -44,6 +44,8 @@ Mark the data as stale when the WebSocket has delivered nothing for a defined ti
 Open
 <!-- /risk:status -->
 
+Assessment reviewed on 2026-10-30 after the independent review and kept: the review named three situations in which stored data counts as success (WebSocket connected, error pause, planned restart), which supports W 3 and A 3. The WebSocket-loss path (watchdog in `__init__.py`, around line 515) was not read in full.
+
 ## Evidence
 
 *Evidence at the time of the finding (not today's state)*
