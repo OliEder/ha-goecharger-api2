@@ -11,47 +11,47 @@ status: open
 owner:
 review: release
 ---
-# R6: Keine `unique_id` im Config-Flow
+# R6: No `unique_id` in the config flow
 
-## Risikobeschreibung
+## Risk description
 
-Wenn ein Nutzer denselben Charger ein zweites Mal einrichtet, dann greift `_abort_if_unique_id_configured()` nicht, weil nie eine `unique_id` gesetzt wird, was dazu führt, dass doppelte Entries und doppelte Entitäten entstehen.
+If a user sets up the same charger a second time, then `_abort_if_unique_id_configured()` does not take effect because no `unique_id` is ever set, which means duplicate entries and duplicate entities are created.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** `_abort_if_unique_id_configured()` wird aufgerufen, aber im Config-Flow wird nirgends eine `unique_id` gesetzt (`async_set_unique_id` kommt nicht vor).
+**Finding.** `_abort_if_unique_id_configured()` is called, but no `unique_id` is set anywhere in the config flow (`async_set_unique_id` does not occur).
 
-**Wirkung.** Kein Schutz gegen doppelt angelegte Geräte.
+**Effect.** No protection against devices created twice.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 3 | 2 | 6 | mittel |
-| Restrisiko nach der Gegenmaßnahme | 1 | 2 | 2 | niedrig |
+| Assessment | 3 | 2 | 6 | medium |
+| Residual risk after the countermeasure | 1 | 2 | 2 | low |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Im Config-Flow `async_set_unique_id` mit der Seriennummer aufrufen. Vorschlag, nicht umgesetzt.
+Call `async_set_unique_id` with the serial number in the config flow. Proposal, not implemented.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Offen
+Open
 <!-- /risk:status -->
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Aus Code gelesen (grep). Wirkung nicht vorgeführt.  
+Read from the code (grep). Effect not demonstrated.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

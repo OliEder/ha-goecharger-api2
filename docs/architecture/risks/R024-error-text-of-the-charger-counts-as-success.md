@@ -11,49 +11,49 @@ status: fixed
 owner:
 review: release
 ---
-# R24: Fehlertext des Chargers gilt als Erfolg
+# R24: Error text of the charger counts as success
 
-## Risikobeschreibung
+## Risk description
 
-Wenn der Charger auf einen Schreibbefehl mit einem Fehlertext statt `true` antwortet, dann wertet `_write_values_int` die Antwort nur auf „wahr“, was dazu führt, dass Ablehnungen (auch bei `ids`) als Erfolg gemeldet werden.
+If the charger answers a write command with an error text instead of `true`, then `_write_values_int` evaluates the answer only for "truthy", which means rejections (also for `ids`) are reported as success.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** `_write_values_int` prüft die Antwort des Chargers auf den Schlüssel nur auf „wahr“. Laut `http-en.md` kann der Wert `true` oder ein **Fehlertext** sein. Ein Text gilt dem Code als Erfolg.
+**Finding.** `_write_values_int` checks the answer of the charger for the key only for "true". According to `http-en.md` the value can be `true` or an **error text**. The code treats a text as success.
 
-**Wirkung.** Ablehnungen des Chargers (auch bei `ids`) würden als Erfolg gemeldet.
+**Effect.** Rejections by the charger (also for `ids`) would be reported as success.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 2 | 3 | 6 | mittel |
-| Restrisiko nach der Gegenmaßnahme | 1 | 3 | 3 | niedrig |
+| Assessment | 2 | 3 | 6 | medium |
+| Residual risk after the countermeasure | 1 | 3 | 3 | low |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Der Test ist auf `main` bei `9e7d62a` grün; welche Änderung das bewirkt hat, wurde nicht nachverfolgt.
+The test is green on `main` at `9e7d62a`; which change caused this was not traced.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Geschlossen (behoben)
+Closed (fixed)
 <!-- /risk:status -->
 
-(Commit nicht nachverfolgt). Der Test `test_write_rejected_by_charger_returns_err` ist auf `9e7d62a` grün; wann genau die Antwort mit Fehlertext ausgewertet wird, habe ich nicht nachvollzogen.
+(commit not traced). The test `test_write_rejected_by_charger_returns_err` is green on `9e7d62a`; I did not trace when exactly the answer with an error text is evaluated.
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Aus Code und Doku abgeleitet, im Test mit Attrappe gezeigt (`known_bug`). Am Gerät **nicht** geprüft.  
+Derived from code and documentation, shown in a test with a fake (`known_bug`). **Not** checked on a device.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

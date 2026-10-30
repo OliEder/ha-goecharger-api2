@@ -11,51 +11,51 @@ status: fixed
 owner:
 review: release
 ---
-# R2: Multi-Charger-Register unvollständig
+# R2: Multi-charger registry incomplete
 
-## Risikobeschreibung
+## Risk description
 
-Wenn mehrere go-eCharger in einer HA-Instanz eingerichtet sind und ein Entry neu geladen wird, dann fehlt der zweite Charger im Register oder der alte Koordinator bleibt eingetragen, was dazu führt, dass `configid` für den zweiten Charger nicht funktioniert oder über eine getrennte Bridge geschrieben wird.
+If several go-eChargers are set up in one HA instance and an entry is reloaded, then the second charger is missing from the registry or the old coordinator stays registered, which means `configid` does not work for the second charger or writes go through a separate bridge.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** Multi-Charger: Das Register `_COORDINATOR_PER_CONFIGENTRYID_MAP` wird nur im Konstruktor von `GoeChargerApiV2Service` befüllt. Der Konstruktor läuft nur, wenn der Dienst noch nicht angemeldet ist, also nur für den ersten Charger. Ein zweiter Charger fehlt im Register, `configid=<zweiter>` führt zu `KeyError`. Wird der erste Entry entladen, bleibt dessen Koordinator im Register.
+**Finding.** Multi-charger: the registry `_COORDINATOR_PER_CONFIGENTRYID_MAP` is filled only in the constructor of `GoeChargerApiV2Service`. The constructor runs only if the service is not yet registered, so only for the first charger. A second charger is missing from the registry, `configid=<second>` leads to `KeyError`. If the first entry is unloaded, its coordinator stays in the registry.
 
-**Wirkung.** Der dokumentierte Multi-Charger-Betrieb über `configid` funktioniert für den zweiten Charger nicht.
+**Effect.** The documented multi-charger operation via `configid` does not work for the second charger.
 
-**Nachtrag zu R2:**Das ist eine **Regression** aus Commit `5328e74` („housekeeping of tasks“). Vorher wurde pro Charger-Entry immer ein `GoeChargerApiV2Service` angelegt und trug seinen Koordinator ins Register ein, `configid` funktionierte also für jeden Charger. Seit `5328e74` entsteht der Dienst nur noch beim ersten Charger. Zusätzlich bleibt nach dem Neuladen eines Entries (zum Beispiel durch die automatische Neustart-Logik nach mehr als 5 Verbindungsfehlern) bei mehreren Chargern der **alte** Koordinator im Register; der Dienst schreibt dann über eine getrennte Bridge. Aus dem Diff und dem Code gelesen, nicht nachgespielt.
+**Addendum to R2:**this is a **regression** from commit `5328e74` ("housekeeping of tasks"). Before, a `GoeChargerApiV2Service` was always created per charger entry and entered its coordinator into the registry, so `configid` worked for every charger. Since `5328e74` the service is only created for the first charger. In addition, after an entry is reloaded (for example by the automatic restart logic after more than 5 connection errors), with several chargers the **old** coordinator stays in the registry; the service then writes through a separate bridge. Read from the diff and the code, not replayed.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 3 | 3 | 9 | mittel |
-| Restrisiko nach der Gegenmaßnahme | 1 | 3 | 3 | niedrig |
+| Assessment | 3 | 3 | 9 | medium |
+| Residual risk after the countermeasure | 1 | 3 | 3 | low |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Das Register wird für jeden Charger gepflegt, ein Neuladen ersetzt den Koordinator (`03b0fc3`). Dass ohne `configid` kein Charger geraten wird, ist in ADR-0010 entschieden (`4702213`).
+The registry is maintained for every charger, a reload replaces the coordinator (`03b0fc3`). That no charger is guessed without `configid` is decided in ADR-0010 (`4702213`).
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Geschlossen (behoben)
+Closed (fixed)
 <!-- /risk:status -->
 
-`03b0fc3`, ADR-0010 (`4702213`). Register wird für jeden Charger gepflegt, Neuladen ersetzt den alten Koordinator. Der wechselnde Standard-Charger ist seit `4702213` über ADR-0010 entschieden (kein Standard bei mehreren Chargern).
+`03b0fc3`, ADR-0010 (`4702213`). The registry is maintained for every charger, reloading replaces the old coordinator. The changing default charger has been decided through ADR-0010 since `4702213` (no default with several chargers).
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Aus Code gelesen (`service.py:17,33,41`, `__init__.py:153`ff). **Nicht nachgespielt.**  
+Read from the code (`service.py:17,33,41`, `__init__.py:153`ff). **Not replayed.**  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

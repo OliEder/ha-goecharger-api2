@@ -11,49 +11,49 @@ status: fixed
 owner:
 review: release
 ---
-# R5: `pgrid` ohne Endlichkeitsprüfung
+# R5: `pgrid` without a finiteness check
 
-## Risikobeschreibung
+## Risk description
 
-Wenn `set_pv_data` mit `NaN` oder `inf` als `pgrid` aufgerufen wird, dann wird der Wert ungeprüft gesendet, was dazu führt, dass ungültiges JSON zum Charger geht.
+If `set_pv_data` is called with `NaN` or `inf` as `pgrid`, then the value is sent unchecked, which means invalid JSON goes to the charger.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** `set_pv_data` prüft `pgrid` nur mit `isinstance(Number)` (`service.py:59`), `ppv` und `pakku` jedoch auf Endlichkeit.
+**Finding.** `set_pv_data` checks `pgrid` only with `isinstance(Number)` (`service.py:59`), but `ppv` and `pakku` for finiteness.
 
-**Wirkung.** `NaN` oder `inf` als `pgrid` kann als ungültiges JSON zum Charger gehen.
+**Effect.** `NaN` or `inf` as `pgrid` can go to the charger as invalid JSON.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 1 | 3 | 3 | niedrig |
-| Restrisiko nach der Gegenmaßnahme | 1 | 1 | 1 | niedrig |
+| Assessment | 1 | 3 | 3 | low |
+| Residual risk after the countermeasure | 1 | 1 | 1 | low |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-`pgrid` wird wie `ppv` und `pakku` auf Endlichkeit geprüft (`eb5da46`). Das Blueprint prüft ohnehin.
+`pgrid` is checked for finiteness like `ppv` and `pakku` (`eb5da46`). The blueprint checks anyway.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Geschlossen (behoben)
+Closed (fixed)
 <!-- /risk:status -->
 
-`eb5da46`. Seit `eb5da46` prüft `set_pv_data` auch `pgrid` auf Endlichkeit.
+`eb5da46`. Since `eb5da46` `set_pv_data` also checks `pgrid` for finiteness.
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Aus Code gelesen. Geringe Praxisrelevanz, da das Blueprint prüft.  
+Read from the code. Low practical relevance because the blueprint checks.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

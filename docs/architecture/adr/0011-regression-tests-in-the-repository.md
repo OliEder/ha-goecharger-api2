@@ -1,23 +1,23 @@
-# ADR-0011: Regressionstests im Repository
+# ADR-0011: Regression tests in the repository
 
 ## Status
 
-Akzeptiert (2026-10-29, PR #178 und #179)
+Accepted (2026-10-29, PRs #178 and #179)
 
-## Kontext und Begründung
+## Context and reasoning
 
-Der Maintainer hat die Tests in PR #178 und die angepassten Workflows in PR #179 übernommen. Davor gab es keine Tests im Repository (ADR-0009). Regressionen sollen vor einem Release auffallen, auch beim Umbau von Code [Schluss, aus dem Verlauf von Issue #172].
+The maintainer took over the tests in PR #178 and the adapted workflows in PR #179. Before that there were no tests in the repository (ADR-0009). Regressions should be noticed before a release, also when code is restructured [Schluss, from the course of issue #172].
 
-## Entscheidung
+## Decision
 
-Die Regressionstests liegen im Repository (`tests/integration`) und laufen bei jedem Push auf `main` und bei jedem Pull Request (`.github/workflows/tests.yaml`). Offene Funde tragen die Marker `known_bug` oder `needs_decision` und sind nicht blockierend.
+The regression tests are in the repository (`tests/integration`) and run on every push to `main` and on every pull request (`.github/workflows/tests.yaml`). Open findings carry the markers `known_bug` or `needs_decision` and are not blocking.
 
-## Konsequenzen
+## Consequences
 
-Tests und Bericht müssen gepflegt werden; ein behobener Fund verlangt, den Marker von Hand zu entfernen. Die Tests prüfen mit Attrappen, nicht am Gerät (siehe Testkonzept).
+Tests and report must be maintained; a fixed finding requires removing its marker by hand. The tests check with fakes, not on the device (see test concept).
 
-## Herkunft dieses Eintrags
+## Origin of this entry
 
-Aus Commit, Diff und Tests abgeleitet [Schluss]; die Begründung hat der Maintainer nicht schriftlich gegeben.
+Derived from the commit, diff and tests [Inference]; the maintainer did not give the reasoning in writing.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Index](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the index](README.md)

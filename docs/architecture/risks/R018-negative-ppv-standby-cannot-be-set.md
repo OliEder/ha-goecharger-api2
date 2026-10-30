@@ -11,47 +11,47 @@ status: open
 owner:
 review: release
 ---
-# R18: `ppv` negativ (Standby) lässt sich nicht setzen
+# R18: Negative `ppv` (standby) cannot be set
 
-## Risikobeschreibung
+## Risk description
 
-Wenn ein Nutzer den Standby-Zustand der PV-Anlage über `set_pv_data` melden will, dann begrenzt die Oberfläche `ppv` auf Werte ab 0, was dazu führt, dass `pPv < 0` (Standby) nicht gesendet werden kann.
+If a user wants to report the standby state of the PV system via `set_pv_data`, then the UI limits `ppv` to values from 0, which means `pPv < 0` (standby) cannot be sent.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** Offiziell bedeutet `pPv < 0` „Standby“, der Dienst `set_pv_data` begrenzt `ppv` in der Oberfläche auf Werte ab 0.
+**Finding.** Officially `pPv < 0` means "standby", the service `set_pv_data` limits `ppv` in the UI to values from 0.
 
-**Wirkung.** Standby kann über die Oberfläche nicht gesetzt werden. Ob das gewollt ist, ist unklar.
+**Effect.** Standby cannot be set through the UI. Whether this is intended is unclear.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 2 | 1 | 2 | niedrig |
-| Restrisiko nach der Gegenmaßnahme | 2 | 1 | 2 | niedrig |
+| Assessment | 2 | 1 | 2 | low |
+| Residual risk after the countermeasure | 2 | 1 | 2 | low |
 
-Risikostrategie: **Akzeptieren**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Accept**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Akzeptiert, bis der Maintainer klärt, ob das gewollt ist.
+Accepted until the maintainer clarifies whether this is intended.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Offen
+Open
 <!-- /risk:status -->
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Doku und `services.yaml` gelesen.  
+Documentation and `services.yaml` read.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

@@ -11,47 +11,47 @@ status: open
 owner:
 review: release
 ---
-# R21: Migration von 2.0 auf 2.1 löscht alle Geräte
+# R21: Migration from 2.0 to 2.1 deletes all devices
 
-## Risikobeschreibung
+## Risk description
 
-Wenn ein Entry der Version 2.0 migriert wird, dann löscht `async_migrate_entry` alle Geräte des Entries und damit vermutlich die Einträge der Entity-Registry, was dazu führt, dass angepasste Namen, Bereiche und aktivierte Entitäten verloren gehen.
+If an entry of version 2.0 is migrated, then `async_migrate_entry` deletes all devices of the entry and thus probably the entries of the entity registry, which means customised names, areas and enabled entities are lost.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** Die Migration von 2.0 auf 2.1 löscht **alle Geräte** des Entries (`async_remove_device`). HA entfernt damit nach meinem Wissen auch die zugehörigen Einträge der Entity-Registry.
+**Finding.** The migration from 2.0 to 2.1 deletes **all devices** of the entry (`async_remove_device`). To my knowledge HA thereby also removes the related entries of the entity registry.
 
-**Wirkung.** Von Nutzern angepasste Namen, Bereiche, Beschriftungen und manuell aktivierte Entitäten (viele Sensoren sind standardmäßig aus) gehen vermutlich verloren und müssen neu gesetzt werden. Die Entity-IDs bleiben gleich, da sie im Code erzeugt werden.
+**Effect.** Names, areas, labels and manually enabled entities (many sensors are off by default) adjusted by users are probably lost and must be set again. The entity IDs stay the same because they are generated in the code.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 2 | 3 | 6 | mittel |
-| Restrisiko nach der Gegenmaßnahme | 1 | 3 | 3 | niedrig |
+| Assessment | 2 | 3 | 6 | medium |
+| Residual risk after the countermeasure | 1 | 3 | 3 | low |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Die Migration soll Geräte nicht löschen. Der Fall betrifft nur noch Entries, die noch auf 2.0 stehen. Das HA-Verhalten ist aus dem Gedächtnis angenommen und nicht nachgespielt.
+The migration should not delete devices. The case now concerns only entries still on 2.0. The HA behaviour is assumed from memory and not replayed.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Offen
+Open
 <!-- /risk:status -->
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-HA-Verhalten aus dem Gedächtnis, im Code nur der Aufruf belegt. **Nicht nachgespielt.**  
+HA behaviour from memory, in the code only the call is proven. **Not replayed.**  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

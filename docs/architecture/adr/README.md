@@ -1,23 +1,23 @@
-# Architekturentscheidungen (ADR)
+# Architecture decisions (ADR)
 
-Jede Entscheidung steht in einer eigenen Datei, nummeriert fortlaufend. Die Einträge ADR-0001 bis ADR-0009 sind aus Code und Kommentaren **rekonstruiert**, weil der Autor keine Entscheidungsprotokolle führt. ADR-0010 und ADR-0011 stammen aus dem Verlauf der Zusammenarbeit im Oktober 2026. Englische Fassungen liegen in [`en/`](en/README.md).
+Every decision is in a file of its own, numbered consecutively. The entries ADR-0001 to ADR-0009 are **reconstructed** from code and comments because the author keeps no decision records. ADR-0010 and ADR-0011 come from the course of the collaboration in October 2026.
 
-| ADR | Titel | Status |
+| ADR | Title | Status |
 |---|---|---|
-| [ADR-0001](0001-prefer-websocket-polling-as-fallback.md) | WebSocket bevorzugen, Polling als Rückfall | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0002](0002-operating-mode-follows-from-the-password.md) | Betriebsart ergibt sich aus dem Passwort | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0003](0003-bridge-as-a-sub-library-in-the-same-folder.md) | Bridge als Teilbibliothek im selben Ordner | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0004](0004-declarative-entity-descriptions.md) | Deklarative Entity-Beschreibungen | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0005](0005-own-chainmap-data-store-instead-of-a-type-model.md) | Eigene ChainMap-Datenhaltung statt Typmodell | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0006](0006-hibernation-in-polling.md) | Hibernation im Polling | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0007](0007-pv-data-through-an-ha-automation-instead-of-extra-hardware.md) | PV-Daten über eine HA-Automation statt Zusatzhardware | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0008](0008-restart-by-config-reload-on-persistent-errors.md) | Neustart per Konfigurations-Reload bei dauerhaften Fehlern | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0009](0009-no-automated-tests-in-the-repository.md) | Keine automatisierten Tests im Repository | Ersetzt durch ADR-0011 |
-| [ADR-0010](0010-service-calls-without-configid-only-with-exactly-one-charger.md) | Dienstaufrufe ohne configid nur bei genau einem Charger | Akzeptiert (2026-10-29, Commit `4702213`) |
-| [ADR-0011](0011-regression-tests-in-the-repository.md) | Regressionstests im Repository | Akzeptiert (2026-10-29, PR #178 und #179) |
+| [ADR-0001](0001-prefer-websocket-polling-as-fallback.md) | Prefer WebSocket, polling as fallback | Accepted (reconstructed, date unknown) |
+| [ADR-0002](0002-operating-mode-follows-from-the-password.md) | Operating mode follows from the password | Accepted (reconstructed, date unknown) |
+| [ADR-0003](0003-bridge-as-a-sub-library-in-the-same-folder.md) | Bridge as a sub-library in the same folder | Accepted (reconstructed, date unknown) |
+| [ADR-0004](0004-declarative-entity-descriptions.md) | Declarative entity descriptions | Accepted (reconstructed, date unknown) |
+| [ADR-0005](0005-own-chainmap-data-store-instead-of-a-type-model.md) | Own ChainMap data store instead of a type model | Accepted (reconstructed, date unknown) |
+| [ADR-0006](0006-hibernation-in-polling.md) | Hibernation in polling | Accepted (reconstructed, date unknown) |
+| [ADR-0007](0007-pv-data-through-an-ha-automation-instead-of-extra-hardware.md) | PV data through an HA automation instead of extra hardware | Accepted (reconstructed, date unknown) |
+| [ADR-0008](0008-restart-by-config-reload-on-persistent-errors.md) | Restart by config reload on persistent errors | Accepted (reconstructed, date unknown) |
+| [ADR-0009](0009-no-automated-tests-in-the-repository.md) | No automated tests in the repository | Superseded by ADR-0011 |
+| [ADR-0010](0010-service-calls-without-configid-only-with-exactly-one-charger.md) | Service calls without configid only with exactly one charger | Accepted (2026-10-29, commit `4702213`) |
+| [ADR-0011](0011-regression-tests-in-the-repository.md) | Regression tests in the repository | Accepted (2026-10-29, PRs #178 and #179) |
 
-## Eine neue Entscheidung festhalten
+## Recording a new decision
 
-1. Nächste freie Nummer wählen, Datei `NNNN-kurzer-titel.md` anlegen, Aufbau wie in den vorhandenen Dateien: Status, Kontext und Begründung, Entscheidung, Konsequenzen, Herkunft.
-2. Wird eine Entscheidung abgelöst, den alten Eintrag nicht löschen, sondern den Status auf „Ersetzt durch ADR-NNNN“ setzen.
-3. Die Tabelle oben und das Kapitel 9 der [arc42-Dokumentation](../arc42-ha-goecharger-api2.md) ergänzen. Die englische Fassung (`en/`) im selben Schritt pflegen.
+1. Pick the next free number, create a file `NNNN-short-title.md`, structured like the existing files: status, context and reasoning, decision, consequences, origin.
+2. When a decision is replaced, do not delete the old entry; set its status to "Superseded by ADR-NNNN".
+3. Add it to the table above and to chapter 9 of the [arc42 documentation](../arc42-ha-goecharger-api2.md).

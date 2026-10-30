@@ -11,47 +11,47 @@ status: open
 owner:
 review: release
 ---
-# R23: Blueprint in `main` hat bei ungültigen Messwerten keinen Nullwert-Zweig
+# R23: Blueprint in `main` has no zero-value branch for invalid measurements
 
-## Risikobeschreibung
+## Risk description
 
-Wenn ein Sensor des PV-Blueprints tagsüber ausfällt, dann überspringt das Blueprint die Lieferung statt Nullwerte zu senden, was dazu führt, dass die gleitenden Mittelwerte der Wallbox stehen bleiben und ungewollt aus dem Netz geladen werden kann.
+If a sensor of the PV blueprint fails during the day, then the blueprint skips the delivery instead of sending zero values, which means the moving averages of the wallbox stand still and charging from the grid may happen unintentionally.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** Die in `main` gemergte Blueprint-Version (PR #171 plus #174, von marq24 manuell eingebaut) enthält **nicht** die Erweiterungen der ursprünglichen Fassung von PR #171: Bei ungültigen Messwerten wird die Tageslieferung **übersprungen** (kein Nullwert), bei falscher Zielauswahl `stop` mit `error: true` im 5-Sekunden-Takt, `mode: single` ohne `max_exceeded: silent`, kein Akku-Schalter, keine Karenzzeit. Das Verhalten steht im Blueprint-Text als bewusste Entscheidung („does not clear its previous averages“).
+**Finding.** The blueprint version merged into `main` (PR #171 plus #174, built in manually by marq24) does **not** contain the extensions of the original version of PR #171: on invalid measurements the day's delivery is **skipped** (no zero value), on a wrong target selection `stop` with `error: true` every 5 seconds, `mode: single` without `max_exceeded: silent`, no battery switch, no grace period. The behaviour is stated in the blueprint text as a deliberate decision ("does not clear its previous averages").
 
-**Wirkung.** Fällt ein Sensor am Tag aus, bleiben die gleitenden Mittelwerte der Wallbox stehen. Dieses Risiko würde „Nullwerte senden“ vermeiden.
+**Effect.** If a sensor fails during the day, the moving averages of the wallbox stand still. "Send zero values" would avoid this risk.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 3 | 3 | 9 | mittel |
-| Restrisiko nach der Gegenmaßnahme | 2 | 3 | 6 | mittel |
+| Assessment | 3 | 3 | 9 | medium |
+| Residual risk after the countermeasure | 2 | 3 | 6 | medium |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Das Verhalten ist im Blueprint als bewusste Entscheidung beschrieben. Eine Option „Nullwerte senden“ wäre die Gegenmaßnahme. Vorschlag.
+The behaviour is described in the blueprint as a deliberate decision. An option "send zero values" would be the countermeasure. Proposal.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Offen
+Open
 <!-- /risk:status -->
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Quelltext gelesen.  
+Source code read.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

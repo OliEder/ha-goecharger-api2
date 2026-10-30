@@ -11,47 +11,47 @@ status: open
 owner:
 review: release
 ---
-# R30: Max Ampere wird bei jedem Neustart zurückgesetzt
+# R30: Max Ampere is reset at every restart
 
-## Risikobeschreibung
+## Risk description
 
-Wenn Home Assistant oder die Integration neu startet, dann setzt die Integration laut Maintainer das Maximum der Stromstärke zurück, was dazu führt, dass ein eingestellter Wert verloren geht und die Grenze nicht mehr gilt, bis sie neu gesetzt wird.
+If Home Assistant or the integration restarts, then according to the maintainer the integration resets the maximum current, which means a configured value is lost and the limit no longer applies until it is set again.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** Laut Maintainer (Issue #176) setzt die Integration das Maximum der Stromstärke (Max Ampere) bei jedem Neustart zurück.
+**Finding.** According to the maintainer (issue #176) the integration resets the maximum current (Max Ampere) at every restart.
 
-**Wirkung.** Ein zuvor eingestellter Wert geht verloren; die Grenze gilt dann nicht mehr, bis sie neu gesetzt wird.
+**Effect.** A previously set value is lost; the limit then no longer applies until it is set again.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 3 | 3 | 9 | mittel |
-| Restrisiko nach der Gegenmaßnahme | 1 | 3 | 3 | niedrig |
+| Assessment | 3 | 3 | 9 | medium |
+| Residual risk after the countermeasure | 1 | 3 | 3 | low |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Das Verhalten nachstellen und mit einem Test festhalten; dann die Ursache klären (16-A-Begrenzer oder Wertübernahme beim Start). Aussage des Maintainers, nicht von uns nachgespielt.
+Reproduce the behaviour and record it in a test; then clarify the cause (16 A limiter or taking over values at start). Statement of the maintainer, not replayed by us.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Offen
+Open
 <!-- /risk:status -->
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Aussage des Maintainers, **nicht** von uns nachgespielt und kein Test dazu. Ob das vom 16-A-Begrenzer (R29) oder von der Wertübernahme beim Start kommt, ist offen.  
+Statement of the maintainer, **not** replayed by us and no test for it. Whether it comes from the 16 A limiter ([R29](R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md)) or from taking over values at start is open.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

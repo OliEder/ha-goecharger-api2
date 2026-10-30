@@ -1,23 +1,23 @@
-# ADR-0002: Betriebsart ergibt sich aus dem Passwort
+# ADR-0002: Operating mode follows from the password
 
 ## Status
 
-Akzeptiert (rekonstruiert, Datum unbekannt)
+Accepted (reconstructed, date unknown)
 
-## Kontext und Begründung
+## Context and reasoning
 
-Einfache Einrichtung
+Simple setup
 
-## Entscheidung
+## Decision
 
-Betriebsart = Passwort gesetzt
+Operating mode = password set
 
-## Konsequenzen
+## Consequences
 
-Kein expliziter Schalter; Umschalten nur über Rekonfiguration
+No explicit switch; switching only through reconfiguration
 
-## Herkunft dieses Eintrags
+## Origin of this entry
 
-Rekonstruiert aus Code und Kommentaren [Schluss]. Der Autor führt keine Entscheidungsprotokolle; die Begründung ist abgeleitet, nicht belegt.
+Reconstructed from code and comments [Inference]. The author keeps no decision records; the reasoning is inferred, not proven.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Index](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the index](README.md)

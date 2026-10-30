@@ -11,49 +11,49 @@ status: fixed
 owner:
 review: release
 ---
-# R1: stop_charging sperrt den Charger nach einem Schreibfehler
+# R1: stop_charging locks the charger after a write error
 
-## Risikobeschreibung
+## Risk description
 
-Wenn der Dienst `stop_charging` im WebSocket-Modus aufgerufen wird und der erste Schreibzugriff (`frc=1`) oder der zweite (`frc=0`) fehlschlägt, dann bleibt der Charger gesperrt und das Flag `_stop_in_progress` gesetzt, was dazu führt, dass der Nutzer nicht mehr laden kann und weitere Stopp-Anfragen mit „already in progress“ abgewiesen werden.
+If the service `stop_charging` is called in WebSocket mode and the first write (`frc=1`) or the second one (`frc=0`) fails, then the charger stays locked and the flag `_stop_in_progress` stays set, which means the user cannot charge any more and further stop requests are rejected with "already in progress".
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** `stop_charging` im WebSocket-Modus: `write_value_to_key` liefert `None`, danach `Tag.FRC.key in resp` wirft `TypeError`; abgefangen wird nur `ValueError`. `frc=1` ist gesetzt, `frc=0` wird nie gesendet, `_stop_in_progress` bleibt `True`.
+**Finding.** `stop_charging` in WebSocket mode: `write_value_to_key` returns `None`, then `Tag.FRC.key in resp` raises `TypeError`; only `ValueError` is caught. `frc=1` is set, `frc=0` is never sent, `_stop_in_progress` stays `True`.
 
-**Wirkung.** Charger bleibt gesperrt, bis jemand `frc` von Hand zurücksetzt.
+**Effect.** The charger stays locked until someone resets `frc` by hand.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 3 | 4 | 12 | mittel |
-| Restrisiko nach der Gegenmaßnahme | 1 | 4 | 4 | niedrig |
+| Assessment | 3 | 4 | 12 | medium |
+| Residual risk after the countermeasure | 1 | 4 | 4 | low |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-`finally` setzt das Flag immer zurück, beide Schreibzugriffe verlangen eine Bestätigung (`require_ack`). Umgesetzt in `03b0fc3`, `9e7d62a` und `d876dfd`.
+A `finally` always resets the flag, both writes require an acknowledgement (`require_ack`). Done in `03b0fc3`, `9e7d62a` and `d876dfd`.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Geschlossen (behoben)
+Closed (fixed)
 <!-- /risk:status -->
 
-`03b0fc3`, `9e7d62a`. Der `TypeError` im WebSocket-Modus ist weg (`write_value_to_key` liefert `{key: value}`), `_stop_in_progress` wird seit `9e7d62a` in einem `finally` zurückgesetzt. Beide Tests sind grün.
+`03b0fc3`, `9e7d62a`. The `TypeError` in WebSocket mode is gone (`write_value_to_key` returns `{key: value}`), `_stop_in_progress` is reset in a `finally` since `9e7d62a`. Both tests are green.
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Im Test nachgespielt. **Nicht** an echtem Gerät geprüft. Noch in `main`.  
+Replayed in a test. **Not** checked on a real device. Still in `main`.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

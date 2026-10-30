@@ -1,23 +1,23 @@
-# ADR-0004: Deklarative Entity-Beschreibungen
+# ADR-0004: Declarative entity descriptions
 
 ## Status
 
-Akzeptiert (rekonstruiert, Datum unbekannt)
+Accepted (reconstructed, date unknown)
 
-## Kontext und Begründung
+## Context and reasoning
 
-Hunderte Entitäten mit wenig Code
+Hundreds of entities with little code
 
-## Entscheidung
+## Decision
 
-Deklarative Entity-Beschreibungen
+Declarative entity descriptions
 
-## Konsequenzen
+## Consequences
 
-Sehr große `const.py` (3300 Zeilen); Logik versteckt in Optionen (`idx`, `tuple_idx`)
+Very large `const.py` (3300 lines); logic hidden in options (`idx`, `tuple_idx`)
 
-## Herkunft dieses Eintrags
+## Origin of this entry
 
-Rekonstruiert aus Code und Kommentaren [Schluss]. Der Autor führt keine Entscheidungsprotokolle; die Begründung ist abgeleitet, nicht belegt.
+Reconstructed from code and comments [Inference]. The author keeps no decision records; the reasoning is inferred, not proven.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Index](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the index](README.md)

@@ -11,49 +11,49 @@ status: fixed
 owner:
 review: release
 ---
-# R25: Konkrete Startfehlermeldung wird überdeckt
+# R25: Specific start error message is covered up
 
-## Risikobeschreibung
+## Risk description
 
-Wenn beim Start keine Gerätedaten verfügbar sind, dann ersetzt `except BaseException` die konkrete Meldung durch die allgemeine WebSocket-Meldung, was dazu führt, dass Nutzer eine unpassende Fehlermeldung sehen.
+If no device data is available at start, then `except BaseException` replaces the specific message with the general WebSocket message, which means users see an unsuitable error message.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** `async_setup_entry`: Die Meldung „could not fetch essential information“ wird innerhalb eines `try` erzeugt und von `except BaseException` sofort durch die allgemeine WebSocket-Meldung ersetzt.
+**Finding.** `async_setup_entry`: the message "could not fetch essential information" is created inside a `try` and immediately replaced by the general WebSocket message by `except BaseException`.
 
-**Wirkung.** Nutzer sehen eine unpassende Fehlermeldung.
+**Effect.** Users see an unsuitable error message.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 3 | 1 | 3 | niedrig |
-| Restrisiko nach der Gegenmaßnahme | 1 | 1 | 1 | niedrig |
+| Assessment | 3 | 1 | 3 | low |
+| Residual risk after the countermeasure | 1 | 1 | 1 | low |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Die konkrete `ConfigEntryNotReady`-Meldung bleibt erhalten (`eb5da46`).
+The specific `ConfigEntryNotReady` message is kept (`eb5da46`).
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Geschlossen (behoben)
+Closed (fixed)
 <!-- /risk:status -->
 
-`eb5da46`. Seit `eb5da46` bleibt die konkrete `ConfigEntryNotReady`-Meldung erhalten.
+`eb5da46`. Since `eb5da46` the specific `ConfigEntryNotReady` message is kept.
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Im Test gezeigt (`known_bug`).  
+Shown in a test (`known_bug`).  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

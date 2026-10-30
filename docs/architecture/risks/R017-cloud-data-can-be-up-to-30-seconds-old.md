@@ -11,47 +11,47 @@ status: open
 owner:
 review: release
 ---
-# R17: Cloud-Daten können bis zu 30 Sekunden alt sein
+# R17: Cloud data can be up to 30 seconds old
 
-## Risikobeschreibung
+## Risk description
 
-Wenn die Integration `/api/status` der Cloud ohne den Parameter `age` abfragt, dann liefert die Cloud Daten bis 30 Sekunden Alter, was dazu führt, dass Werte im Cloud-Polling veraltet sind, ohne dass die Integration das erkennt.
+If the integration queries the cloud `/api/status` without the parameter `age`, then the cloud returns data up to 30 seconds old, which means values in cloud polling are outdated without the integration noticing.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** Cloud-`/api/status` liefert standardmäßig Daten bis 30 Sekunden Alter (`age=30`); die Integration setzt `age` nicht.
+**Finding.** Cloud `/api/status` returns data up to 30 seconds old by default (`age=30`); the integration does not set `age`.
 
-**Wirkung.** Im Cloud-Polling können Werte bis zu 30 Sekunden alt sein, ohne dass die Integration das erkennt.
+**Effect.** In cloud polling values can be up to 30 seconds old without the integration noticing.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 3 | 2 | 6 | mittel |
-| Restrisiko nach der Gegenmaßnahme | 1 | 2 | 2 | niedrig |
+| Assessment | 3 | 2 | 6 | medium |
+| Residual risk after the countermeasure | 1 | 2 | 2 | low |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-`age` setzen oder den Header `last-modified` auswerten. Vorschlag, nicht umgesetzt.
+Set `age` or evaluate the header `last-modified`. Proposal, not implemented.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Offen
+Open
 <!-- /risk:status -->
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Doku und Code gelesen (kein `age` in den Aufrufen).  
+Documentation and code read (no `age` in the calls).  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

@@ -1,34 +1,34 @@
-# arc42 – Architekturdokumentation: `ha-goecharger-api2` (go-e APIv2 Connect)
+# arc42 – Architecture documentation: `ha-goecharger-api2` (go-e APIv2 Connect)
 
 | | |
 |---|---|
-| **Gegenstand** | Home-Assistant-Integration `goecharger_api2` für go-eCharger-Wallboxen und go-eController |
-| **Quelle** | `marq24/ha-goecharger-api2`, Branch `main`, Commit `e6ee0c3` (2026-10-30). Letzte Version (Release) ist `2026.10.8` (Commit `03b0fc3`, 2026-10-27); `main` enthält danach unter anderem die 16-A-Erkennung über `cll`, das temporäre Stromlimit `tcl` (PR #177), die Entscheidung ADR-0010 und mehrere Fehlerbehebungen. Risiken und Bausteine wurden am 2026-10-30 gegen diesen Stand geprüft |
-| **Erstellt** | 2026-10-27, rekonstruiert aus Code, README, `docs/PVSURPLUS.md`, Workflows und Commit-Historie |
-| **Status** | Arbeitsunterlage, mit KI-Unterstützung (Claude Code) erstellt und von einem Menschen geprüft. Der Maintainer war an der Erstellung nicht beteiligt; die Unterlagen liegen seit PR #178 im Repository. |
+| **Subject** | Home Assistant integration `goecharger_api2` for go-eCharger wallboxes and the go-eController |
+| **Source** | `marq24/ha-goecharger-api2`, branch `main`, commit `e6ee0c3` (2026-10-30). The latest release is `2026.10.8` (commit `03b0fc3`, 2026-10-27); since then `main` contains, among other things, the 16 A detection via `cll`, the temporary current limit `tcl` (PR #177), decision ADR-0010 and several bug fixes. Risks and building blocks were checked against this state on 2026-10-30 |
+| **Created** | 2026-10-27, reconstructed from code, README, `docs/PVSURPLUS.md`, workflows and commit history |
+| **Status** | Working document, written with AI assistance (Claude Code) and reviewed by a human. The maintainer was not involved in writing it; the documents have been in the repository since PR #178. |
 
-**Lesehinweis zur Verlässlichkeit.** Aussagen sind in drei Stufen markiert:
-- **[Code]**: direkt aus dem Quelltext gelesen, mit Datei und Zeile.
-- **[Doku]**: steht so im README oder in `docs/`.
-- **[Schluss]**: abgeleitet (Absicht, Bewertung). Das ist keine Aussage des Autors.
+**Note on reliability.** Statements are marked on three levels:
+- **[Code]**: read directly from the source code, with file and line.
+- **[Docs]**: stated this way in the README or in `docs/`.
+- **[Inference]**: inferred (intent, assessment). This is not a statement by the author.
 
-Nichts davon wurde gegen einen laufenden Charger geprüft, außer wo ausdrücklich vermerkt.
+None of this was checked against a running charger unless explicitly noted.
 
 ---
 
-## 1. Einführung und Ziele
+## 1. Introduction and goals
 
-### 1.1 Aufgabenstellung
-Die Integration bindet go-eCharger-Wallboxen (und Wallboxen auf deren Hardwarebasis, zum Beispiel Fronius Wattpilot) sowie den go-eController in Home Assistant (HA) ein [Doku].
+### 1.1 Task
+The integration connects go-eCharger wallboxes (and wallboxes built on the same hardware, for example Fronius Wattpilot) and the go-eController to Home Assistant (HA) [Docs].
 
-Sie liefert:
-- **Lesen:** Status- und Konfigurationswerte als HA-Entitäten.
-- **Schreiben:** Einstellungen der Wallbox aus HA heraus.
-- **PV-Überschussladen ohne Zusatzhardware:** Eine HA-Automation schickt Netz-, PV- und Batterieleistung über einen Service an die Wallbox [Doku].
+It provides:
+- **Reading:** status and configuration values as HA entities.
+- **Writing:** settings of the wallbox from within HA.
+- **PV surplus charging without extra hardware:** an HA automation sends grid, PV and battery power to the wallbox through a service [Docs].
 
-Umfang laut Code [Code, `const.py`]:
+Scope according to the code [Code, `const.py`]:
 
-| Plattform | Charger | Controller |
+| Platform | Charger | Controller |
 |---|---|---|
 | sensor | 103 | 74 |
 | number | 36 | 0 |
@@ -37,145 +37,145 @@ Umfang laut Code [Code, `const.py`]:
 | select | 15 | 6 |
 | button | 3 | 1 |
 
-Dazu 319 definierte API-Schlüssel (`Tag`) in `pygoecharger_ha/keys.py`. Die Zahlen sind gezählte `Ext*EntityDescription(`-Aufrufe und können durch bedingte Filterung (Abschnitt 5.2) zur Laufzeit niedriger liegen.
+In addition there are 319 defined API keys (`Tag`) in `pygoecharger_ha/keys.py`. The numbers are counted `Ext*EntityDescription(` calls and may be lower at runtime because of conditional filtering (section 5.2).
 
-### 1.2 Qualitätsziele
+### 1.2 Quality goals
 
-| Prio | Ziel | Bedeutung hier |
+| Prio | Goal | Meaning here |
 |---|---|---|
-| 1 | **Robustheit gegenüber Geräteverhalten** | Firmware ändert sich (55 bis 60.x), Verbindungen brechen ab, Wallboxen antworten unterschiedlich. Die Integration soll weiterlaufen. |
-| 2 | **Aktualität bei geringer Last** | Push per WebSocket statt Polling; im Polling-Betrieb bewusst gedrosselt (Hibernation-Modus). |
-| 3 | **Geringer Konfigurationsaufwand** | Alles über die HA-Oberfläche; Entitäten werden aus Beschreibungen erzeugt. |
-| 4 | **Sicherer Betrieb der Steuerung** | Schreibzugriffe wirken auf ein physisches Gerät (Stromfluss, Fahrzeug). |
+| 1 | **Robustness against device behaviour** | Firmware changes (55 to 60.x), connections drop, wallboxes answer differently. The integration should keep running. |
+| 2 | **Freshness at low load** | Push via WebSocket instead of polling; in polling mode deliberately throttled (hibernation mode). |
+| 3 | **Little configuration effort** | Everything through the HA user interface; entities are generated from descriptions. |
+| 4 | **Safe operation of the control** | Writes act on a physical device (current flow, vehicle). |
 
-[Schluss] Die Reihenfolge ist aus dem Code abgeleitet (viel Aufwand bei Reconnect, Watchdog, Firmware-Weichen, wenig bei Tests und Eingabevalidierung).
+[Inference] The order is derived from the code (a lot of effort for reconnect, watchdog and firmware switches, little for tests and input validation).
 
-### 1.3 Stakeholder
+### 1.3 Stakeholders
 
-| Rolle | Erwartung |
+| Role | Expectation |
 |---|---|
-| Endnutzer (HA-Betreiber) | Funktioniert nach Firmware-Updates, kein Log-Spam, PV-Laden stabil |
-| Maintainer (marq24, s3ppo für den Controller) | Wartbar mit wenig Freizeit |
-| Beitragende (zum Beispiel MrCodeLabs mit dem Blueprint) | Klare Erweiterungspunkte |
-| go-e GmbH | Nicht beteiligt. Die Integration ist inoffiziell [Doku]. |
+| End users (HA operators) | Works after firmware updates, no log spam, stable PV charging |
+| Maintainer (marq24, s3ppo for the controller) | Maintainable with little spare time |
+| Contributors (for example MrCodeLabs with the blueprint) | Clear extension points |
+| go-e GmbH | Not involved. The integration is unofficial [Docs]. |
 
 ---
 
-## 2. Randbedingungen
+## 2. Constraints
 
-| Typ | Randbedingung |
+| Type | Constraint |
 |---|---|
-| Plattform | Home Assistant, `hacs.json` verlangt mindestens `2023.8.0`; `requirements_dev.txt` zieht `homeassistant>=2024.8.2`. Der Code nutzt neuere APIs (zum Beispiel `async_update_reload_and_abort`, `_get_reconfigure_entry`). Die tatsächlich unterstützte Mindestversion ist nicht eindeutig [Schluss]. |
-| Sprache/Laufzeit | Python, asynchron (`asyncio`, `aiohttp`) |
-| Abhängigkeiten | `msgpack>=1.1.2` (manifest); im Code zusätzlich `bcrypt`, `packaging`, `awesomeversion`, `aiohttp` (kommen aus HA oder werden vorausgesetzt). `bcrypt` steht **nicht** im Manifest [Code]. |
-| Geräte-API | Undokumentierte WebSocket-Schnittstelle (nachgebaut) und dokumentierte HTTP-API v2 der go-e GmbH |
-| Verteilung | HACS (Zip-Release); Lizenz siehe `LICENSE` |
-| Organisation | Ein Hauptautor, Freizeitprojekt. Automatisierte Tests liegen seit PR #178 im Repository (vorher gab es keine; die Tests aus PR #171 waren wieder entfernt worden). |
-| Gerätegrenzen | Die Wallbox verwirft PV-Daten nach 5 Sekunden [Doku]. Die Konfiguration wird im Polling nur selten gelesen. |
+| Platform | Home Assistant, `hacs.json` requires at least `2023.8.0`; `requirements_dev.txt` pulls `homeassistant>=2024.8.2`. The code uses newer APIs (for example `async_update_reload_and_abort`, `_get_reconfigure_entry`). The minimum version that is really supported is not clear [Inference]. |
+| Language/runtime | Python, asynchronous (`asyncio`, `aiohttp`) |
+| Dependencies | `msgpack>=1.1.2` (manifest); in the code additionally `bcrypt`, `packaging`, `awesomeversion`, `aiohttp` (they come from HA or are assumed). `bcrypt` is **not** in the manifest [Code]. |
+| Device API | Undocumented WebSocket interface (reverse engineered) and the documented HTTP API v2 of go-e GmbH |
+| Distribution | HACS (zip release); licence see `LICENSE` |
+| Organisation | One main author, spare-time project. Automated tests have been in the repository since PR #178 (before that there were none; the tests of PR #171 had been removed again). |
+| Device limits | The wallbox discards PV data after 5 seconds [Docs]. In polling mode the configuration is read only rarely. |
 
 ---
 
-## 3. Kontextabgrenzung
+## 3. Context and scope
 
-### 3.1 Fachlicher Kontext
+### 3.1 Business context
 
 ```mermaid
 flowchart LR
-    User[Nutzer / Dashboard]
-    Auto[HA-Automation<br/>oder Blueprint]
+    User[User / dashboard]
+    Auto[HA automation<br/>or blueprint]
     HA[Home Assistant]
     INT[Integration<br/>goecharger_api2]
     WB[go-eCharger / go-eController<br/>LAN]
     Cloud[go-e Cloud<br/>api.v3.go-e.io / app.v3.go-e.io]
-    PV[PV-, Netz-, Batterie-Sensoren<br/>anderer Integrationen]
+    PV[PV, grid and battery sensors<br/>of other integrations]
 
     User --> HA
     PV --> Auto
-    Auto -- "goecharger_api2.set_pv_data (alle 5 s)" --> INT
+    Auto -- "goecharger_api2.set_pv_data (every 5 s)" --> INT
     Auto -- "goecharger_api2.stop_charging" --> INT
     HA --- INT
-    INT -- "HTTP /api/status, /api/set<br/>oder WebSocket /ws" --> WB
-    INT -- "HTTPS + Bearer-Token<br/>oder WSS" --> Cloud
+    INT -- "HTTP /api/status, /api/set<br/>or WebSocket /ws" --> WB
+    INT -- "HTTPS + bearer token<br/>or WSS" --> Cloud
     Cloud --- WB
 ```
 
-### 3.2 Technischer Kontext (Schnittstellen)
+### 3.2 Technical context (interfaces)
 
-| Kanal | Richtung | Protokoll | Authentifizierung |
+| Channel | Direction | Protocol | Authentication |
 |---|---|---|---|
-| LAN-Polling | HA → Wallbox | `GET http(s)://<host>/api/status?filter=…`, `GET …/api/set?key=value` | keine (Freischaltung „HTTP API v2“ in der go-e-App) |
-| LAN-WebSocket | HA ↔ Wallbox | `ws(s)://<host>/ws`, JSON/MessagePack | Challenge-Response mit PBKDF2-SHA512 oder bcrypt, `securedMsg` mit HMAC-SHA256 |
-| Cloud-Polling | HA → Cloud | `GET https://<serial>.api.v3.go-e.io/api/status`, `/api/set` | `Authorization: Bearer <Token>` |
-| Cloud-WebSocket | HA ↔ Cloud | `wss://app.v3.go-e.io/<serial>` | Token-Header plus Wallbox-Passwort-Challenge |
-| HA-Dienste | Automation → Integration | `goecharger_api2.set_pv_data`, `goecharger_api2.stop_charging` | HA-Berechtigungen |
-| Konfiguration | Nutzer → HA | Config-Flow (Anlegen, Rekonfigurieren) | HA-Login |
+| LAN polling | HA → wallbox | `GET http(s)://<host>/api/status?filter=…`, `GET …/api/set?key=value` | none (enabling "HTTP API v2" in the go-e app) |
+| LAN WebSocket | HA ↔ wallbox | `ws(s)://<host>/ws`, JSON/MessagePack | challenge-response with PBKDF2-SHA512 or bcrypt, `securedMsg` with HMAC-SHA256 |
+| Cloud polling | HA → cloud | `GET https://<serial>.api.v3.go-e.io/api/status`, `/api/set` | `Authorization: Bearer <token>` |
+| Cloud WebSocket | HA ↔ cloud | `wss://app.v3.go-e.io/<serial>` | token header plus wallbox password challenge |
+| HA services | automation → integration | `goecharger_api2.set_pv_data`, `goecharger_api2.stop_charging` | HA permissions |
+| Configuration | user → HA | config flow (create, reconfigure) | HA login |
 
-[Code] Betriebsart wird **nicht** ausgewählt, sondern ergibt sich aus der Konfiguration: Ist im Config-Entry ein Passwort hinterlegt, nutzt die Integration WebSocket, sonst HTTP-Polling (`__init__.py:123`ff, `pygoecharger_ha/__init__.py:151`ff).
+[Code] The operating mode is **not** selected but follows from the configuration: if a password is stored in the config entry, the integration uses WebSocket, otherwise HTTP polling (`__init__.py:123`ff, `pygoecharger_ha/__init__.py:151`ff).
 
-### 3.3 Offizielle Schnittstellendokumentation der go-e GmbH
+### 3.3 Official interface documentation of go-e GmbH
 
-Quelle: GitHub-Repository [`goecharger/go-eCharger-API-v2`](https://github.com/goecharger/go-eCharger-API-v2), Stand Commit `b4d7f85` vom 2026-08-12. Status der go-e-Dienste: https://status.go-e.com/status/go-e.
+Source: GitHub repository [`goecharger/go-eCharger-API-v2`](https://github.com/goecharger/go-eCharger-API-v2), state at commit `b4d7f85` of 2026-08-12. Status of the go-e services: https://status.go-e.com/status/go-e.
 
-| Dokument | Inhalt | Von der Integration genutzt? |
+| Document | Content | Used by the integration? |
 |---|---|---|
-| `API_KEYS_FIRMWARE/apikeys-en.md` | Alle API-Schlüssel mit Lesen/Schreiben, Typ, Kategorie, Beschreibung (rund 400 KB). Zusätzlich eigene Listen für Firmware 59.4, 60.2, 60.3 und 60.4 | Ja, Grundlage von `keys.py` und den Filtern |
-| `http-en.md` | Lokale HTTP-API: `/api/status` (optional `filter=`), `/api/set` | Ja (Polling) |
-| `cloudapi-en.md` | Cloud-HTTP-API über `https://<Seriennummer>.api.v3.go-e.io` mit Token | Ja (Cloud-Polling) |
-| `mqtt-en.md` | MQTT, ab Firmware 051.5 Schreiben nur nach ausdrücklicher Freigabe | Nein |
-| `modbus-en.md`, `ocpp-en.md` | Modbus und OCPP | Nein |
-| `gridapi-en.md` | „Coming soon“, ohne Inhalt | Nein |
-| `Changelogs_Gemini/`, `Changelogs_PRO/` | Firmware-Änderungen 60.3 bis 60.5 | Nur als Hintergrund |
+| `API_KEYS_FIRMWARE/apikeys-en.md` | All API keys with read/write, type, category, description (about 400 KB). Additional lists for firmware 59.4, 60.2, 60.3 and 60.4 | Yes, basis of `keys.py` and the filters |
+| `http-en.md` | Local HTTP API: `/api/status` (optional `filter=`), `/api/set` | Yes (polling) |
+| `cloudapi-en.md` | Cloud HTTP API via `https://<serial>.api.v3.go-e.io` with token | Yes (cloud polling) |
+| `mqtt-en.md` | MQTT, writing only after explicit release since firmware 051.5 | No |
+| `modbus-en.md`, `ocpp-en.md` | Modbus and OCPP | No |
+| `gridapi-en.md` | "Coming soon", no content | No |
+| `Changelogs_Gemini/`, `Changelogs_PRO/` | Firmware changes 60.3 to 60.5 | Only as background |
 
-**Wichtig:** Eine **WebSocket-Schnittstelle ist in der offiziellen Dokumentation nicht beschrieben.** Das README der Integration nennt sie „undocumented“. Anmeldung und Nachrichtenformat sind nachgebaut (Beobachtung der App und des Wattpilot-Projekts, siehe Kommentare in `ws_connect` und `_ws_compute_hashed_password`). Damit liegt der bevorzugte Datenpfad außerhalb dessen, was go-e zusichert ([Risikoregister](risks/README.md), R16).
+**Important:** A **WebSocket interface is not described in the official documentation.** The README of the integration calls it "undocumented". Login and message format are reverse engineered (observation of the app and of the Wattpilot project, see comments in `ws_connect` and `_ws_compute_hashed_password`). The preferred data path is therefore outside of what go-e guarantees (risk [R16](risks/R016-websocket-interface-is-not-officially-documented.md)).
 
-**Was die offizielle Doku für die Integration festlegt**
+**What the official documentation defines for the integration**
 
-| Thema | Offizielle Aussage | Bezug zur Integration |
+| Topic | Official statement | Relation to the integration |
 |---|---|---|
-| Aktivierung lokal | HTTP-API muss in der App aktiviert sein (Schlüssel `hai`) | README und Config-Flow verlangen das, falls kein Passwort für WebSocket genutzt wird |
-| Gesamtabzug | `/api/status` ohne Filter: „higher system load, lots of traffic, shouldn't be used for productive setups“ | Integration nutzt immer `filter=…` (Abschnitt 6.3), passt dazu |
-| Filter | Komma-getrennte Schlüssel, ab Firmware 051.4. Davor eine JSON-Liste mit rund 10 Einträgen | Integration verwendet nur die neue Form; das README fordert Firmware ab 56.1 |
-| Schreiben | Jeder Wert als URL-Parameter, JSON-kodiert (Zeichenketten in Anführungszeichen). Antwort: je Schlüssel `true` oder eine Fehlermeldung | Entspricht `_write_values_int` (`'"'+str(value)+'"'`) |
-| Rechenlogik | Die Lade-Logik läuft einmal pro Sekunde, geänderte Einstellungen wirken nach etwa einer weiteren Sekunde | Erklärt, warum Schreiben und Wirkung zeitversetzt erscheinen |
-| PV-Daten `ids` | `{"pGrid", "pPv", "pAkku"}`; `pGrid < 0` Einspeisung, `pAkku < 0` Batterie lädt, `pPv > 0` Erzeugung, `pPv < 0` Standby. „Needed all 5 seconds. Can be read back within 10 seconds after set.“ `pPv` und `pAkku` optional | Entspricht dem Dienst `set_pv_data`; die Oberfläche begrenzt `ppv` auf Werte ab 0 (`services.yaml`), obwohl negative Werte laut Doku „Standby“ bedeuten |
-| Cloud-Aktivierung | Firmware ab 052, App ab 2.3; Schlüssel `cae` oder App-Schalter | Integration liest `cae` im Config-Flow |
-| Cloud-Token | In der App sichtbar oder über den Schlüssel `cak` lesbar; neuer Token durch Setzen von `cak` | Integration liest `cak` nicht, speichert aber den Token im Config-Entry |
-| Cloud-Rate-Limit | Keins, aber nicht öfter als einmal pro Sekunde abfragen | Integration: Cloud-Intervall mindestens 30 s |
-| Cloud `/api/status` | 403 offline oder Cloud-API aus; 404 keine aktuellen Daten; 200 mit Daten, Header `last-modified`. Parameter `age` (Standard 30 s), `filter` | Integration wertet nur 200 und 400 aus und nutzt `age` nicht |
-| Cloud `/api/set` | 403, 404 (Charger offline), 422 (alle Schlüssel abgelehnt), **202** laut Doku (mindestens ein Schlüssel gesendet, ohne Garantie); laut Maintainer liefert die echte Cloud 200 und die Doku ist hier falsch | Integration behandelt in `_write_values_int` nur 200 und 500 als Antwort ([Risikoregister](risks/README.md), R15, kein Fehler) |
+| Local activation | The HTTP API must be enabled in the app (key `hai`) | README and config flow require this if no password is used for WebSocket |
+| Full read | `/api/status` without filter: "higher system load, lots of traffic, shouldn't be used for productive setups" | The integration always uses `filter=…` (section 6.3), consistent with this |
+| Filter | Comma-separated keys, since firmware 051.4. Before that a JSON list with about 10 entries | The integration uses only the new form; the README requires firmware 56.1 or later |
+| Writing | Every value as a URL parameter, JSON-encoded (strings in quotes). Answer: `true` or an error message per key | Corresponds to `_write_values_int` (`'"'+str(value)+'"'`) |
+| Calculation logic | The charging logic runs once per second, changed settings take effect after about one more second | Explains why writing and effect appear with a delay |
+| PV data `ids` | `{"pGrid", "pPv", "pAkku"}`; `pGrid < 0` feed-in, `pAkku < 0` battery charging, `pPv > 0` generation, `pPv < 0` standby. "Needed all 5 seconds. Can be read back within 10 seconds after set." `pPv` and `pAkku` optional | Corresponds to the service `set_pv_data`; the UI limits `ppv` to values from 0 (`services.yaml`), although negative values mean "standby" according to the documentation |
+| Cloud activation | Firmware 052 or later, app 2.3 or later; key `cae` or app switch | The integration reads `cae` in the config flow |
+| Cloud token | Visible in the app or readable via key `cak`; a new token is created by setting `cak` | The integration does not read `cak` but stores the token in the config entry |
+| Cloud rate limit | None, but do not query more than once per second | Integration: cloud interval at least 30 s |
+| Cloud `/api/status` | 403 offline or cloud API off; 404 no current data; 200 with data, header `last-modified`. Parameters `age` (default 30 s), `filter` | The integration evaluates only 200 and 400 and does not use `age` |
+| Cloud `/api/set` | 403, 404 (charger offline), 422 (all keys rejected), **202** according to the documentation (at least one key sent, no guarantee); according to the maintainer the real cloud answers 200 and the documentation is wrong here | In `_write_values_int` the integration treats only 200 and 500 as an answer (risk [R15](risks/R015-cloud-documentation-names-http-202-for-api-set.md), not a defect) |
 
 ---
 
-## 4. Lösungsstrategie
+## 4. Solution strategy
 
-| Ziel | Ansatz | Wo |
+| Goal | Approach | Where |
 |---|---|---|
-| Robustheit | Pro Config-Entry ein `DataUpdateCoordinator`; Fehlerzähler mit 2 Minuten Sperre; nach mehr als 5 Verbindungsfehlern verzögerter Neustart (1 bis 5 Minuten zufällig); WebSocket-Watchdog alle 5 Minuten 1 Sekunde | `__init__.py` |
-| Aktualität bei geringer Last | WebSocket-Push mit Entprellung (mindestens 1 Sekunde zwischen HA-Updates, sonst Scan-Intervall); im Polling: „Hibernation“ (nur 6 Schlüssel, solange kein Fahrzeug steckt), Konfiguration höchstens stündlich | `pygoecharger_ha/__init__.py`, `const.py` (Filter) |
-| Wenig Code pro Entität | Deklarative Entity-Descriptions in `const.py`; je Plattform eine generische Klasse, die über `key`, `idx`, `tuple_idx`, `lookup`, `factor` den Wert aus dem Datenspeicher liest | `const.py`, `sensor.py`, `number.py`, … |
-| Firmware-Vielfalt | Verzweigungen nach Gerätetyp (Core/Phoenix gegenüber klassisch), Firmware-Version (`cards`-Objekt gegenüber Einzelschlüsseln), vorhandenen Schlüsseln | `read_versions()`, `is_valid_charger_entity()` |
-| PV-Überschuss ohne Hardware | Service `set_pv_data` schreibt den Schlüssel `ids` mit `pGrid`, `pPv`, `pAkku`; der Blueprint liefert die Messwerte | `service.py`, `example/blueprint/` |
-| Trennung | Geräte-Protokoll in der Teilbibliothek `pygoecharger_ha` (kennt Home Assistant nicht, nutzt aber `aiohttp`, `msgpack`, `bcrypt`) | `pygoecharger_ha/` |
+| Robustness | One `DataUpdateCoordinator` per config entry; error counter with a 2 minute block; delayed restart after more than 5 connection errors (1 to 5 minutes at random); WebSocket watchdog every 5 minutes 1 second | `__init__.py` |
+| Freshness at low load | WebSocket push with debouncing (at least 1 second between HA updates, otherwise scan interval); in polling "hibernation" (only 6 keys as long as no vehicle is plugged in), configuration at most hourly | `pygoecharger_ha/__init__.py`, `const.py` (filters) |
+| Little code per entity | Declarative entity descriptions in `const.py`; one generic class per platform that reads the value from the data store via `key`, `idx`, `tuple_idx`, `lookup`, `factor` | `const.py`, `sensor.py`, `number.py`, … |
+| Firmware variety | Branches by device type (Core/Phoenix versus classic), firmware version (`cards` object versus single keys), keys present | `read_versions()`, `is_valid_charger_entity()` |
+| PV surplus without hardware | Service `set_pv_data` writes the key `ids` with `pGrid`, `pPv`, `pAkku`; the blueprint supplies the measured values | `service.py`, `example/blueprint/` |
+| Separation | Device protocol in the sub-library `pygoecharger_ha` (does not know Home Assistant but uses `aiohttp`, `msgpack`, `bcrypt`) | `pygoecharger_ha/` |
 
 ---
 
-## 5. Bausteinsicht
+## 5. Building block view
 
-### 5.1 Ebene 1: Gesamtsystem
+### 5.1 Level 1: overall system
 
 ```mermaid
 flowchart TB
     subgraph Integration["custom_components/goecharger_api2"]
-        INIT["__init__.py<br/>Setup, Coordinator, Basisentität"]
-        CF["config_flow.py<br/>Anlegen, Rekonfigurieren, Verbindungstest"]
+        INIT["__init__.py<br/>setup, coordinator, base entity"]
+        CF["config_flow.py<br/>create, reconfigure, connection test"]
         SVC["service.py<br/>set_pv_data, stop_charging"]
-        PLAT["Plattformen<br/>sensor, number, select,<br/>switch, button, binary_sensor"]
-        CONST["const.py<br/>Entity-Beschreibungen"]
-        ENT["entity.py<br/>Anzeigename-Anpassung"]
+        PLAT["Platforms<br/>sensor, number, select,<br/>switch, button, binary_sensor"]
+        CONST["const.py<br/>entity descriptions"]
+        ENT["entity.py<br/>display name adjustment"]
         subgraph Lib["pygoecharger_ha"]
-            BR["__init__.py<br/>Bridge: HTTP + WebSocket"]
-            KEYS["keys.py<br/>319 API-Schlüssel (Tag)"]
-            PC["const.py<br/>Filter, Übersetzungen, Enums"]
+            BR["__init__.py<br/>bridge: HTTP + WebSocket"]
+            KEYS["keys.py<br/>319 API keys (Tag)"]
+            PC["const.py<br/>filters, translations, enums"]
         end
     end
     HAcore[Home Assistant Core]
@@ -191,36 +191,36 @@ flowchart TB
     HAcore --> CF
 ```
 
-### 5.2 Ebene 2: Bausteine
+### 5.2 Level 2: building blocks
 
-| Baustein | Verantwortung | Wichtige Punkte |
+| Building block | Responsibility | Important points |
 |---|---|---|
-| `GoeChargerDataUpdateCoordinator` (`__init__.py`) | Hält Bridge und Datenzustand je Config-Entry; Polling-Zyklus; Schreibzugriffe; Fehlerbehandlung; WebSocket-Start und Watchdog; Gerätemerkmale | `data` ist eine `ChainMap(_ws_states, _config, _states, _versions)`. Verbindungsfehler gehen über `_handle_client_connection_error`. |
-| `GoeChargerApiV2Bridge` (`pygoecharger_ha/__init__.py`) | Wandelt zwischen Gerät und Dictionary: Lesen mit Filter, Schreiben, WebSocket-Handshake und -Nachrichten | Wählt Pfad über `ws_connected`. Schreiben im WebSocket-Modus: sendet den Befehl und gibt `{key: value}` zurück (Einzelschreiben) oder `{}` (Mehrfachschreiben), **bevor** das Gerät bestätigt hat; die Bestätigung kommt später als `response`. Im HTTP-Modus: Ergebnis `{key: value}` oder `{"err": …}`. |
-| `GoeChargerBaseEntity` (`__init__.py`) | Gemeinsame Basis: Übersetzungsschlüssel, Entity-ID, `unique_id`, `device_info`, Verfügbarkeit | Entity-ID `…goe_<serial>_<schlüssel>` (LAN) oder `…goe_wan_<serial>_…` (Cloud). |
-| `CustomFriendlyNameEntity` (`entity.py`) | Überschreibt den Anzeigenamen ab HA 2026.2 | Greift auf die private Methode `_Entity__async_calculate_state` zu, also fragil bei HA-Updates [Schluss]. |
-| Plattformen | Legen Entitäten aus den Beschreibungslisten an; filtern über `is_valid_charger_entity()` | Wertzugriff mit `idx` (Listen), `tuple_idx` (verschachtelt), `lookup` (Zahl→Text), `factor`, `differential_base_key`. |
-| `service.py` | Drei HA-Dienste | `set_pv_data`: Netzleistung Pflicht, PV und Batterie optional. `stop_charging`: setzt `frc=1`, wartet 300 s, setzt `frc=0` (beide Schreibzugriffe mit Bestätigung, siehe 6.8). `set_temporary_current_limit`: setzt `tcl` mit Bestätigung (6.8). Ein Register der Charger (`add_config_entry_to_service`, `remove_config_entry_from_service`) bildet `configid` auf den Koordinator ab; `get_coordinator` lehnt unbekannte oder deaktivierte Entries mit `ServiceValidationError` ab. Ohne `configid` wird nur dann ein Charger gewählt, wenn genau einer registriert ist, sonst folgt ebenfalls ein `ServiceValidationError` (ADR-0010). |
-| `config_flow.py` | Assistent LAN/Cloud, Verbindungstest über WebSocket oder HTTP, Rekonfiguration | Titel und Typ aus den gelesenen Gerätedaten. |
-| `const.py` / `pygoecharger_ha/const.py` | Entity-Beschreibungen; API-Filter (welche Schlüssel für welchen Zyklus); Übersetzungen; Enums (`CAR_VALUES`, `CT_VALUES`) | `FILTER_*`-Zeichenketten bestimmen den Datenumfang je Zyklus. |
-| `example/blueprint/…` | Blueprint für den PV-Überschuss | Eigene Qualitätssicherung im Blueprint (Messwertprüfung, Zielcharger) seit PR #171. |
+| `GoeChargerDataUpdateCoordinator` (`__init__.py`) | Holds bridge and data state per config entry; polling cycle; writes; error handling; WebSocket start and watchdog; device properties | `data` is a `ChainMap(_ws_states, _config, _states, _versions)`. Connection errors go through `_handle_client_connection_error`. |
+| `GoeChargerApiV2Bridge` (`pygoecharger_ha/__init__.py`) | Converts between device and dictionary: reading with filter, writing, WebSocket handshake and messages | Chooses the path via `ws_connected`. Writing in WebSocket mode: sends the command and returns `{key: value}` (single write) or `{}` (multiple write) **before** the device has confirmed; the confirmation arrives later as `response`. In HTTP mode: result `{key: value}` or `{"err": …}`. |
+| `GoeChargerBaseEntity` (`__init__.py`) | Common base: translation key, entity ID, `unique_id`, `device_info`, availability | Entity ID `…goe_<serial>_<key>` (LAN) or `…goe_wan_<serial>_…` (cloud). |
+| `CustomFriendlyNameEntity` (`entity.py`) | Overrides the display name from HA 2026.2 on | Accesses the private method `_Entity__async_calculate_state`, so fragile with HA updates [Inference]. |
+| Platforms | Create entities from the description lists; filter via `is_valid_charger_entity()` | Value access with `idx` (lists), `tuple_idx` (nested), `lookup` (number→text), `factor`, `differential_base_key`. |
+| `service.py` | Three HA services | `set_pv_data`: grid power required, PV and battery optional. `stop_charging`: sets `frc=1`, waits 300 s, sets `frc=0` (both writes with acknowledgement, see 6.8). `set_temporary_current_limit`: sets `tcl` with acknowledgement (6.8). A registry of chargers (`add_config_entry_to_service`, `remove_config_entry_from_service`) maps `configid` to the coordinator; `get_coordinator` rejects unknown or disabled entries with `ServiceValidationError`. Without `configid` a charger is only chosen if exactly one is registered, otherwise there is also a `ServiceValidationError` (ADR-0010). |
+| `config_flow.py` | Wizard LAN/cloud, connection test via WebSocket or HTTP, reconfiguration | Title and type from the device data that was read. |
+| `const.py` / `pygoecharger_ha/const.py` | Entity descriptions; API filters (which keys for which cycle); translations; enums (`CAR_VALUES`, `CT_VALUES`) | The `FILTER_*` strings determine the amount of data per cycle. |
+| `example/blueprint/…` | Blueprint for PV surplus | Own quality assurance in the blueprint (measurement check, target charger) since PR #171. |
 
-### 5.3 Zustand und Datenmodell (zentral)
+### 5.3 State and data model (central)
 
-| Speicher | Inhalt | Wird gefüllt durch |
+| Store | Content | Filled by |
 |---|---|---|
-| `_versions` | System- und Versionsdaten (`typ`, `fwv`, `cards`, `cll`, …) | `read_versions()` |
-| `_states` | Statuswerte | Polling (`FILTER_ALL_STATES`, im Leerlauf `FILTER_MIN_STATES`) |
-| `_config` | Konfigurationswerte | Polling höchstens stündlich (`FILTER_ALL_CONFIG`) |
-| `_ws_states` | Alles, was per WebSocket ankommt (Vollstatus, Delta, Antworten) | WebSocket-Nachrichten |
+| `_versions` | System and version data (`typ`, `fwv`, `cards`, `cll`, …) | `read_versions()` |
+| `_states` | Status values | Polling (`FILTER_ALL_STATES`, when idle `FILTER_MIN_STATES`) |
+| `_config` | Configuration values | Polling at most hourly (`FILTER_ALL_CONFIG`) |
+| `_ws_states` | Everything that arrives via WebSocket (full status, delta, answers) | WebSocket messages |
 
-Die Reihenfolge in der `ChainMap` gibt WebSocket-Werten Vorrang. [Doku] Das README nennt für die Konfiguration „alle 24 Stunden“; im Code steht eine Stunde (`__init__.py`/Bridge `read_all`: `+ 3600`). Die Dokumentation und der Code weichen also voneinander ab.
+The order in the `ChainMap` gives WebSocket values priority. [Docs] The README says the configuration is read "every 24 hours"; the code says one hour (`__init__.py`/bridge `read_all`: `+ 3600`). Documentation and code therefore differ.
 
 ---
 
-## 6. Laufzeitsicht
+## 6. Runtime view
 
-### 6.1 Start (Setup)
+### 6.1 Start (setup)
 
 ```mermaid
 sequenceDiagram
@@ -229,273 +229,273 @@ sequenceDiagram
     participant C as Coordinator
     participant B as Bridge
     participant W as Wallbox
-    HA->>I: Config-Entry laden
-    I->>C: Coordinator anlegen
-    alt Passwort im Entry
+    HA->>I: load config entry
+    I->>C: create coordinator
+    alt password in the entry
         I->>C: start_websocket_and_wait_for_first_data()
-        C->>B: ws_connect() als Hintergrundtask
-        B->>W: Hello / Auth / Vollstatus
-        B-->>C: Pflicht-Tags vorhanden (max. 60 s)
+        C->>B: ws_connect() as background task
+        B->>W: hello / auth / full status
+        B-->>C: required tags present (max. 60 s)
         C->>C: read_versions()
-    else Kein Passwort
+    else no password
         I->>C: async_refresh() (HTTP)
         I->>C: read_versions()
     end
-    I->>HA: Plattformen laden
-    I->>HA: Services anmelden (nur beim ersten Charger)
-    opt Limit 16 A
-        I->>C: Hintergrundtask check_for_16a_limit()
+    I->>HA: load platforms
+    I->>HA: register services (only for the first charger)
+    opt limit 16 A
+        I->>C: background task check_for_16a_limit()
     end
     opt WebSocket
-        I->>C: Watchdog starten
+        I->>C: start watchdog
     end
 ```
 
-Fehler beim Start führen zu `ConfigEntryNotReady`; HA wiederholt das später selbst.
+Errors during start lead to `ConfigEntryNotReady`; HA retries later by itself.
 
-### 6.2 WebSocket-Verbindung und Anmeldung [Code, `ws_connect`]
+### 6.2 WebSocket connection and login [Code, `ws_connect`]
 
-1. Verbinden mit `ws_url` (und im Cloud-Fall mit dem Bearer-Token).
-2. `hello` empfangen: Seriennummer, Firmware, ob gesichert.
-3. `authRequired` empfangen: Hash-Typ (`pbkdf2` oder `bcrypt`; bei fehlender Angabe nach Gerätetyp gewählt), `token1`, `token2`.
-4. Gehashtes Passwort berechnen, `token3` erzeugen, Antwort-Hash senden (SHA-256 über `token3 + token2 + SHA256(token1 + Passwort-Hash)`).
-5. Ergebnis innerhalb von 10 Sekunden abwarten. Bei Erfolg `ws_connected = True`.
-6. Nachrichtenschleife: `fullStatus` (voll oder teilweise), `deltaStatus` (ohne die Schlüssel in `API_KEYS_TO_IGNORE_FROM_WS`), `response` (Antwort auf Schreibbefehl).
-7. Jede neue Nachricht stößt eine entprellte Aktualisierung des Koordinators an.
+1. Connect to `ws_url` (and in the cloud case with the bearer token).
+2. Receive `hello`: serial number, firmware, whether secured.
+3. Receive `authRequired`: hash type (`pbkdf2` or `bcrypt`; chosen by device type if missing), `token1`, `token2`.
+4. Compute the hashed password, create `token3`, send the answer hash (SHA-256 over `token3 + token2 + SHA256(token1 + password hash)`).
+5. Wait for the result for up to 10 seconds. On success `ws_connected = True`.
+6. Message loop: `fullStatus` (full or partial), `deltaStatus` (without the keys in `API_KEYS_TO_IGNORE_FROM_WS`), `response` (answer to a write command).
+7. Every new message triggers a debounced update of the coordinator.
 
-Schreibbefehle gehen als `setValue` mit fortlaufender `requestId`. Im lokalen gesicherten Modus wird die Nachricht als `securedMsg` mit HMAC verpackt.
+Write commands go out as `setValue` with a running `requestId`. In local secured mode the message is wrapped as `securedMsg` with HMAC.
 
 ```mermaid
 sequenceDiagram
     participant B as Bridge (ws_connect)
     participant W as Wallbox
-    B->>W: WebSocket öffnen (Cloud: mit Bearer-Token)
-    W-->>B: hello (Seriennummer, Firmware, gesichert?)
-    W-->>B: authRequired (Hash-Typ, token1, token2)
-    B->>B: Passwort hashen, token3 erzeugen
-    B->>W: auth (token3, Antwort-Hash)
-    alt authSuccess innerhalb von 10 s
+    B->>W: open WebSocket (cloud: with bearer token)
+    W-->>B: hello (serial number, firmware, secured?)
+    W-->>B: authRequired (hash type, token1, token2)
+    B->>B: hash password, create token3
+    B->>W: auth (token3, answer hash)
+    alt authSuccess within 10 s
         W-->>B: authSuccess
         B->>B: ws_connected = True
-        loop Nachrichtenschleife
+        loop message loop
             W-->>B: fullStatus, deltaStatus, response
-            B->>B: Daten ablegen, entprellte Aktualisierung anstoßen
+            B->>B: store data, trigger debounced update
         end
-    else keine oder andere Antwort
-        B->>B: Verbindung schließen, der Watchdog baut später neu auf
+    else no or other answer
+        B->>B: close connection, the watchdog reconnects later
     end
 ```
 
-### 6.3 Polling-Zyklus (ohne WebSocket)
+### 6.3 Polling cycle (without WebSocket)
 
-- Intervall: Scan-Intervall des Config-Entry (LAN Standard 30 s im Dialog, Minimum 5 s; Cloud mindestens 30 s, vorgeschlagen 120 s).
-- Ist ein Fahrzeug nicht angeschlossen (`car == 1`), werden nur die Schlüssel `car, modelStatus, err, nrg, tma, trx` (plus Zeitwerte und, nach PV-Daten, `pakku, ppv, pgrid`) gelesen, ein Vollabzug alle 5 Minuten.
-- Sobald `car` vom Leerlauf abweicht, folgt sofort ein Vollabzug.
-- Konfiguration: höchstens stündlich. Misslingt das Lesen, wird nach 5 Minuten neu versucht.
+- Interval: scan interval of the config entry (LAN default 30 s in the dialog, minimum 5 s; cloud at least 30 s, suggested 120 s).
+- If no vehicle is connected (`car == 1`), only the keys `car, modelStatus, err, nrg, tma, trx` (plus time values and, after PV data, `pakku, ppv, pgrid`) are read, a full read every 5 minutes.
+- As soon as `car` leaves idle, a full read follows at once.
+- Configuration: at most hourly. If reading fails, it is retried after 5 minutes.
 
-### 6.4 Schreiben einer Einstellung
+### 6.4 Writing a setting
 
-1. Entität ruft `coordinator.async_write_key(key, value, entity)`.
-2. Der Koordinator prüft Sperre nach Fehlern (2 Minuten) und Neustartzustand und wirft sonst `ValueError`.
-3. Bridge: WebSocket → senden und sofort `{key: value}` zurückgeben (Mehrfachschreiben: `{}`); die Bestätigung des Geräts kommt später als `response`. HTTP → `GET /api/set`, Ergebnis `{key: value}` oder `{"err": …}`.
-4. `handle_write_result()` übernimmt den **gewünschten** Wert sofort in die Daten (auch im WebSocket-Modus) und stößt eine Entitätsaktualisierung an. Lehnt der Charger den Befehl ab, bleibt der Wert, bis das Gerät den Schlüssel erneut meldet (R26).
+1. The entity calls `coordinator.async_write_key(key, value, entity)`.
+2. The coordinator checks the block after errors (2 minutes) and the restart state and otherwise raises `ValueError`.
+3. Bridge: WebSocket → send and return `{key: value}` at once (multiple write: `{}`); the confirmation of the device arrives later as `response`. HTTP → `GET /api/set`, result `{key: value}` or `{"err": …}`.
+4. `handle_write_result()` takes over the **requested** value into the data at once (also in WebSocket mode) and triggers an entity update. If the charger rejects the command, the value stays until the device reports the key again ([R26](risks/R026-rejected-value-stays-in-the-display.md)).
 
 ```mermaid
 sequenceDiagram
-    participant E as Entität
-    participant C as Koordinator
+    participant E as Entity
+    participant C as Coordinator
     participant B as Bridge
     participant W as Wallbox
     E->>C: async_write_key(key, value)
-    alt Sperre nach Fehlern oder Neustart aktiv
+    alt block after errors or restart active
         C-->>E: ValueError
-    else frei
+    else free
         C->>B: write_value_to_key(key, value)
-        alt WebSocket verbunden
-            B->>W: setValue mit requestId
-            B-->>C: key und value sofort zurück
-            W-->>B: response (später, success true oder false)
+        alt WebSocket connected
+            B->>W: setValue with requestId
+            B-->>C: key and value back at once
+            W-->>B: response (later, success true or false)
         else HTTP
-            B->>W: GET /api/set mit key und value
-            W-->>B: Ergebnis oder Fehlertext
-            B-->>C: key und value oder leeres Ergebnis
+            B->>W: GET /api/set with key and value
+            W-->>B: result or error text
+            B-->>C: key and value, or empty result
         end
-        C->>C: handle_write_result, gewünschten Wert in die Daten übernehmen
-        C->>E: Aktualisierung anstoßen
+        C->>C: handle_write_result, take the requested value into the data
+        C->>E: trigger update
     end
 ```
 
-### 6.5 PV-Überschuss (`set_pv_data`)
+### 6.5 PV surplus (`set_pv_data`)
 
-1. Blueprint ruft alle 5 Sekunden den Dienst mit `pgrid`, `ppv`, `pakku` auf (und `configid`; bei mehreren Chargern ist sie seit `4702213` Pflicht, siehe ADR-0010).
-2. Cloud-Betrieb: Ist kein Fahrzeug verbunden (`car < 2`), wird **nichts** gesendet (Last-Schutz).
-3. Der Dienst schreibt den Schlüssel `ids` mit `{"pGrid", "pPv", "pAkku"}`.
-4. Im HTTP-Betrieb setzt die Bridge danach ein Flag, damit im Leerlauf zusätzlich `pakku, ppv, pgrid` gelesen werden.
-5. Sendet die Automation nicht mehr, hält die Wallbox 5 Sekunden lang alte Werte [Doku]. Dass danach die gleitenden Mittelwerte der Wallbox (`pvopt_average…`) stehen bleiben, war eine Annahme bei der Blueprint-Entwicklung und ist am Gerät nicht geprüft. Das Risiko (ungewolltes Netzladen) deckt das Blueprint durch sein Verhalten bei ungültigen Messwerten ab (Standard: Nullwerte senden).
+1. The blueprint calls the service every 5 seconds with `pgrid`, `ppv`, `pakku` (and `configid`; with several chargers it has been mandatory since `4702213`, see ADR-0010).
+2. Cloud mode: if no vehicle is connected (`car < 2`), **nothing** is sent (load protection).
+3. The service writes the key `ids` with `{"pGrid", "pPv", "pAkku"}`.
+4. In HTTP mode the bridge then sets a flag so that `pakku, ppv, pgrid` are also read when idle.
+5. If the automation stops sending, the wallbox keeps old values for 5 seconds [Docs]. That the moving averages of the wallbox (`pvopt_average…`) stand still afterwards was an assumption during blueprint development and has not been checked on the device. The risk (unwanted grid charging) is covered by the blueprint through its behaviour on invalid measurements (default: send zero values).
 
-### 6.6 Zwangs-Stopp (`stop_charging`)
+### 6.6 Forced stop (`stop_charging`)
 
-`frc=1` (Laden aus), 300 s warten, `frc=0`. Beide Schreibzugriffe verlangen seit `d876dfd` eine Bestätigung (`require_ack=True`, siehe 6.8). Eine zweite Anfrage während der Wartezeit wird abgewiesen (`_stop_in_progress`). Das Flag wird seit `9e7d62a` in einem `finally` zurückgesetzt, also auch nach einem Schreibfehler (R1, behoben). Der frühere `TypeError` im WebSocket-Modus ist ebenfalls behoben.
+`frc=1` (charging off), wait 300 s, `frc=0`. Both writes have required an acknowledgement since `d876dfd` (`require_ack=True`, see 6.8). A second request during the waiting time is rejected (`_stop_in_progress`). Since `9e7d62a` the flag is reset in a `finally`, so also after a write error ([R1](risks/R001-stop-charging-locks-the-charger-after-a-write-error.md), fixed). The earlier `TypeError` in WebSocket mode is also fixed.
 
 ```mermaid
 sequenceDiagram
-    participant A as Aufrufer
-    participant S as Dienst stop_charging
-    participant C as Koordinator
+    participant A as Caller
+    participant S as Service stop_charging
+    participant C as Coordinator
     participant W as Wallbox
     A->>S: stop_charging (optional configid)
-    alt Anfrage läuft bereits
-        S-->>A: Fehler already in progress
-    else frei
+    alt request already running
+        S-->>A: error already in progress
+    else free
         S->>S: _stop_in_progress = True
-        S->>C: async_write_key frc=1 mit require_ack
-        C->>W: frc = 1 (Laden aus)
-        W-->>C: bestätigt
-        S->>S: 300 Sekunden warten
-        S->>C: async_write_key frc=0 mit require_ack
-        C->>W: frc = 0 (Laden wieder frei)
+        S->>C: async_write_key frc=1 with require_ack
+        C->>W: frc = 1 (charging off)
+        W-->>C: acknowledged
+        S->>S: wait 300 seconds
+        S->>C: async_write_key frc=0 with require_ack
+        C->>W: frc = 0 (charging free again)
         S->>S: finally: _stop_in_progress = False
-        S-->>A: Ergebnis (success oder Fehler)
+        S-->>A: result (success or error)
     end
 ```
 
-### 6.7 Fehlerbehandlung und Neustart
+### 6.7 Error handling and restart
 
-- `ClientConnectionError`: Zeitstempel und Zähler setzen, 2 Minuten lang keine Anfragen, Daten bleiben stehen.
-- Mehr als 5 Fehler in Folge: nach 1 bis 5 Minuten Zufallswartezeit wird der Config-Entry neu geladen.
-- WebSocket-Watchdog (alle 5 min 1 s): verbindet neu, wenn nicht verbunden; bricht ab und baut neu auf, wenn seit mehr als 50 Sekunden keine Daten kamen.
-- `force_async_update_now()`: erzwingt WebSocket-Neustart, aber nicht in den ersten 5 Minuten nach Start und nicht in den ersten 2 Minuten nach einer frischen Verbindung.
+- `ClientConnectionError`: set timestamp and counter, no requests for 2 minutes, data stays as it is.
+- More than 5 errors in a row: after a random wait of 1 to 5 minutes the config entry is reloaded.
+- WebSocket watchdog (every 5 min for 1 s): reconnects if not connected; aborts and rebuilds if no data arrived for more than 50 seconds.
+- `force_async_update_now()`: forces a WebSocket restart, but not in the first 5 minutes after start and not in the first 2 minutes after a fresh connection.
 
 ```mermaid
 stateDiagram-v2
     [*] --> Normal
-    Normal --> Pause: ClientConnectionError, Zähler plus 1
-    Pause --> Normal: nach 2 Minuten gelingt der Abruf, Zähler 0
-    Pause --> Pause: weiterer Fehler, Zähler plus 1
-    Pause --> NeustartGeplant: mehr als 5 Fehler in Folge
-    NeustartGeplant --> [*]: nach 1 bis 5 Minuten wird der Config-Entry neu geladen
+    Normal --> Pause: ClientConnectionError, counter plus 1
+    Pause --> Normal: after 2 minutes the fetch succeeds, counter 0
+    Pause --> Pause: further error, counter plus 1
+    Pause --> RestartPlanned: more than 5 errors in a row
+    RestartPlanned --> [*]: after 1 to 5 minutes the config entry is reloaded
 ```
 
-In `Pause` und `NeustartGeplant` lehnt `async_write_key` Schreibzugriffe mit `ValueError` ab, und der Abruf überspringt die Anfrage.
+In `Pause` and `RestartPlanned`, `async_write_key` rejects writes with `ValueError` and the fetch skips the request.
 
-### 6.8 Temporäres Stromlimit (`tcl`) und bestätigtes Schreiben [Code]
+### 6.8 Temporary current limit (`tcl`) and acknowledged writing [Code]
 
-Seit PR #177 gibt es den Dienst `set_temporary_current_limit` (Parameter `current`, optional `configid`) und eine Number-Entität für `tcl` (standardmäßig deaktiviert, 6 bis 32 A, mit 16-A-Prüfung).
-1. **Eingabeprüfung** (`_TCLTagLogic` in `keys.py`): Das Gerät muss `tcl` melden, sonst `ValueError`. Erlaubt sind ganze Ampere. Die Grenzen kommen aus `mca` (Minimum), `ama` (Maximum) und der Variante `var` (11 oder 22); die Obergrenze ist 16 A bei Variante 11 oder aktiver 16-A-Begrenzung, sonst 32 A. Der Dienst macht daraus einen `ServiceValidationError`.
-2. **Bestätigtes Schreiben** (`require_ack=True`): Im WebSocket-Modus sendet `_ws_send_command` den Befehl und wartet bis zu 3 Sekunden auf die `response`-Nachricht mit passender `requestId`. Bei gesicherter Verbindung zählt nur die innere Antwort, nicht die Bestätigung des Umschlags (`securedMsg`). Zeitüberschreitung oder `success` ungleich `true` führen zu `{}` und damit zu „nicht bestätigt“. Im HTTP-Betrieb gilt die Antwort der Anfrage selbst; der Parameter wirkt nur im WebSocket-Pfad [Schluss].
-3. **Ausgabeprüfung:** `tcl_validate_output` verlangt, dass der zurückgegebene Wert dem gesendeten entspricht, sonst `ValueError` („did not acknowledge“).
-4. **Nutzer:** Neben `tcl` verwenden auch beide Schreibzugriffe von `stop_charging` die Bestätigung.
+Since PR #177 there is the service `set_temporary_current_limit` (parameter `current`, optional `configid`) and a number entity for `tcl` (disabled by default, 6 to 32 A, with 16 A check).
+1. **Input check** (`_TCLTagLogic` in `keys.py`): the device must report `tcl`, otherwise `ValueError`. Whole amperes only. The bounds come from `mca` (minimum), `ama` (maximum) and the variant `var` (11 or 22); the upper bound is 16 A for variant 11 or an active 16 A limit, otherwise 32 A. The service turns this into a `ServiceValidationError`.
+2. **Acknowledged writing** (`require_ack=True`): in WebSocket mode `_ws_send_command` sends the command and waits up to 3 seconds for the `response` message with the matching `requestId`. On a secured connection only the inner answer counts, not the acknowledgement of the envelope (`securedMsg`). A timeout or `success` other than `true` leads to `{}` and thus to "not acknowledged". In HTTP mode the answer of the request itself counts; the parameter only acts on the WebSocket path [Inference].
+3. **Output check:** `tcl_validate_output` requires that the returned value equals the sent one, otherwise `ValueError` ("did not acknowledge").
+4. **Users:** besides `tcl`, both writes of `stop_charging` also use the acknowledgement.
 
-Eine Steuerung (`go-eController`) kennt weder `tcl` noch `cll` [Doku, `go-eController-API`].
+A controller (`go-eController`) knows neither `tcl` nor `cll` [Doku, `go-eController-API`].
 
 ```mermaid
 sequenceDiagram
-    participant A as Aufrufer oder Entität
-    participant K as Koordinator
+    participant A as Caller or entity
+    participant K as Coordinator
     participant B as Bridge
     participant W as Wallbox
-    A->>A: Eingabe prüfen (ganze Ampere, Grenzen aus mca, ama, var)
-    A->>K: async_write_key tcl mit require_ack
+    A->>A: check input (whole amperes, bounds from mca, ama, var)
+    A->>K: async_write_key tcl with require_ack
     K->>B: write_value_to_key
-    B->>W: setValue tcl mit requestId
-    alt response mit success true innerhalb von 3 s
+    B->>W: setValue tcl with requestId
+    alt response with success true within 3 s
         W-->>B: response success true
-        B-->>K: tcl und Wert
-        K-->>A: Wert, Ausgabeprüfung bestanden
-    else Zeitüberschreitung oder success nicht true
-        B-->>K: leeres Ergebnis
+        B-->>K: tcl and value
+        K-->>A: value, output check passed
+    else timeout or success not true
+        B-->>K: empty result
         K-->>A: ValueError did not acknowledge
     end
 ```
 
-### 6.9 Auswahl des Chargers bei Dienstaufrufen [Code, `get_coordinator`]
+### 6.9 Choosing the charger for service calls [Code, `get_coordinator`]
 
 ```mermaid
 flowchart TD
-    A["Dienstaufruf (set_pv_data, stop_charging, set_temporary_current_limit)"] --> B{"configid angegeben?"}
-    B -- ja --> C{"Entry vorhanden, aktiv und im Register?"}
-    C -- ja --> D["Koordinator dieses Chargers"]
-    C -- nein --> E["ServiceValidationError: disabled or invalid"]
-    B -- nein --> F{"Genau ein Charger im Register?"}
-    F -- ja --> D
-    F -- nein --> G["ServiceValidationError: No config_id provided BUT zero or multiple ... (ADR-0010)"]
+    A["Service call (set_pv_data, stop_charging, set_temporary_current_limit)"] --> B{"configid given?"}
+    B -- yes --> C{"Entry present, enabled and in the registry?"}
+    C -- yes --> D["Coordinator of this charger"]
+    C -- no --> E["ServiceValidationError: disabled or invalid"]
+    B -- no --> F{"Exactly one charger in the registry?"}
+    F -- yes --> D
+    F -- no --> G["ServiceValidationError: No config_id provided BUT zero or multiple ... (ADR-0010)"]
 ```
 
-Das Register enthält nur Charger (R3, behoben). Controller haben keine Dienste.
+The registry contains chargers only ([R3](risks/R003-active-charger-counter-with-controller-entries.md), fixed). Controllers have no services.
 
-### 6.10 Erkennung der 16-A-Begrenzung [Code, `read_versions`]
+### 6.10 Detection of the 16 A limit [Code, `read_versions`]
 
-Nur für Charger. Ergebnis ist `limit_to16a`; es begrenzt Sliders und Dienste auf höchstens 16 A.
+Chargers only. The result is `limit_to16a`; it limits sliders and services to at most 16 A.
 
 ```mermaid
 flowchart TD
-    A["read_versions"] --> B{"cll vorhanden und nicht leer?"}
-    B -- nein --> F{"Core-Wallbox?"}
-    F -- nein --> G["adi als Ersatz: Adapter erkannt = Begrenzung"]
-    F -- ja --> H["kein Wert bekannt"]
-    B -- ja --> C{"cableCurrentLimit größer 0?"}
-    C -- ja --> D["Begrenzung, wenn Kabelgrenze 16 A oder weniger"]
-    C -- nein --> E["keine Begrenzung aus dem Kabel (seit 98af3e0), adi wird nicht geprüft"]
+    A["read_versions"] --> B{"cll present and not empty?"}
+    B -- no --> F{"Core wallbox?"}
+    F -- no --> G["adi as fallback: adapter detected = limit"]
+    F -- yes --> H["no value known"]
+    B -- yes --> C{"cableCurrentLimit greater than 0?"}
+    C -- yes --> D["limit if cable limit is 16 A or less"]
+    C -- no --> E["no limit from the cable (since 98af3e0), adi is not checked"]
     G --> I
-    H --> J["Begrenzung vorsichtshalber aktiv"]
-    D --> I["limit_to16a = Konfiguration 11 kW oder Variante 11 oder Kabelgrenze"]
+    H --> J["limit active to be safe"]
+    D --> I["limit_to16a = configuration 11 kW or variant 11 or cable limit"]
     E --> I
     J --> I
 ```
 
-Zusätzlich gilt: Ist die Option „11 kW“ im Config-Entry gesetzt oder meldet der Charger die Variante `var` = 11, ist die Begrenzung immer aktiv. Wertet `cableCurrentLimit` mit einem Fehler aus, bleibt bei Core-Wallboxen die Begrenzung aktiv. Das Modell im Gerät erhält den Zusatz „[16A limited]“.
+In addition: if the option "11 kW" is set in the config entry or the charger reports variant `var` = 11, the limit is always active. If evaluating `cableCurrentLimit` raises an error, the limit stays active for Core wallboxes. The model in the device gets the suffix "[16A limited]".
 
-### 6.11 16-A-Begrenzer für vorhandene Einstellungen [Code, `check_and_write_to_16a`]
+### 6.11 16 A limiter for existing settings [Code, `check_and_write_to_16a`]
 
-Läuft 15 Sekunden nach dem Start als Hintergrundtask, wenn `limit_to16a` gilt.
-1. Aus der Entitätsregistrierung alle aktiven Stromstärke-Entitäten dieses Entries mit Obergrenze 16 A sammeln (deaktivierte und verwaiste werden übersprungen).
-2. Deren Schlüssel vom Charger lesen.
-3. Werte über 16 A auf 16 A kürzen und zurückschreiben. `lot` wird übersprungen, wenn eine Lastmanagement-Gruppe gesetzt ist.
-4. Fehler werden protokolliert und nicht weitergegeben.
+Runs 15 seconds after start as a background task when `limit_to16a` applies.
+1. From the entity registry, collect all enabled current entities of this entry with an upper bound of 16 A (disabled and orphaned ones are skipped).
+2. Read their keys from the charger.
+3. Cut values above 16 A to 16 A and write them back. `lot` is skipped if a load management group is set.
+4. Errors are logged and not passed on.
 
-### 6.12 Fahrzeugtyp wechseln (Mehrfachschreiben) [Code, `select.py`]
+### 6.12 Changing the vehicle type (multiple write) [Code, `select.py`]
 
-Wählt der Nutzer einen Fahrzeugtyp (`ct`), schreibt die Integration mit `async_write_multiple_keys` mehrere Schlüssel in einem Schritt:
+When the user selects a vehicle type (`ct`), the integration writes several keys in one step with `async_write_multiple_keys`:
 
-| Schlüssel | Wert |
+| Key | Value |
 |---|---|
-| `ct` | gewählter Typ |
-| `mca` (Mindeststrom) | 10 A für Renault Zoe, sonst 6 A |
-| `acp` (Ladepause erlaubt) | aus für VW ID.3 (Variante 2), sonst an |
-| `su` (kurzes Abstecken simulieren) | aus für Standard, VW ID.3 (2), Dacia Spring und SsangYong, sonst an |
-| `psm` (Phasenumschaltung) | 1 für Dacia Spring, sonst 0 |
-| `mcpd` (Mindestpause zwischen Ladungen) | 120000 ms für Cupra Born (Alternative), Ford Explorer, Porsche Taycan und Škoda Enyaq, sonst 0 |
+| `ct` | selected type |
+| `mca` (minimum current) | 10 A for Renault Zoe, otherwise 6 A |
+| `acp` (charge pause allowed) | off for VW ID.3 (variant 2), otherwise on |
+| `su` (simulate unplugging briefly) | off for default, VW ID.3 (2), Dacia Spring and SsangYong, otherwise on |
+| `psm` (phase switch mode) | 1 for Dacia Spring, otherwise 0 |
+| `mcpd` (minimum pause between charges) | 120000 ms for Cupra Born (alternative), Ford Explorer, Porsche Taycan and Škoda Enyaq, otherwise 0 |
 
-Im WebSocket-Modus sendet die Bridge die Schlüssel nacheinander mit 0,75 Sekunden Abstand und meldet danach ein leeres Ergebnis; die Bestätigung kommt über die Statusnachrichten (R27, behoben). Im HTTP-Modus geht alles in einer Anfrage.
+In WebSocket mode the bridge sends the keys one after another 0.75 seconds apart and then reports an empty result; the confirmation arrives through the status messages ([R27](risks/R027-false-error-after-a-successful-multiple-write.md), fixed). In HTTP mode everything goes in one request.
 
-### 6.13 Einrichtung im Config-Flow [Code, `config_flow.py`]
+### 6.13 Setup in the config flow [Code, `config_flow.py`]
 
 ```mermaid
 flowchart TD
-    A["Nutzer startet die Einrichtung"] --> B{"System: LAN oder WAN (Cloud)?"}
-    B -- LAN --> C["Host, Passwort optional, Intervall, 11-kW-Option eingeben"]
-    B -- WAN --> D["Seriennummer und Token eingeben"]
-    C --> E{"Passwort gesetzt?"}
-    E -- ja --> F["WebSocket testen, bis zu 30 s"]
-    F --> G{"Daten erhalten?"}
-    G -- nein --> H["Rückfall auf HTTP v2"]
-    E -- nein --> H
-    G -- ja --> I["read_system und read_versions"]
+    A["User starts the setup"] --> B{"System: LAN or WAN (cloud)?"}
+    B -- LAN --> C["Enter host, optional password, interval, 11 kW option"]
+    B -- WAN --> D["Enter serial number and token"]
+    C --> E{"Password set?"}
+    E -- yes --> F["Test WebSocket, up to 30 s"]
+    F --> G{"Data received?"}
+    G -- no --> H["Fall back to HTTP v2"]
+    E -- no --> H
+    G -- yes --> I["read_system and read_versions"]
     H --> I
     D --> I
-    I --> J{"Antwort gültig?"}
-    J -- nein --> K["Abbruch: auth_lan oder auth_wan"]
-    J -- ja --> L["Titel und Daten aus Typ, Modell, Seriennummer bilden, Intervall mindestens 5 s"]
-    L --> M{"Neu anlegen oder neu konfigurieren?"}
-    M -- neu --> N["Config-Entry anlegen"]
-    M -- neu konfigurieren --> O["Entry aktualisieren und neu laden"]
+    I --> J{"Valid answer?"}
+    J -- no --> K["Abort: auth_lan or auth_wan"]
+    J -- yes --> L["Build title and data from type, model, serial number, interval at least 5 s"]
+    L --> M{"Create new or reconfigure?"}
+    M -- new --> N["Create config entry"]
+    M -- reconfigure --> O["Update entry and reload"]
 ```
 
-Hinweis: `_abort_if_unique_id_configured()` wird aufgerufen, aber es wird keine `unique_id` gesetzt (R6). Die Doppelanlage desselben Geräts wird dadurch nicht verhindert. Bestehende Entries einer älteren Version migriert `async_migrate_entry` beim Laden (Abschnitt 8.1).
+Note: `_abort_if_unique_id_configured()` is called, but no `unique_id` is set ([R6](risks/R006-no-unique-id-in-the-config-flow.md)). Creating the same device twice is therefore not prevented. Existing entries of an older version are migrated by `async_migrate_entry` when they are loaded (section 8.1).
 
 ---
 
-## 7. Verteilungssicht
+## 7. Deployment view
 
 ```mermaid
 flowchart LR
@@ -504,158 +504,158 @@ flowchart LR
         CI["Workflows:<br/>HACS Action, hassfest,<br/>Tests, Zip Release"]
         Rel[Release: goecharger_api2.zip]
     end
-    HACS[HACS im HA]
-    subgraph Host["Home-Assistant-Host"]
+    HACS[HACS in HA]
+    subgraph Host["Home Assistant host"]
         CC["config/custom_components/goecharger_api2"]
-        Store[".storage/core.config_entries<br/>(Zugangsdaten im Klartext)"]
+        Store[".storage/core.config_entries<br/>(credentials in plain text)"]
     end
-    Dev["go-e Wallbox im LAN"]
+    Dev["go-e wallbox in the LAN"]
     Repo --> CI --> Rel --> HACS --> CC
     CC --- Store
     CC --> Dev
 ```
 
-- **Build:** Beim Veröffentlichen eines Releases zippt der Workflow den Ordner `custom_components/goecharger_api2` [Code, `release.yaml`].
-- **CI:** HACS Action und hassfest laufen bei Push, Pull Request und täglich. Seit PR #179 führt `tests.yaml` die Tests bei Push auf `main` und bei Pull Requests aus [Code].
-- **Betrieb:** Läuft im HA-Prozess, keine eigenen Dienste. Zugangsdaten (Passwort, Cloud-Token) liegen im Config-Entry von HA.
+- **Build:** when a release is published, the workflow zips the folder `custom_components/goecharger_api2` [Code, `release.yaml`].
+- **CI:** HACS Action and hassfest run on push, pull request and daily. Since PR #179 `tests.yaml` runs the tests on pushes to `main` and on pull requests [Code].
+- **Operation:** runs inside the HA process, no services of its own. Credentials (password, cloud token) are in the HA config entry.
 
 ---
 
-## 8. Querschnittliche Konzepte
+## 8. Cross-cutting concepts
 
-### 8.1 Konfiguration und Migration
-- Config-Flow-Version 2.1. Daten in `config_entry.data`, `options` bleiben leer.
-- Migration von Version 1 nach 2 führt `options` in `data` zusammen. Migration von 2.0 löscht alle Geräte des Entries, damit sie mit neuen Identifiern neu entstehen [Code, `async_migrate_entry`].
-- Gerät-Identifier sind `(DOMAIN, Typ, Modus, Seriennummer)`. Seit `8cb62b2` enthält die Geräteinfo keinen Token mehr.
+### 8.1 Configuration and migration
+- Config flow version 2.1. Data in `config_entry.data`, `options` stay empty.
+- Migration from version 1 to 2 merges `options` into `data`. Migration from 2.0 deletes all devices of the entry so that they are created again with new identifiers [Code, `async_migrate_entry`].
+- Device identifiers are `(DOMAIN, type, mode, serial number)`. Since `8cb62b2` the device info no longer contains a token.
 
-### 8.2 Entitäten und Namen
-- Übersetzungsschlüssel aus API-Schlüssel plus Index oder Zusatz, `unique_id` = `goecharger_api2.<entity-id-teil>`.
-- Übersetzungen in `translations/{de,en,fr}.json`; zusätzlich Wert-Texte (zum Beispiel `car`) in `pygoecharger_ha/const.py` für Deutsch und Englisch.
+### 8.2 Entities and names
+- Translation key from API key plus index or suffix, `unique_id` = `goecharger_api2.<entity-id-part>`.
+- Translations in `translations/{de,en,fr}.json`; in addition value texts (for example `car`) in `pygoecharger_ha/const.py` for German and English.
 
-### 8.3 Geräte- und Firmware-Varianten
-- Core/Phoenix/Pro gegenüber klassisch: unterschiedliche Temperatursensoren (`tma` Index 2 bis 5 gegenüber 0 und 1), einzelne nicht unterstützte Entitäten, Core-exklusives `iso2ena`, anderer Hash-Typ (bcrypt).
-- 16-A-Begrenzung: aus Kabelgrenze (`cll.cableCurrentLimit`), Adapter (`adi`), Variante (`var == 11`) oder Option; setzt `native_max_value` auf 16 und schreibt beim Start zu hohe Werte zurück. Seit `98af3e0` gilt: Hat `cll` Inhalt, aber keinen `cableCurrentLimit`, wird **keine** Grenze gesetzt und `adi` nicht herangezogen (Annahme des Autors: nur Flex-Geräte liefern diesen Schlüssel; Anlass war Issue #176). Davor galt bei Core-Geräten ohne diesen Schlüssel vorsichtshalber 16 A (R29).
-- `cards` als Objekt oder als 30 Einzelschlüssel (Firmware 60.0).
+### 8.3 Device and firmware variants
+- Core/Phoenix/Pro versus classic: different temperature sensors (`tma` index 2 to 5 versus 0 and 1), some unsupported entities, Core-only `iso2ena`, different hash type (bcrypt).
+- 16 A limit: from cable limit (`cll.cableCurrentLimit`), adapter (`adi`), variant (`var == 11`) or option; sets `native_max_value` to 16 and writes values that are too high back at start. Since `98af3e0`: if `cll` has content but no `cableCurrentLimit`, **no** limit is set and `adi` is not consulted (assumption of the author: only Flex devices deliver this key; trigger was issue #176). Before that, Core devices without this key were limited to 16 A to be safe ([R29](risks/R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md)).
+- `cards` as an object or as 30 single keys (firmware 60.0).
 
-### 8.4 Fehler- und Logstrategie
-- Fehler in Bridge-Methoden werden meist als Warnung geloggt und als leeres Ergebnis zurückgegeben; Schreibfehler als `ValueError` an die aufrufende Entität.
-- Viele breite `except BaseException`: 13 Stellen in `custom_components/` [Code, gezählt]. Sie fangen auch `CancelledError` und `KeyboardInterrupt`.
+### 8.4 Error and log strategy
+- Errors in bridge methods are mostly logged as a warning and returned as an empty result; write errors go to the calling entity as `ValueError`.
+- Many broad `except BaseException`: 13 places in `custom_components/` [Code, counted]. They also catch `CancelledError` and `KeyboardInterrupt`.
 
-### 8.5 Sicherheit
-- **Zugangsdaten:** Passwort und Cloud-Token liegen im HA-Config-Entry im Klartext (HA stellt keinen Tresor bereit). Weitere Beobachtungen zu Zugangsdaten wurden dem Maintainer direkt mitgeteilt und sind hier bewusst nicht aufgeführt.
-- **Vertrauensgrenze:** Das LAN-HTTP-API hat keine Authentifizierung; Schutz liegt im Netz.
+### 8.5 Security
+- **Credentials:** password and cloud token are in the HA config entry in plain text (HA provides no vault). Further observations about credentials were passed to the maintainer directly and are deliberately not listed here.
+- **Trust boundary:** the LAN HTTP API has no authentication; protection lies in the network.
 
-### 8.6 Nebenläufigkeit
-- Ein Event-Loop; Schreibbefehle über WebSocket warten je 0,75 s nacheinander bei Mehrfachschreiben.
-- Globale Variable `SCAN_INTERVAL` wird im Koordinator-Konstruktor überschrieben (gilt prozessweit, also für alle Config-Entries) [Code, `__init__.py:331`].
+### 8.6 Concurrency
+- One event loop; write commands over WebSocket wait 0.75 s each one after another for multiple writes.
+- The global variable `SCAN_INTERVAL` is overwritten in the coordinator constructor (applies process-wide, so to all config entries) [Code, `__init__.py:331`].
 
-### 8.7 Test und Qualitätssicherung
-- **Im Repo (Upstream):** HACS-Validierung und hassfest. Die früheren Unit-, Integrations- und Blueprint-Tests wurden in `60d9a09` gelöscht; seit PR #178 (`738c3c6`) liegen die Regressionstests in `tests/integration`.
-- **Regressionstests (`tests/integration`, in einem Fork entstanden):** 989 Tests (420 Vertragsprüfungen je Schlüssel, 569 Verhaltens- und Fehlertests; 972 blockierend, 17 beabsichtigt rot, mit PR #180), Zeilenabdeckung 93 %, Zweigabdeckung 85 %, Pfadabdeckung (obere Schranke) 61 %. Ein Messbericht entsteht von Hand über `test-report.yaml` (siehe Testkonzept).
-- **Testkonzept:** `docs/quality/testkonzept-ha-goecharger-api2.md` beschreibt Umfang, Stufen, Marker, Stand und Lücken.
-- **Vertrag zur offiziellen API:** Im Repository prüft `test_api_contract.py`, ob jeder dokumentierte Schlüssel unterstützt oder erklärt ist (92 dokumentierte Schlüssel ohne Tag, 38 genutzte Schlüssel ohne Doku, 14 Abweichungen bei Schreibrecht und Kategorie). Die Listen stehen in `tests/integration/contract/` (`classification.json`, `deviations.json`).
+### 8.7 Testing and quality assurance
+- **In the repo (upstream):** HACS validation and hassfest. The earlier unit, integration and blueprint tests were deleted in `60d9a09`; since PR #178 (`738c3c6`) the regression tests are in `tests/integration`.
+- **Regression tests (`tests/integration`, written in a fork):** 989 tests (420 per-key contract checks, 569 behaviour and error tests; 972 blocking, 17 intentionally red, with PR #180), line coverage 93 %, branch coverage 85 %, path coverage (upper bound) 61 %. A measurement report is created by hand with `test-report.yaml` (see test concept).
+- **Test concept:** `docs/quality/testkonzept-ha-goecharger-api2.md` describes scope, levels, markers, state and gaps.
+- **Contract with the official API:** in the repository `test_api_contract.py` checks whether every documented key is supported or explained (92 documented keys without a tag, 38 used keys without documentation, 14 deviations in write permission and category). The lists are in `tests/integration/contract/` (`classification.json`, `deviations.json`).
 
 ---
 
-## 9. Architekturentscheidungen
+## 9. Architecture decisions
 
-Die Entscheidungen stehen als eigene Dokumente in [`docs/architecture/adr/`](adr/README.md), eine Datei je Entscheidung. ADR-0001 bis ADR-0009 sind aus Code und Kommentaren rekonstruiert [Schluss]; ADR-0010 und ADR-0011 stammen aus dem Oktober 2026.
+The decisions are separate documents in [`docs/architecture/adr/`](adr/README.md), one file per decision. ADR-0001 to ADR-0009 are reconstructed from code and comments [Inference]; ADR-0010 and ADR-0011 come from October 2026.
 
-| ADR | Entscheidung | Status |
+| ADR | Decision | Status |
 |---|---|---|
-| [ADR-0001](adr/0001-prefer-websocket-polling-as-fallback.md) | WebSocket bevorzugen, Polling als Rückfall | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0002](adr/0002-operating-mode-follows-from-the-password.md) | Betriebsart ergibt sich aus dem Passwort | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0003](adr/0003-bridge-as-a-sub-library-in-the-same-folder.md) | Bridge als Teilbibliothek im selben Ordner | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0004](adr/0004-declarative-entity-descriptions.md) | Deklarative Entity-Beschreibungen | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0005](adr/0005-own-chainmap-data-store-instead-of-a-type-model.md) | Eigene ChainMap-Datenhaltung statt Typmodell | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0006](adr/0006-hibernation-in-polling.md) | Hibernation im Polling | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0007](adr/0007-pv-data-through-an-ha-automation-instead-of-extra-hardware.md) | PV-Daten über eine HA-Automation statt Zusatzhardware | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0008](adr/0008-restart-by-config-reload-on-persistent-errors.md) | Neustart per Konfigurations-Reload bei dauerhaften Fehlern | Akzeptiert (rekonstruiert, Datum unbekannt) |
-| [ADR-0009](adr/0009-no-automated-tests-in-the-repository.md) | Keine automatisierten Tests im Repository | Ersetzt durch ADR-0011 |
-| [ADR-0010](adr/0010-service-calls-without-configid-only-with-exactly-one-charger.md) | Dienstaufrufe ohne configid nur bei genau einem Charger | Akzeptiert (2026-10-29, Commit `4702213`) |
-| [ADR-0011](adr/0011-regression-tests-in-the-repository.md) | Regressionstests im Repository | Akzeptiert (2026-10-29, PR #178 und #179) |
+| [ADR-0001](adr/0001-prefer-websocket-polling-as-fallback.md) | Prefer WebSocket, polling as fallback | Accepted (reconstructed, date unknown) |
+| [ADR-0002](adr/0002-operating-mode-follows-from-the-password.md) | Operating mode follows from the password | Accepted (reconstructed, date unknown) |
+| [ADR-0003](adr/0003-bridge-as-a-sub-library-in-the-same-folder.md) | Bridge as a sub-library in the same folder | Accepted (reconstructed, date unknown) |
+| [ADR-0004](adr/0004-declarative-entity-descriptions.md) | Declarative entity descriptions | Accepted (reconstructed, date unknown) |
+| [ADR-0005](adr/0005-own-chainmap-data-store-instead-of-a-type-model.md) | Own ChainMap data store instead of a type model | Accepted (reconstructed, date unknown) |
+| [ADR-0006](adr/0006-hibernation-in-polling.md) | Hibernation in polling | Accepted (reconstructed, date unknown) |
+| [ADR-0007](adr/0007-pv-data-through-an-ha-automation-instead-of-extra-hardware.md) | PV data through an HA automation instead of extra hardware | Accepted (reconstructed, date unknown) |
+| [ADR-0008](adr/0008-restart-by-config-reload-on-persistent-errors.md) | Restart by config reload on persistent errors | Accepted (reconstructed, date unknown) |
+| [ADR-0009](adr/0009-no-automated-tests-in-the-repository.md) | No automated tests in the repository | Superseded by ADR-0011 |
+| [ADR-0010](adr/0010-service-calls-without-configid-only-with-exactly-one-charger.md) | Service calls without configid only with exactly one charger | Accepted (2026-10-29, commit `4702213`) |
+| [ADR-0011](adr/0011-regression-tests-in-the-repository.md) | Regression tests in the repository | Accepted (2026-10-29, PRs #178 and #179) |
 
 ---
 
-## 10. Qualitätsanforderungen
+## 10. Quality requirements
 
-### 10.1 Qualitätsbaum
+### 10.1 Quality tree
 
 ```
-Qualität
-├── Zuverlässigkeit
-│   ├── Wiederverbinden (Watchdog, Reload)
-│   ├── Firmware-Toleranz (Weichen nach Gerätetyp/Version)
-│   └── Verhalten bei Teilausfall (Daten stehen lassen)
-├── Effizienz
-│   ├── Push statt Poll
-│   └── Hibernation, gestaffelte Lesezyklen
-├── Wartbarkeit
-│   ├── Deklarative Entitäten
-│   └── (offen) Tests, Typisierung
-├── Sicherheit
-│   ├── Zugangsdaten
-│   └── Sichere Schreibpfade (Stop-Funktion)
-└── Bedienbarkeit
-    └── Einrichtung über Dialog, Übersetzungen
+Quality
+├── Reliability
+│   ├── Reconnecting (watchdog, reload)
+│   ├── Firmware tolerance (switches by device type/version)
+│   └── Behaviour on partial failure (keep data)
+├── Efficiency
+│   ├── Push instead of poll
+│   └── Hibernation, staggered read cycles
+├── Maintainability
+│   ├── Declarative entities
+│   └── (open) tests, typing
+├── Security
+│   ├── Credentials
+│   └── Safe write paths (stop function)
+└── Usability
+    └── Setup through a dialog, translations
 ```
 
-### 10.2 Qualitätsszenarien
+### 10.2 Quality scenarios
 
-| ID | Szenario | Erwartung | Heutiger Stand |
+| ID | Scenario | Expectation | Current state |
 |---|---|---|---|
-| Q1 | Wallbox ist 10 Minuten im WLAN weg | Keine Dauerlast; automatische Erholung | Fehlerzähler, 2 min Sperre, nach über 5 Fehlern Reload [Code] |
-| Q2 | Firmware-Update ändert Schlüssel (60.0) | Integration läuft weiter | Weichen für `cards` und `cll` vorhanden [Code] |
-| Q3 | PV-Automation fällt aus | Kein ungewolltes Netzladen | Liegt im Blueprint; die Integration prüft Eingaben nur auf Zahl und Endlichkeit (`ppv`, `pakku`) |
-| Q4 | `stop_charging` im WebSocket-Modus | Laden aus für 5 min, dann wieder frei | **Erfüllt** seit `03b0fc3` und `9e7d62a`: `frc=1`, Wartezeit, `frc=0`, Flag wird immer zurückgesetzt (R1). Früher `TypeError`. Am Gerät nicht geprüft. |
-| Q5 | Zwei Charger in einer HA-Instanz | Dienst wirkt auf den gewählten Charger | **Erfüllt** mit `configid`; ohne `configid` gibt es einen Fehler statt eines stillen Standards (R2 behoben, ADR-0010). Am Gerät nicht geprüft. |
-| Q6 | Nutzer ohne Admin-Rechte | Keine Zugangsdaten lesbar | Der Token steht seit `8cb62b2` nicht mehr in der Geräteinfo. Passwort und Token liegen weiter im Config-Entry (HA-Eigenschaft). |
+| Q1 | Wallbox is gone from the WLAN for 10 minutes | No permanent load; automatic recovery | Error counter, 2 min block, reload after more than 5 errors [Code] |
+| Q2 | Firmware update changes keys (60.0) | Integration keeps running | Switches for `cards` and `cll` exist [Code] |
+| Q3 | PV automation fails | No unwanted grid charging | Lies in the blueprint; the integration checks inputs only for number and finiteness (`ppv`, `pakku`) |
+| Q4 | `stop_charging` in WebSocket mode | Charging off for 5 min, then free again | **Met** since `03b0fc3` and `9e7d62a`: `frc=1`, wait, `frc=0`, the flag is always reset ([R1](risks/R001-stop-charging-locks-the-charger-after-a-write-error.md)). Earlier `TypeError`. Not checked on a device. |
+| Q5 | Two chargers in one HA instance | Service acts on the chosen charger | **Met** with `configid`; without `configid` there is an error instead of a silent default ([R2](risks/R002-multi-charger-registry-incomplete.md) fixed, ADR-0010). Not checked on a device. |
+| Q6 | User without admin rights | No credentials readable | The token has not been in the device info since `8cb62b2`. Password and token remain in the config entry (HA property). |
 
 ---
 
-## 11. Risiken und technische Schulden
+## 11. Risks and technical debt
 
-Die Risiken stehen in eigenen Dokumenten: [Risikoregister](risks/README.md), ein Dokument je Risiko (Beschreibung, Bewertung, Gegenmaßnahme, Status, Beleg) mit einer Übersicht und einer Heatmap. Dort stehen auch die offenen Annahmen. Im Text dieses Dokuments verweisen Angaben wie „R15“ auf das Register.
+The risks are in documents of their own: [risk register](risks/README.md), one document per risk (description, assessment, countermeasure, status, evidence) with an overview and a heat map. The open assumptions are listed there as well. References like [R15](risks/R015-cloud-documentation-names-http-202-for-api-set.md) in the text of this document link to the risk documents.
 
 ---
 
-## 12. Glossar
+## 12. Glossary
 
-| Begriff | Bedeutung |
+| Term | Meaning |
 |---|---|
-| APIv2 | Zweite Generation der go-e-Geräteschnittstelle (HTTP und WebSocket) |
-| `frc` | `forceState`: 0 neutral, 1 aus, 2 an („Manueller Lademodus“) |
-| `ids` | Schlüssel für PV-Daten (`pGrid`, `pPv`, `pAkku`) |
-| `pgrid` | Leistung aus dem Netz (positiv) oder ins Netz (negativ) in Watt |
-| `ppv` | PV-Erzeugung in Watt |
-| `pakku` | Batterie: negativ lädt, positiv entlädt |
-| `car` | Fahrzeugstatus: 1 frei, 2 lädt, 3 wartet, 4 fertig, 5 Fehler |
-| `fup` / `lmo` | PV-Überschuss nutzen / Logikmodus (ECO) |
-| `hai` / `cae` | HTTP-API lokal erlaubt / Cloud-API erlaubt |
-| Core/Phoenix | Neuere Wallbox-Hardwaregeneration mit teils anderen Schlüsseln und bcrypt-Anmeldung |
-| LAN / WAN | Lokaler Zugriff / Zugriff über die go-e-Cloud (Seriennummer plus Token) |
-| Hibernation | Polling-Sparmodus ohne angeschlossenes Fahrzeug |
-| Coordinator | HA-Hilfsklasse, die Daten holt und an Entitäten verteilt |
-| Blueprint | Vorlage für HA-Automationen; hier für PV-Überschuss |
+| APIv2 | Second generation of the go-e device interface (HTTP and WebSocket) |
+| `frc` | `forceState`: 0 neutral, 1 off, 2 on ("manual charging mode") |
+| `ids` | Key for PV data (`pGrid`, `pPv`, `pAkku`) |
+| `pgrid` | Power from the grid (positive) or into the grid (negative) in watts |
+| `ppv` | PV generation in watts |
+| `pakku` | Battery: negative charges, positive discharges |
+| `car` | Vehicle state: 1 idle, 2 charging, 3 waiting, 4 finished, 5 error |
+| `fup` / `lmo` | Use PV surplus / logic mode (ECO) |
+| `hai` / `cae` | Local HTTP API allowed / cloud API allowed |
+| Core/Phoenix | Newer wallbox hardware generation with partly different keys and bcrypt login |
+| LAN / WAN | Local access / access through the go-e cloud (serial number plus token) |
+| Hibernation | Polling power-saving mode without a connected vehicle |
+| Coordinator | HA helper class that fetches data and distributes it to entities |
+| Blueprint | Template for HA automations; here for PV surplus |
 
 ---
 
-## Anhang: Quellen
+## Appendix: sources
 
-**Offizielle go-e-Dokumentation** (Stand Commit `b4d7f85`, 2026-08-12), Repository `goecharger/go-eCharger-API-v2`:
-- `README.md`, `introduction-en.md` (Einstieg und Verweise)
-- `API_KEYS_FIRMWARE/apikeys-en.md` (alle Schlüssel) und die Listen je Firmware 59.4 bis 60.4
-- `http-en.md` (lokale HTTP-API), `cloudapi-en.md` (Cloud-HTTP-API)
-- `mqtt-en.md`, `modbus-en.md`, `ocpp-en.md`, `gridapi-en.md` (nicht genutzt)
-- `Changelogs_Gemini/`, `Changelogs_PRO/` (Firmware 60.3 bis 60.5)
-- Statusseite: https://status.go-e.com/status/go-e
+**Official go-e documentation** (state at commit `b4d7f85`, 2026-08-12), repository `goecharger/go-eCharger-API-v2`:
+- `README.md`, `introduction-en.md` (introduction and links)
+- `API_KEYS_FIRMWARE/apikeys-en.md` (all keys) and the lists per firmware 59.4 to 60.4
+- `http-en.md` (local HTTP API), `cloudapi-en.md` (cloud HTTP API)
+- `mqtt-en.md`, `modbus-en.md`, `ocpp-en.md`, `gridapi-en.md` (not used)
+- `Changelogs_Gemini/`, `Changelogs_PRO/` (firmware 60.3 to 60.5)
+- Status page: https://status.go-e.com/status/go-e
 
-**Im Repository der Integration:**
+**In the repository of the integration:**
 
-- `custom_components/goecharger_api2/__init__.py`: Setup, Koordinator, Basisentität
-- `custom_components/goecharger_api2/pygoecharger_ha/__init__.py`: Bridge, WebSocket-Anmeldung
-- `custom_components/goecharger_api2/service.py`, `services.yaml`: Dienste
-- `custom_components/goecharger_api2/config_flow.py`: Einrichtung
-- `custom_components/goecharger_api2/const.py`, `pygoecharger_ha/const.py`, `keys.py`: Beschreibungen, Filter, Schlüssel
+- `custom_components/goecharger_api2/__init__.py`: setup, coordinator, base entity
+- `custom_components/goecharger_api2/pygoecharger_ha/__init__.py`: bridge, WebSocket login
+- `custom_components/goecharger_api2/service.py`, `services.yaml`: services
+- `custom_components/goecharger_api2/config_flow.py`: setup
+- `custom_components/goecharger_api2/const.py`, `pygoecharger_ha/const.py`, `keys.py`: descriptions, filters, keys
 - `README.md`, `docs/PVSURPLUS.md`, `example/blueprint/automation/readme.md`
 - `.github/workflows/*.yaml`, `hacs.json`, `manifest.json`

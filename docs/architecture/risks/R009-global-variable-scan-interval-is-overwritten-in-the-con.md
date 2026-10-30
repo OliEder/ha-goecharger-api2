@@ -11,47 +11,47 @@ status: open
 owner:
 review: release
 ---
-# R9: Globale Variable `SCAN_INTERVAL` wird im Konstruktor überschrieben
+# R9: Global variable `SCAN_INTERVAL` is overwritten in the constructor
 
-## Risikobeschreibung
+## Risk description
 
-Wenn mehrere Entries mit verschiedenen Intervallen eingerichtet sind, dann überschreibt jeder Konstruktor die globale Variable, was dazu führt, dass der zuletzt gesetzte Wert als Standard gilt.
+If several entries with different intervals are set up, then every constructor overwrites the global variable, which means the last value set applies as the default.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** `SCAN_INTERVAL` ist eine globale Variable, die im Konstruktor überschrieben wird.
+**Finding.** `SCAN_INTERVAL` is a global variable that is overwritten in the constructor.
 
-**Wirkung.** Bei mehreren Entries gilt der zuletzt gesetzte Wert für den Standard. Der Koordinator nutzt das Intervall allerdings über `update_interval=SCAN_INTERVAL` im Aufruf direkt danach, daher meist harmlos.
+**Effect.** With several entries the last value set applies to the default. The coordinator, however, uses the interval via `update_interval=SCAN_INTERVAL` in the call right after, so mostly harmless.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 2 | 2 | 4 | niedrig |
-| Restrisiko nach der Gegenmaßnahme | 1 | 2 | 2 | niedrig |
+| Assessment | 2 | 2 | 4 | low |
+| Residual risk after the countermeasure | 1 | 2 | 2 | low |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Das Intervall je Koordinator halten statt global. Vorschlag, nicht umgesetzt.
+Keep the interval per coordinator instead of globally. Proposal, not implemented.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Offen
+Open
 <!-- /risk:status -->
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Aus Code gelesen.  
+Read from the code.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

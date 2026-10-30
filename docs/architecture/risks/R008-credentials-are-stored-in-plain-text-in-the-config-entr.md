@@ -11,47 +11,47 @@ status: note
 owner:
 review: release
 ---
-# R8: Zugangsdaten liegen im Klartext im Config-Entry
+# R8: Credentials are stored in plain text in the config entry
 
-## Risikobeschreibung
+## Risk description
 
-Wenn jemand Zugriff auf die HA-Konfiguration oder ein Backup erhält, dann sind Passwort und Cloud-Token im Klartext lesbar, was dazu führt, dass er das Gerät oder das Cloud-Konto steuern kann.
+If someone gets access to the HA configuration or a backup, then password and cloud token are readable in plain text, which means they can control the device or the cloud account.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** Zugangsdaten liegen im Klartext im Config-Entry (Eigenschaft von Home Assistant). Weitere Einzelheiten sind bewusst nicht aufgeführt.
+**Finding.** Credentials are in plain text in the config entry (property of Home Assistant). Further details are deliberately not listed.
 
-**Wirkung.** –
+**Effect.** –
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 2 | 3 | 6 | mittel |
-| Restrisiko nach der Gegenmaßnahme | 2 | 3 | 6 | mittel |
+| Assessment | 2 | 3 | 6 | medium |
+| Residual risk after the countermeasure | 2 | 3 | 6 | medium |
 
-Risikostrategie: **Akzeptieren**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Accept**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Home Assistant stellt keinen Tresor bereit; das Risiko wird akzeptiert und liegt bei Home Assistant. Weitere Beobachtungen wurden dem Maintainer direkt mitgeteilt und stehen hier bewusst nicht.
+Home Assistant provides no vault; the risk is accepted and lies with Home Assistant. Further observations were passed to the maintainer directly and are deliberately not listed here.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Akzeptiert (Hinweis)
+Accepted (note)
 <!-- /risk:status -->
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
 –  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

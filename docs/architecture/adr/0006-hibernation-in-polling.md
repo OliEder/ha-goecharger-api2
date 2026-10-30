@@ -1,23 +1,23 @@
-# ADR-0006: Hibernation im Polling
+# ADR-0006: Hibernation in polling
 
 ## Status
 
-Akzeptiert (rekonstruiert, Datum unbekannt)
+Accepted (reconstructed, date unknown)
 
-## Kontext und Begründung
+## Context and reasoning
 
-Geräte- und Cloud-Last senken
+Reduce device and cloud load
 
-## Entscheidung
+## Decision
 
-Hibernation im Polling
+Hibernation in polling
 
-## Konsequenzen
+## Consequences
 
-Im Leerlauf nur wenige Werte aktuell
+Only a few values current when idle
 
-## Herkunft dieses Eintrags
+## Origin of this entry
 
-Rekonstruiert aus Code und Kommentaren [Schluss]. Der Autor führt keine Entscheidungsprotokolle; die Begründung ist abgeleitet, nicht belegt.
+Reconstructed from code and comments [Inference]. The author keeps no decision records; the reasoning is inferred, not proven.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Index](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the index](README.md)

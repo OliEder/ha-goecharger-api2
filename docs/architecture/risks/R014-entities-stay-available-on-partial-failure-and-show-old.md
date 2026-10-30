@@ -11,47 +11,47 @@ status: open
 owner:
 review: release
 ---
-# R14: Entitäten bleiben bei Teilausfall `available` und zeigen alte Werte
+# R14: Entities stay `available` on partial failure and show old values
 
-## Risikobeschreibung
+## Risk description
 
-Wenn das Gerät teilweise ausfällt, dann bleiben die Daten stehen und die Entitäten `available`, solange der letzte Update-Erfolg anhält, was dazu führt, dass Nutzer und Automationen alte Werte für aktuell halten.
+If the device partly fails, then the data stays and the entities remain `available` as long as the last update succeeded, which means users and automations take old values for current.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** Bei Teilausfall des Geräts: Daten bleiben stehen, Entitäten bleiben `available`, solange der letzte Update-Erfolg anhält.
+**Finding.** On partial failure of the device: data stays, entities remain `available` as long as the last update succeeded.
 
-**Wirkung.** Nutzer sieht alte Werte als aktuell.
+**Effect.** The user sees old values as current.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 3 | 3 | 9 | mittel |
-| Restrisiko nach der Gegenmaßnahme | 2 | 3 | 6 | mittel |
+| Assessment | 3 | 3 | 9 | medium |
+| Residual risk after the countermeasure | 2 | 3 | 6 | medium |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Verfügbarkeit nach mehreren fehlgeschlagenen Lesezyklen oder bei WebSocket-Verlust auf „nicht verfügbar“ setzen. Vorschlag, nicht umgesetzt; es gibt keinen Test dazu.
+Set availability to "unavailable" after several failed read cycles or on WebSocket loss. Proposal, not implemented; there is no test for it.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Offen
+Open
 <!-- /risk:status -->
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Aus Code gelesen (`available` = `last_update_success`). Wie sich ein WebSocket-Verlust auf die Verfügbarkeit auswirkt, habe ich nicht geprüft.  
+Read from the code (`available` = `last_update_success`). I did not check how a WebSocket loss affects availability.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

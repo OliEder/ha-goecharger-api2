@@ -1,22 +1,22 @@
-# Risikoregister: `ha-goecharger-api2`
+# Risk register: `ha-goecharger-api2`
 
-Alle bekannten Risiken und technischen Schulden der Integration, **ein Dokument je Risiko** (wie die Architekturentscheidungen in [`../adr/`](../adr/README.md)). Das Register gehört zur [arc42-Dokumentation](../arc42-ha-goecharger-api2.md) (Kapitel 11). Deutsch ist die Quelle, die englische Fassung liegt in [`en/`](en/README.md); beide werden gemeinsam gepflegt.
+All known risks and technical debt of the integration, **one document per risk** (like the architecture decisions in [`adr/`](../adr/README.md)). The register belongs to the [arc42 documentation](../arc42-ha-goecharger-api2.md) (chapter 11).
 
 | | |
 |---|---|
-| **Stand** | 2026-10-30, `main` bei `e6ee0c3` |
-| **Herkunft** | Ein mit KI-Unterstützung (Claude Code) erstellter und von einem Menschen geprüfter Abgleich von Code, Doku und Tests. Nichts davon wurde am echten Charger geprüft, außer wo ausdrücklich vermerkt. |
-| **Datum erfasst** | Der Tag, an dem das Risiko in diese Dokumentation kam. Bei R15 bis R23 wurde der genaue Tag nicht nachverfolgt; 2026-10-29 ist der Tag, an dem sie ins Register kamen. |
+| **State** | 2026-10-30, `main` at `e6ee0c3` |
+| **Origin** | A comparison of code, documentation and tests, written with AI assistance (Claude Code) and reviewed by a human. None of it was checked on a real charger unless explicitly noted. |
+| **Date recorded** | The day the risk entered this documentation. For [R15](R015-cloud-documentation-names-http-202-for-api-set.md) to [R23](R023-blueprint-in-main-has-no-zero-value-branch-for-invalid.md) the exact day was not traced; 2026-10-29 is the day they were added to the register. |
 
-## Wie die Risiken bewertet sind
+## How the risks are assessed
 
-Jedes Dokument formuliert das Risiko als „Wenn [Ursache], dann [Ereignis], was zu [Auswirkung] führt“, nennt Eintrittswahrscheinlichkeit W und Schadensauswirkung A (1 bis 5), den Score W × A, die Strategie (mindern, akzeptieren, vermeiden, verlagern), eine Gegenmaßnahme und das Restrisiko. **W, A und Strategie sind Einschätzungen, keine Messwerte.** Ein Risk Owner ist nicht benannt; der Maintainer sollte einen festlegen. Prüfung: bei jedem neuen Release.
+Each document states the risk as "If [cause], then [event], which leads to [impact]", gives probability W and impact A (1 to 5), the score W × A, the strategy (mitigate, accept, avoid, transfer), a countermeasure and the residual risk. **W, A and strategy are assessments, not measurements.** A risk owner has not been named; the maintainer should set one. Review: with every new release.
 
-Score-Stufen: 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Score bands: 1 to 5 low, 6 to 12 medium, 15 and above high.
 
-## Offene Risiken (Heatmap)
+## Open risks (heat map)
 
-Aktuell, nur offene Risiken und Hinweise (Farbe nach Score W × A: 🟩 niedrig, 🟨 mittel, 🟥 hoch).
+Current, open risks and notes only (colour by score W × A: 🟩 low, 🟨 medium, 🟥 high).
 
 <!-- risk:heatmap-current -->
 | W \ A | 1 | 2 | 3 | 4 | 5 |
@@ -28,9 +28,9 @@ Aktuell, nur offene Risiken und Hinweise (Farbe nach Score W × A: 🟩 niedrig,
 | **1** | 🟩 [R22](R022-version-1-entries-leave-old-devices-in-the-registry.md) | 🟩  | 🟩  | 🟩  | 🟩  |
 <!-- /risk:heatmap-current -->
 
-## Nach den Gegenmaßnahmen (Restrisiko)
+## After the countermeasures (residual risk)
 
-Dieselben offenen Risiken mit ihrem Restrisiko, wenn die Gegenmaßnahme umgesetzt ist.
+The same open risks with their residual risk once the countermeasure is in place.
 
 <!-- risk:heatmap-residual -->
 | W \ A | 1 | 2 | 3 | 4 | 5 |
@@ -42,56 +42,56 @@ Dieselben offenen Risiken mit ihrem Restrisiko, wenn die Gegenmaßnahme umgesetz
 | **1** | 🟩 [R7](R007-readme-and-code-state-different-read-intervals-for-the.md), [R10](R010-check-and-write-to-16a-accesses-private-members.md), [R22](R022-version-1-entries-leave-old-devices-in-the-registry.md) | 🟩 [R6](R006-no-unique-id-in-the-config-flow.md), [R9](R009-global-variable-scan-interval-is-overwritten-in-the-con.md), [R17](R017-cloud-data-can-be-up-to-30-seconds-old.md), [R26](R026-rejected-value-stays-in-the-display.md) | 🟩 [R11](R011-bcrypt-missing-in-the-manifest-minimum-home-assistant-v.md), [R21](R021-migration-from-2-0-to-2-1-deletes-all-devices.md), [R30](R030-max-ampere-is-reset-at-every-restart.md) | 🟩  | 🟩  |
 <!-- /risk:heatmap-residual -->
 
-## Alle Risiken
+## All risks
 
 <!-- risk:table -->
-| ID | Titel | Kategorie | W | A | Score | Strategie | Status |
+| ID | Title | Category | W | A | Score | Strategy | Status |
 |---|---|---|---|---|---|---|---|
-| [R1](R001-stop-charging-locks-the-charger-after-a-write-error.md) | stop_charging sperrt den Charger nach einem Schreibfehler | Technologie / Architektur | 3 | 4 | 12 (mittel) | Mindern | Geschlossen (behoben) |
-| [R2](R002-multi-charger-registry-incomplete.md) | Multi-Charger-Register unvollständig | Technologie / Architektur | 3 | 3 | 9 (mittel) | Mindern | Geschlossen (behoben) |
-| [R3](R003-active-charger-counter-with-controller-entries.md) | Zähler der aktiven Charger bei Controller-Entries | Technologie / Architektur | 2 | 3 | 6 (mittel) | Mindern | Geschlossen (behoben) |
-| [R4](R004-error-handling-for-multiple-writes-calls-the-wrong-sign.md) | Fehlerbehandlung beim Mehrfachschreiben ruft falsche Signatur auf | Technologie / Architektur | 2 | 2 | 4 (niedrig) | Mindern | Geschlossen (behoben) |
-| [R5](R005-pgrid-without-a-finiteness-check.md) | `pgrid` ohne Endlichkeitsprüfung | Technologie / Architektur | 1 | 3 | 3 (niedrig) | Mindern | Geschlossen (behoben) |
-| [R6](R006-no-unique-id-in-the-config-flow.md) | Keine `unique_id` im Config-Flow | Technologie / Architektur | 3 | 2 | 6 (mittel) | Mindern | Offen |
-| [R7](R007-readme-and-code-state-different-read-intervals-for-the.md) | README und Code nennen verschiedene Leseintervalle der Konfiguration | Dokumentation | 5 | 1 | 5 (niedrig) | Mindern | Offen |
-| [R8](R008-credentials-are-stored-in-plain-text-in-the-config-entr.md) | Zugangsdaten liegen im Klartext im Config-Entry | Security & Datenschutz | 2 | 3 | 6 (mittel) | Akzeptieren | Akzeptiert (Hinweis) |
-| [R9](R009-global-variable-scan-interval-is-overwritten-in-the-con.md) | Globale Variable `SCAN_INTERVAL` wird im Konstruktor überschrieben | Wartbarkeit | 2 | 2 | 4 (niedrig) | Mindern | Offen |
-| [R10](R010-check-and-write-to-16a-accesses-private-members.md) | `check_and_write_to_16a` greift auf Privates zu | Wartbarkeit | 3 | 1 | 3 (niedrig) | Mindern | Offen |
-| [R11](R011-bcrypt-missing-in-the-manifest-minimum-home-assistant-v.md) | `bcrypt` fehlt im Manifest, Mindestversion von Home Assistant unklar | Integration / Drittanbieter | 3 | 3 | 9 (mittel) | Mindern | Offen |
-| [R12](R012-customfriendlynameentity-overrides-a-private-ha-method.md) | `CustomFriendlyNameEntity` überschreibt eine private HA-Methode | Integration / Drittanbieter | 3 | 2 | 6 (mittel) | Mindern | Offen |
-| [R13](R013-no-automated-tests-in-the-repository.md) | Keine automatisierten Tests im Repository | Qualität / Test | 4 | 3 | 12 (mittel) | Mindern | Geschlossen (überholt) |
-| [R14](R014-entities-stay-available-on-partial-failure-and-show-old.md) | Entitäten bleiben bei Teilausfall `available` und zeigen alte Werte | Technologie / Architektur | 3 | 3 | 9 (mittel) | Mindern | Offen |
-| [R15](R015-cloud-documentation-names-http-202-for-api-set.md) | Cloud-Dokumentation nennt für `/api/set` HTTP 202 | Integration / Drittanbieter | 2 | 3 | 6 (mittel) | Akzeptieren | Geschlossen (geklärt, kein Fehler) |
-| [R16](R016-websocket-interface-is-not-officially-documented.md) | WebSocket-Schnittstelle ist nicht offiziell dokumentiert | Integration / Drittanbieter | 3 | 4 | 12 (mittel) | Mindern | Offen |
-| [R17](R017-cloud-data-can-be-up-to-30-seconds-old.md) | Cloud-Daten können bis zu 30 Sekunden alt sein | Integration / Drittanbieter | 3 | 2 | 6 (mittel) | Mindern | Offen |
-| [R18](R018-negative-ppv-standby-cannot-be-set.md) | `ppv` negativ (Standby) lässt sich nicht setzen | Integration / Drittanbieter | 2 | 1 | 2 (niedrig) | Akzeptieren | Offen |
-| [R19](R019-cloud-token-is-readable-via-the-key-cak-according-to-th.md) | Cloud-Token ist laut Doku über den Schlüssel `cak` lesbar | Security & Datenschutz | 2 | 4 | 8 (mittel) | Mindern | Offen |
-| [R20](R020-old-values-stay-after-a-failed-read.md) | Nach fehlgeschlagenem Lesen bleiben alte Werte stehen | Technologie / Architektur | 3 | 3 | 9 (mittel) | Mindern | Offen |
-| [R21](R021-migration-from-2-0-to-2-1-deletes-all-devices.md) | Migration von 2.0 auf 2.1 löscht alle Geräte | Technologie / Architektur | 2 | 3 | 6 (mittel) | Mindern | Offen |
-| [R22](R022-version-1-entries-leave-old-devices-in-the-registry.md) | Version-1-Entries lassen alte Geräte in der Registry | Wartbarkeit | 1 | 1 | 1 (niedrig) | Akzeptieren | Offen |
-| [R23](R023-blueprint-in-main-has-no-zero-value-branch-for-invalid.md) | Blueprint in `main` hat bei ungültigen Messwerten keinen Nullwert-Zweig | Integration / Drittanbieter | 3 | 3 | 9 (mittel) | Mindern | Offen |
-| [R24](R024-error-text-of-the-charger-counts-as-success.md) | Fehlertext des Chargers gilt als Erfolg | Technologie / Architektur | 2 | 3 | 6 (mittel) | Mindern | Geschlossen (behoben) |
-| [R25](R025-specific-start-error-message-is-covered-up.md) | Konkrete Startfehlermeldung wird überdeckt | Technologie / Architektur | 3 | 1 | 3 (niedrig) | Mindern | Geschlossen (behoben) |
-| [R26](R026-rejected-value-stays-in-the-display.md) | Abgelehnter Wert bleibt in der Anzeige stehen | Technologie / Architektur | 3 | 2 | 6 (mittel) | Mindern | Offen |
-| [R27](R027-false-error-after-a-successful-multiple-write.md) | Falscher `ERROR` nach erfolgreichem Mehrfachschreiben | Technologie / Architektur | 5 | 1 | 5 (niedrig) | Mindern | Geschlossen (behoben) |
-| [R29](R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md) | Ohne `cableCurrentLimit` wird nicht mehr auf 16 A begrenzt | Integration / Drittanbieter | 3 | 2 | 6 (mittel) | Mindern | Offen |
-| [R30](R030-max-ampere-is-reset-at-every-restart.md) | Max Ampere wird bei jedem Neustart zurückgesetzt | Technologie / Architektur | 3 | 3 | 9 (mittel) | Mindern | Offen |
+| [R1](R001-stop-charging-locks-the-charger-after-a-write-error.md) | stop_charging locks the charger after a write error | Technology / architecture | 3 | 4 | 12 (medium) | Mitigate | Closed (fixed) |
+| [R2](R002-multi-charger-registry-incomplete.md) | Multi-charger registry incomplete | Technology / architecture | 3 | 3 | 9 (medium) | Mitigate | Closed (fixed) |
+| [R3](R003-active-charger-counter-with-controller-entries.md) | Active charger counter with controller entries | Technology / architecture | 2 | 3 | 6 (medium) | Mitigate | Closed (fixed) |
+| [R4](R004-error-handling-for-multiple-writes-calls-the-wrong-sign.md) | Error handling for multiple writes calls the wrong signature | Technology / architecture | 2 | 2 | 4 (low) | Mitigate | Closed (fixed) |
+| [R5](R005-pgrid-without-a-finiteness-check.md) | `pgrid` without a finiteness check | Technology / architecture | 1 | 3 | 3 (low) | Mitigate | Closed (fixed) |
+| [R6](R006-no-unique-id-in-the-config-flow.md) | No `unique_id` in the config flow | Technology / architecture | 3 | 2 | 6 (medium) | Mitigate | Open |
+| [R7](R007-readme-and-code-state-different-read-intervals-for-the.md) | README and code state different read intervals for the configuration | Documentation | 5 | 1 | 5 (low) | Mitigate | Open |
+| [R8](R008-credentials-are-stored-in-plain-text-in-the-config-entr.md) | Credentials are stored in plain text in the config entry | Security & privacy | 2 | 3 | 6 (medium) | Accept | Accepted (note) |
+| [R9](R009-global-variable-scan-interval-is-overwritten-in-the-con.md) | Global variable `SCAN_INTERVAL` is overwritten in the constructor | Maintainability | 2 | 2 | 4 (low) | Mitigate | Open |
+| [R10](R010-check-and-write-to-16a-accesses-private-members.md) | `check_and_write_to_16a` accesses private members | Maintainability | 3 | 1 | 3 (low) | Mitigate | Open |
+| [R11](R011-bcrypt-missing-in-the-manifest-minimum-home-assistant-v.md) | `bcrypt` missing in the manifest, minimum Home Assistant version unclear | Integration / third party | 3 | 3 | 9 (medium) | Mitigate | Open |
+| [R12](R012-customfriendlynameentity-overrides-a-private-ha-method.md) | `CustomFriendlyNameEntity` overrides a private HA method | Integration / third party | 3 | 2 | 6 (medium) | Mitigate | Open |
+| [R13](R013-no-automated-tests-in-the-repository.md) | No automated tests in the repository | Quality / testing | 4 | 3 | 12 (medium) | Mitigate | Closed (superseded) |
+| [R14](R014-entities-stay-available-on-partial-failure-and-show-old.md) | Entities stay `available` on partial failure and show old values | Technology / architecture | 3 | 3 | 9 (medium) | Mitigate | Open |
+| [R15](R015-cloud-documentation-names-http-202-for-api-set.md) | Cloud documentation names HTTP 202 for `/api/set` | Integration / third party | 2 | 3 | 6 (medium) | Accept | Closed (settled, not a defect) |
+| [R16](R016-websocket-interface-is-not-officially-documented.md) | WebSocket interface is not officially documented | Integration / third party | 3 | 4 | 12 (medium) | Mitigate | Open |
+| [R17](R017-cloud-data-can-be-up-to-30-seconds-old.md) | Cloud data can be up to 30 seconds old | Integration / third party | 3 | 2 | 6 (medium) | Mitigate | Open |
+| [R18](R018-negative-ppv-standby-cannot-be-set.md) | Negative `ppv` (standby) cannot be set | Integration / third party | 2 | 1 | 2 (low) | Accept | Open |
+| [R19](R019-cloud-token-is-readable-via-the-key-cak-according-to-th.md) | Cloud token is readable via the key `cak` according to the documentation | Security & privacy | 2 | 4 | 8 (medium) | Mitigate | Open |
+| [R20](R020-old-values-stay-after-a-failed-read.md) | Old values stay after a failed read | Technology / architecture | 3 | 3 | 9 (medium) | Mitigate | Open |
+| [R21](R021-migration-from-2-0-to-2-1-deletes-all-devices.md) | Migration from 2.0 to 2.1 deletes all devices | Technology / architecture | 2 | 3 | 6 (medium) | Mitigate | Open |
+| [R22](R022-version-1-entries-leave-old-devices-in-the-registry.md) | Version 1 entries leave old devices in the registry | Maintainability | 1 | 1 | 1 (low) | Accept | Open |
+| [R23](R023-blueprint-in-main-has-no-zero-value-branch-for-invalid.md) | Blueprint in `main` has no zero-value branch for invalid measurements | Integration / third party | 3 | 3 | 9 (medium) | Mitigate | Open |
+| [R24](R024-error-text-of-the-charger-counts-as-success.md) | Error text of the charger counts as success | Technology / architecture | 2 | 3 | 6 (medium) | Mitigate | Closed (fixed) |
+| [R25](R025-specific-start-error-message-is-covered-up.md) | Specific start error message is covered up | Technology / architecture | 3 | 1 | 3 (low) | Mitigate | Closed (fixed) |
+| [R26](R026-rejected-value-stays-in-the-display.md) | Rejected value stays in the display | Technology / architecture | 3 | 2 | 6 (medium) | Mitigate | Open |
+| [R27](R027-false-error-after-a-successful-multiple-write.md) | False `ERROR` after a successful multiple write | Technology / architecture | 5 | 1 | 5 (low) | Mitigate | Closed (fixed) |
+| [R29](R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md) | Without `cableCurrentLimit` there is no limit to 16 A any more | Integration / third party | 3 | 2 | 6 (medium) | Mitigate | Open |
+| [R30](R030-max-ampere-is-reset-at-every-restart.md) | Max Ampere is reset at every restart | Technology / architecture | 3 | 3 | 9 (medium) | Mitigate | Open |
 <!-- /risk:table -->
 
-## Anmerkungen
+## Notes
 
-Die Nummer R28 wurde bewusst ausgelassen; die Nummerierung folgt der Reihenfolge der Funde.
+The number R28 was deliberately left out; the numbering follows the order of the findings.
 
-Der Nachtrag zu R2 steht in [R2](R002-multi-charger-registry-incomplete.md).
+The addendum to [R2](R002-multi-charger-registry-incomplete.md) is in [R2](R002-multi-charger-registry-incomplete.md).
 
-## Offene Annahmen (nicht geprüft)
+## Open assumptions (not checked)
 
-- Verhalten des Chargers nach einem Neustart mit gesetztem `frc=1`.
-- Ob der Charger den PV-Datenschlüssel `ids` per WebSocket genauso annimmt wie per HTTP.
-- Tatsächliche Mindestversion von Home Assistant.
+- Behaviour of the charger after a restart with `frc=1` set.
+- Whether the charger accepts the PV data key `ids` over WebSocket exactly as over HTTP.
+- Actual minimum version of Home Assistant.
 
-## Ein neues Risiko festhalten
+## Recording a new risk
 
-1. Nächste freie Nummer wählen, `RNNN-kurzer-titel.md` anlegen, Aufbau wie in den vorhandenen Dateien (Beschreibung, Befund, Bewertung, Gegenmaßnahme, Status, Beleg).
-2. In die Tabelle und die Heatmap oben eintragen und die englische Fassung (`en/`) im selben Schritt pflegen.
-3. Wird ein Risiko behoben, die Datei nicht löschen: Status auf „Geschlossen“ setzen und die Änderung nennen, die es behoben hat.
+1. Take the next free number, create `RNNN-short-title.md` structured like the existing files (description, finding, assessment, countermeasure, status, evidence).
+2. Run `python tests/tools/build_risk_register.py`; it fills the tables, the heat maps and the generated blocks.
+3. When a risk is fixed, do not delete the file: set the status to "Closed" and name the change that fixed it.

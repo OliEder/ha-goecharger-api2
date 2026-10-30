@@ -11,47 +11,47 @@ status: open
 owner:
 review: release
 ---
-# R22: Version-1-Entries lassen alte Geräte in der Registry
+# R22: Version 1 entries leave old devices in the registry
 
-## Risikobeschreibung
+## Risk description
 
-Wenn ein Entry der Version 1 direkt auf 2.1 migriert wird, dann überspringt die Migration das Löschen der Geräte und die Aufräumfunktion existiert nicht mehr, was dazu führt, dass alte Geräte mit dem früheren Identifier in der Registry bleiben.
+If a version 1 entry is migrated directly to 2.1, then the migration skips deleting the devices and the clean-up function no longer exists, which means old devices with the earlier identifier stay in the registry.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** Entries mit Version 1 werden direkt auf 2.1 migriert und überspringen das Löschen der Geräte. Die alte Aufräumfunktion `check_device_registry` wurde entfernt.
+**Finding.** Entries with version 1 are migrated directly to 2.1 and skip deleting the devices. The old clean-up function `check_device_registry` was removed.
 
-**Wirkung.** Alte Geräte mit dem früheren Identifier (der bei Cloud-Entries den Token enthielt) bleiben dort in der Registry stehen. Sehr seltener Randfall.
+**Effect.** Old devices with the earlier identifier (which contained the token for cloud entries) stay in the registry there. Very rare edge case.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 1 | 1 | 1 | niedrig |
-| Restrisiko nach der Gegenmaßnahme | 1 | 1 | 1 | niedrig |
+| Assessment | 1 | 1 | 1 | low |
+| Residual risk after the countermeasure | 1 | 1 | 1 | low |
 
-Risikostrategie: **Akzeptieren**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Accept**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Akzeptiert: sehr seltener Randfall.
+Accepted: very rare edge case.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Offen
+Open
 <!-- /risk:status -->
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Aus Diff gelesen.  
+Read from the diff.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

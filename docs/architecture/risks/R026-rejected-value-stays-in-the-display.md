@@ -11,47 +11,47 @@ status: open
 owner:
 review: release
 ---
-# R26: Abgelehnter Wert bleibt in der Anzeige stehen
+# R26: Rejected value stays in the display
 
-## Risikobeschreibung
+## Risk description
 
-Wenn der Charger einen Schreibbefehl im WebSocket-Modus ablehnt, dann hat die Integration den gewünschten Wert schon in `coordinator.data` übernommen, was dazu führt, dass Home Assistant den abgelehnten Wert anzeigt, bis das Gerät den Schlüssel erneut meldet.
+If the charger rejects a write command in WebSocket mode, then the integration has already taken the requested value into `coordinator.data`, which means Home Assistant shows the rejected value until the device reports the key again.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** Nach `03b0fc3` speichert das Schreiben im WebSocket-Modus den gewünschten Wert sofort in `coordinator.data`.
+**Finding.** After `03b0fc3`, writing in WebSocket mode stores the requested value in `coordinator.data` at once.
 
-**Wirkung.** Lehnt der Charger ab (nur eine Warnung im Log), zeigt HA den abgelehnten Wert, bis das Gerät den Schlüssel erneut meldet.
+**Effect.** If the charger rejects (only a warning in the log), HA shows the rejected value until the device reports the key again.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 3 | 2 | 6 | mittel |
-| Restrisiko nach der Gegenmaßnahme | 1 | 2 | 2 | niedrig |
+| Assessment | 3 | 2 | 6 | medium |
+| Residual risk after the countermeasure | 1 | 2 | 2 | low |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Den Wert erst nach der Bestätigung übernehmen oder bei Ablehnung zurücksetzen; `require_ack` gibt es seit PR #177, nutzt es aber nur für `tcl` und `stop_charging`. Vorschlag. Das heutige Verhalten ist im Test festgehalten.
+Take over the value only after the acknowledgement or reset it on rejection; `require_ack` exists since PR #177 but is used only for `tcl` and `stop_charging`. Proposal. Today's behaviour is recorded in a test.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Offen
+Open
 <!-- /risk:status -->
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Aus Code abgeleitet, Verhalten im Test festgehalten.  
+Derived from the code, behaviour recorded in a test.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

@@ -11,47 +11,47 @@ status: open
 owner:
 review: release
 ---
-# R7: README und Code nennen verschiedene Leseintervalle der Konfiguration
+# R7: README and code state different read intervals for the configuration
 
-## Risikobeschreibung
+## Risk description
 
-Wenn Nutzer sich auf die Angabe „alle 24 Stunden“ im README verlassen, dann liest der Code die Konfiguration schon stündlich, was dazu führt, dass sie eine falsche Erwartung an die Last und die Aktualität haben.
+If users rely on the statement "every 24 hours" in the README, then the code already reads the configuration hourly, which means they have a wrong expectation of the load and the freshness.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** Dokumentation und Code weichen ab: README „Konfiguration alle 24 Stunden“, Code stündlich (`+ 3600`).
+**Finding.** Documentation and code differ: README "configuration every 24 hours", code hourly (`+ 3600`).
 
-**Wirkung.** Falsche Erwartung bei Nutzern.
+**Effect.** Wrong expectation for users.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 5 | 1 | 5 | niedrig |
-| Restrisiko nach der Gegenmaßnahme | 1 | 1 | 1 | niedrig |
+| Assessment | 5 | 1 | 5 | low |
+| Residual risk after the countermeasure | 1 | 1 | 1 | low |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-README oder Intervall anpassen. Vorschlag, nicht umgesetzt.
+Adjust the README or the interval. Proposal, not implemented.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Offen
+Open
 <!-- /risk:status -->
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Aus Code und README gelesen.  
+Read from code and README.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

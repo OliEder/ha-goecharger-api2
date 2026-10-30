@@ -11,47 +11,47 @@ status: open
 owner:
 review: release
 ---
-# R19: Cloud-Token ist laut Doku über den Schlüssel `cak` lesbar
+# R19: Cloud token is readable via the key `cak` according to the documentation
 
-## Risikobeschreibung
+## Risk description
 
-Wenn der Schlüssel `cak` lokal ohne Anmeldung lesbar ist, dann kann jeder im Netz den Cloud-Token auslesen, was dazu führt, dass der Schutz des Tokens im Config-Entry nur begrenzt wirkt.
+If the key `cak` is readable locally without login, then anyone on the network can read the cloud token, which means protecting the token in the config entry has only limited effect.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** Offiziell ist der Cloud-Token über den Schlüssel `cak` lesbar (also auch über die lokale API, soweit der Schlüssel dort verfügbar ist).
+**Finding.** Officially the cloud token is readable via the key `cak` (so also via the local API, as far as the key is available there).
 
-**Wirkung.** Eine Maßnahme der Integration, den Token nur im Config-Entry zu schützen, wäre dann nur begrenzt wirksam. Ob `cak` tatsächlich lokal ohne Anmeldung lesbar ist, habe ich nicht geprüft.
+**Effect.** A measure of the integration to protect the token only in the config entry would then be only partly effective. I did not check whether `cak` is really readable locally without login.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 2 | 4 | 8 | mittel |
-| Restrisiko nach der Gegenmaßnahme | 2 | 3 | 6 | mittel |
+| Assessment | 2 | 4 | 8 | medium |
+| Residual risk after the countermeasure | 2 | 3 | 6 | medium |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Prüfen, ob `cak` lokal ohne Anmeldung lesbar ist (nur lesend, am Gerät); je nach Ergebnis dokumentieren oder dem Nutzer raten, den lokalen Zugriff zu schützen. Nicht geprüft.
+Check whether `cak` is readable locally without login (read-only, on the device); depending on the result document it or advise the user to protect local access. Not checked.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Offen
+Open
 <!-- /risk:status -->
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Nur Doku gelesen.  
+Documentation only read.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

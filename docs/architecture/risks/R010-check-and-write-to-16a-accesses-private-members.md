@@ -11,47 +11,47 @@ status: open
 owner:
 review: release
 ---
-# R10: `check_and_write_to_16a` greift auf Privates zu
+# R10: `check_and_write_to_16a` accesses private members
 
-## Risikobeschreibung
+## Risk description
 
-Wenn die Bridge intern umgebaut wird, dann bricht `check_and_write_to_16a`, weil es als Funktion auf Modulebene die private Methode `bridge._read_filtered_data` aufruft, was dazu führt, dass die 16-A-Begrenzung stillschweigend ausfällt.
+If the bridge is restructured internally, then `check_and_write_to_16a` breaks because, as a module-level function, it calls the private method `bridge._read_filtered_data`, which means the 16 A limiter silently fails.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** `check_and_write_to_16a`: Funktion mit `@staticmethod` auf Modulebene, außerdem privater Zugriff auf `bridge._read_filtered_data`.
+**Finding.** `check_and_write_to_16a`: function with `@staticmethod` at module level, also private access to `bridge._read_filtered_data`.
 
-**Wirkung.** Wartbarkeit.
+**Effect.** Maintainability.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 3 | 1 | 3 | niedrig |
-| Restrisiko nach der Gegenmaßnahme | 1 | 1 | 1 | niedrig |
+| Assessment | 3 | 1 | 3 | low |
+| Residual risk after the countermeasure | 1 | 1 | 1 | low |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Die Funktion in den Koordinator verlegen und eine öffentliche Bridge-Methode nutzen. Vorschlag, nicht umgesetzt.
+Move the function into the coordinator and use a public bridge method. Proposal, not implemented.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Offen
+Open
 <!-- /risk:status -->
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Aus Code gelesen.  
+Read from the code.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

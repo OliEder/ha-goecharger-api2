@@ -1,23 +1,23 @@
-# ADR-0008: Neustart per Konfigurations-Reload bei dauerhaften Fehlern
+# ADR-0008: Restart by config reload on persistent errors
 
 ## Status
 
-Akzeptiert (rekonstruiert, Datum unbekannt)
+Accepted (reconstructed, date unknown)
 
-## Kontext und Begründung
+## Context and reasoning
 
-Hängende Verbindung selbst heilen
+Heal a stuck connection by itself
 
-## Entscheidung
+## Decision
 
-Neustart per Konfigurations-Reload bei dauerhaften Fehlern
+Restart by config reload on persistent errors
 
-## Konsequenzen
+## Consequences
 
-Reload aller Entitäten für ein Verbindungsproblem
+Reload of all entities for a connection problem
 
-## Herkunft dieses Eintrags
+## Origin of this entry
 
-Rekonstruiert aus Code und Kommentaren [Schluss]. Der Autor führt keine Entscheidungsprotokolle; die Begründung ist abgeleitet, nicht belegt.
+Reconstructed from code and comments [Inference]. The author keeps no decision records; the reasoning is inferred, not proven.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Index](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the index](README.md)

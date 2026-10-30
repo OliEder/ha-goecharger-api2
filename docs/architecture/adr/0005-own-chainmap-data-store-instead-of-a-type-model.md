@@ -1,23 +1,23 @@
-# ADR-0005: Eigene ChainMap-Datenhaltung statt Typmodell
+# ADR-0005: Own ChainMap data store instead of a type model
 
 ## Status
 
-Akzeptiert (rekonstruiert, Datum unbekannt)
+Accepted (reconstructed, date unknown)
 
-## Kontext und Begründung
+## Context and reasoning
 
-Schnelle Anpassung an neue Schlüssel
+Quick adaptation to new keys
 
-## Entscheidung
+## Decision
 
-Eigene `ChainMap`-Datenhaltung statt Typmodell
+Own `ChainMap` data store instead of a type model
 
-## Konsequenzen
+## Consequences
 
-Kein Schema; Fehler zeigen sich erst zur Laufzeit (`KeyError` werden abgefangen)
+No schema; errors show only at runtime (`KeyError` are caught)
 
-## Herkunft dieses Eintrags
+## Origin of this entry
 
-Rekonstruiert aus Code und Kommentaren [Schluss]. Der Autor führt keine Entscheidungsprotokolle; die Begründung ist abgeleitet, nicht belegt.
+Reconstructed from code and comments [Inference]. The author keeps no decision records; the reasoning is inferred, not proven.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Index](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the index](README.md)

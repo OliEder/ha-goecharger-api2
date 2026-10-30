@@ -1,31 +1,31 @@
-# ADR-0010: Dienstaufrufe ohne configid nur bei genau einem Charger
+# ADR-0010: Service calls without configid only with exactly one charger
 
 ## Status
 
-Akzeptiert (2026-10-29, Commit `4702213`)
+Accepted (2026-10-29, commit `4702213`)
 
-## Kontext und Begründung
+## Context and reasoning
 
-Vorher wurde der zuerst registrierte Charger genommen. Nach dem Neuladen eines Entries rückte dieser ans Ende der Liste, der Standard wechselte dann stillschweigend auf einen anderen Charger. Ein falscher Charger bei Schreibzugriffen (Strom, Stopp) wird vermieden [Schluss, aus Diff und Testfund].
+Before, the first registered charger was taken. After reloading an entry it moved to the end of the list, so the default silently switched to another charger. A wrong charger for writes (current, stop) is avoided [Schluss, from the diff and a test finding].
 
-## Entscheidung
+## Decision
 
-Dienste (`set_pv_data`, `stop_charging`) ohne `configid`: nur bei genau einem registrierten Charger wird dieser verwendet, sonst `ServiceValidationError` (Commit `4702213`, 2026-10-29; Entscheidung des Maintainers im Code, im Issue #172 nicht begründet)
+Services (`set_pv_data`, `stop_charging`) without `configid`: the charger is used only if exactly one is registered, otherwise `ServiceValidationError` (commit `4702213`, 2026-10-29; decision of the maintainer in the code, not explained in issue #172)
 
-## Konsequenzen
+## Consequences
 
-**Verhaltensänderung:** Wer mehrere Charger hat und `configid` bisher wegließ (zum Beispiel ein Blueprint oder eine Automation), bekommt jetzt einen Fehler statt eines Zugriffs auf den ersten Charger. Mit einem Charger oder mit `configid` ändert sich nichts. `docs/PVSURPLUS.md` verlangt `configid` bei mehreren Chargern bereits; das Blueprint selbst enthält keine `configid` (per `grep` geprüft), ein Aufruf aus dem Blueprint mit mehreren Chargern scheitert deshalb jetzt, sofern der Nutzer sie nicht ergänzt. Am Gerät nicht nachgespielt.
+**Behaviour change:** whoever has several chargers and so far left out `configid` (for example a blueprint or an automation) now gets an error instead of access to the first charger. With one charger or with `configid` nothing changes. `docs/PVSURPLUS.md` already requires `configid` for several chargers; the blueprint itself contains no `configid` (checked with `grep`), so a call from the blueprint with several chargers now fails unless the user adds it. Not replayed on a device.
 
-## Alternativen
+## Alternatives
 
-Nicht gewählt: festen Standard-Charger bestimmen oder die Reihenfolge stabil halten.
+Not chosen: define a fixed default charger or keep the order stable.
 
-## Nachweis (Tests)
+## Evidence (tests)
 
 `test_without_configid_and_with_two_chargers_no_charger_is_guessed`, `test_with_an_empty_registry_no_charger_can_be_chosen`.
 
-## Herkunft dieses Eintrags
+## Origin of this entry
 
-Aus Commit, Diff und Tests abgeleitet [Schluss]; die Begründung hat der Maintainer nicht schriftlich gegeben.
+Derived from the commit, diff and tests [Inference]; the maintainer did not give the reasoning in writing.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Index](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the index](README.md)

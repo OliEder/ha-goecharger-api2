@@ -1,23 +1,23 @@
-# ADR-0001: WebSocket bevorzugen, Polling als Rückfall
+# ADR-0001: Prefer WebSocket, polling as fallback
 
 ## Status
 
-Akzeptiert (rekonstruiert, Datum unbekannt)
+Accepted (reconstructed, date unknown)
 
-## Kontext und Begründung
+## Context and reasoning
 
-Effizienz; einige Geräte (Wattpilot) bieten kein HTTP-API [Doku]
+Efficiency; some devices (Wattpilot) offer no HTTP API [Docs]
 
-## Entscheidung
+## Decision
 
-WebSocket bevorzugen, Polling als Rückfall
+Prefer WebSocket, polling as fallback
 
-## Konsequenzen
+## Consequences
 
-Zwei Datenpfade mit unterschiedlichem Schreibergebnis (`None` gegenüber Dictionary)
+Two data paths with different write results (`None` versus dictionary)
 
-## Herkunft dieses Eintrags
+## Origin of this entry
 
-Rekonstruiert aus Code und Kommentaren [Schluss]. Der Autor führt keine Entscheidungsprotokolle; die Begründung ist abgeleitet, nicht belegt.
+Reconstructed from code and comments [Inference]. The author keeps no decision records; the reasoning is inferred, not proven.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Index](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the index](README.md)

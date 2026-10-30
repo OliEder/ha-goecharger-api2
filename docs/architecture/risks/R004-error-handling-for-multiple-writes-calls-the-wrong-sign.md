@@ -11,49 +11,49 @@ status: fixed
 owner:
 review: release
 ---
-# R4: Fehlerbehandlung beim Mehrfachschreiben ruft falsche Signatur auf
+# R4: Error handling for multiple writes calls the wrong signature
 
-## Risikobeschreibung
+## Risk description
 
-Wenn die Verbindung während eines Mehrfachschreibens (Fahrzeugauswahl `ct`) abbricht, dann wird `_handle_client_connection_error` mit einem Argument statt zwei aufgerufen, was dazu führt, dass ein `TypeError` die saubere Fehlerbehandlung ersetzt.
+If the connection drops during a multiple write (vehicle selection `ct`), then `_handle_client_connection_error` is called with one argument instead of two, which means a `TypeError` replaces the clean error handling.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** `async_write_multiple_keys`: `_handle_client_connection_error` wird mit einem Argument statt zwei aufgerufen (`__init__.py:674`).
+**Finding.** `async_write_multiple_keys`: `_handle_client_connection_error` is called with one argument instead of two (`__init__.py:674`).
 
-**Wirkung.** `TypeError` statt sauberer Fehlerbehandlung bei Verbindungsabbruch während des Schreibens (betrifft die Fahrzeugauswahl `ct`).
+**Effect.** `TypeError` instead of clean error handling when the connection drops during writing (affects the vehicle selection `ct`).
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 2 | 2 | 4 | niedrig |
-| Restrisiko nach der Gegenmaßnahme | 1 | 2 | 2 | niedrig |
+| Assessment | 2 | 2 | 4 | low |
+| Residual risk after the countermeasure | 1 | 2 | 2 | low |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Der Aufruf hat jetzt zwei Argumente (`03b0fc3`).
+The call now has two arguments (`03b0fc3`).
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Geschlossen (behoben)
+Closed (fixed)
 <!-- /risk:status -->
 
-`03b0fc3`. Aufruf hat jetzt zwei Argumente.
+`03b0fc3`. The call now has two arguments.
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Im Test nachgespielt. Noch in `main`.  
+Replayed in a test. Still in `main`.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

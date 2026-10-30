@@ -1,23 +1,23 @@
-# ADR-0007: PV-Daten über eine HA-Automation statt Zusatzhardware
+# ADR-0007: PV data through an HA automation instead of extra hardware
 
 ## Status
 
-Akzeptiert (rekonstruiert, Datum unbekannt)
+Accepted (reconstructed, date unknown)
 
-## Kontext und Begründung
+## Context and reasoning
 
-Kein Zusatzgerät nötig
+No extra device needed
 
-## Entscheidung
+## Decision
 
-PV-Daten über HA-Automation statt Zusatzhardware
+PV data through an HA automation instead of extra hardware
 
-## Konsequenzen
+## Consequences
 
-Qualität liegt im Blueprint und in den Messwerten des Nutzers
+Quality lies in the blueprint and in the user's measurements
 
-## Herkunft dieses Eintrags
+## Origin of this entry
 
-Rekonstruiert aus Code und Kommentaren [Schluss]. Der Autor führt keine Entscheidungsprotokolle; die Begründung ist abgeleitet, nicht belegt.
+Reconstructed from code and comments [Inference]. The author keeps no decision records; the reasoning is inferred, not proven.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Index](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the index](README.md)

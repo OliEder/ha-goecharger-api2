@@ -11,47 +11,47 @@ status: open
 owner:
 review: release
 ---
-# R20: Nach fehlgeschlagenem Lesen bleiben alte Werte stehen
+# R20: Old values stay after a failed read
 
-## Risikobeschreibung
+## Risk description
 
-Wenn ein Charger im Cloud-Betrieb offline geht, dann überschreiben `read_all_states`, `read_all_config` und `read_versions` den Zustand bei leerer Antwort nicht und der Fehlerzähler wird zurückgesetzt, was dazu führt, dass die Entitäten weiter die letzten Werte als gültig anzeigen.
+If a charger goes offline in cloud mode, then `read_all_states`, `read_all_config` and `read_versions` do not overwrite the state on an empty answer and the error counter is reset, which means the entities keep showing the last values as valid.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** Seit `5328e74` überschreibt `read_all_states`, `read_all_config` und `read_versions` den gespeicherten Zustand nur noch, wenn die Antwort nicht leer ist (`if ret is not None and len(ret) > 0 …`). Davor wurde bei einem Fehler der Zustand geleert. `_read_filtered_data` gibt bei jedem Status außer 200/400 (zum Beispiel Cloud 403 oder 404 bei offline) `{}` zurück.
+**Finding.** Since `5328e74`, `read_all_states`, `read_all_config` and `read_versions` overwrite the stored state only if the answer is not empty (`if ret is not None and len(ret) > 0 …`). Before, the state was cleared on an error. `_read_filtered_data` returns `{}` for every status except 200/400 (for example cloud 403 or 404 when offline).
 
-**Wirkung.** Der Koordinator behält die letzten Werte und meldet Erfolg. Ein offline gegangener Charger zeigt im Cloud-Betrieb die letzten Werte weiter an. Zusätzlich setzt `_async_update_data` den Fehlerzähler zurück, weil die `ChainMap` der alten Werte nicht leer ist.
+**Effect.** The coordinator keeps the last values and reports success. A charger that went offline keeps showing its last values in cloud mode. In addition `_async_update_data` resets the error counter because the `ChainMap` of the old values is not empty.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 3 | 3 | 9 | mittel |
-| Restrisiko nach der Gegenmaßnahme | 2 | 3 | 6 | mittel |
+| Assessment | 3 | 3 | 9 | medium |
+| Residual risk after the countermeasure | 2 | 3 | 6 | medium |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Absicht mit dem Maintainer klären; ein Test auf das gewünschte Verhalten fehlt, bis das geklärt ist. Das heutige Verhalten ist als Charakterisierung festgehalten.
+Clarify the intent with the maintainer; a test for the desired behaviour is missing until then. Today's behaviour is recorded as a characterisation.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Offen
+Open
 <!-- /risk:status -->
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Aus Diff und Code abgeleitet, **nicht getestet**. Ob die Anzeige wirklich „eingefroren“ bleibt, hängt davon ab, was HA mit unverändertem `last_update_success` macht.  
+Derived from diff and code, **not tested**. Whether the display really stays "frozen" depends on what HA does with an unchanged `last_update_success`.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

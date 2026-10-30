@@ -11,49 +11,49 @@ status: fixed
 owner:
 review: release
 ---
-# R27: Falscher `ERROR` nach erfolgreichem Mehrfachschreiben
+# R27: False `ERROR` after a successful multiple write
 
-## Risikobeschreibung
+## Risk description
 
-Wenn der Nutzer im WebSocket-Modus den Fahrzeugtyp wechselt, dann liefert `write_multiple_values_to_keys` `{}` und `handle_write_result` überspringt nur `None`, was dazu führt, dass nach jeder erfolgreichen Auswahl ein falscher `ERROR` im Log steht.
+If the user changes the vehicle type in WebSocket mode, then `write_multiple_values_to_keys` returns `{}` and `handle_write_result` skips only `None`, which means a false `ERROR` appears in the log after every successful selection.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** `write_multiple_values_to_keys` liefert im WebSocket-Modus `{}`; `handle_write_result` überspringt nur `None`.
+**Finding.** `write_multiple_values_to_keys` returns `{}` in WebSocket mode; `handle_write_result` skips only `None`.
 
-**Wirkung.** Nach jeder erfolgreichen Fahrzeugauswahl steht ein falscher `ERROR` im Log („could not write multiple value“).
+**Effect.** After every successful vehicle selection a false `ERROR` appears in the log ("could not write multiple value").
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 5 | 1 | 5 | niedrig |
-| Restrisiko nach der Gegenmaßnahme | 1 | 1 | 1 | niedrig |
+| Assessment | 5 | 1 | 5 | low |
+| Residual risk after the countermeasure | 1 | 1 | 1 | low |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-`handle_write_result` überspringt im WebSocket-Modus auch ein leeres Ergebnis (`9e7d62a`).
+`handle_write_result` also skips an empty result in WebSocket mode (`9e7d62a`).
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Geschlossen (behoben)
+Closed (fixed)
 <!-- /risk:status -->
 
-`9e7d62a`. Seit `9e7d62a` überspringt `handle_write_result` im WebSocket-Modus auch ein leeres Ergebnis.
+`9e7d62a`. Since `9e7d62a` `handle_write_result` also skips an empty result in WebSocket mode.
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Im Test gezeigt (`known_bug`).  
+Shown in a test (`known_bug`).  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

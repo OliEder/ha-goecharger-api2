@@ -11,47 +11,47 @@ status: open
 owner:
 review: release
 ---
-# R29: Ohne `cableCurrentLimit` wird nicht mehr auf 16 A begrenzt
+# R29: Without `cableCurrentLimit` there is no limit to 16 A any more
 
-## Risikobeschreibung
+## Risk description
 
-Wenn `cll` Inhalt, aber keinen `cableCurrentLimit` hat, dann setzt die Integration seit `98af3e0` keine 16-A-Grenze und prüft `adi` nicht, was dazu führt, dass Sliders höhere Werte erlauben, obwohl ein Adapter angeschlossen sein könnte.
+If `cll` has content but no `cableCurrentLimit`, then since `98af3e0` the integration sets no 16 A limit and does not check `adi`, which means sliders allow higher values although an adapter might be attached.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** `98af3e0`: Fehlt `cableCurrentLimit` in `cll`, wird nicht mehr auf 16 A begrenzt und `adi` nicht mehr geprüft; Core-Geräte ohne den Schlüssel waren vorher vorsichtshalber begrenzt.
+**Finding.** `98af3e0`: if `cableCurrentLimit` is missing in `cll`, there is no longer a limit to 16 A and `adi` is no longer checked; Core devices without the key were limited to be safe before.
 
-**Wirkung.** Sliders erlauben höhere Werte; der Charger begrenzt einen Adapter selbst. Die Annahme „nur Flex hat den Schlüssel“ ist nicht belegt.
+**Effect.** Sliders allow higher values; the charger limits an adapter itself. The assumption "only Flex has the key" is not proven.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 3 | 2 | 6 | mittel |
-| Restrisiko nach der Gegenmaßnahme | 2 | 2 | 4 | niedrig |
+| Assessment | 3 | 2 | 6 | medium |
+| Residual risk after the countermeasure | 2 | 2 | 4 | low |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Lesend am Charger prüfen, welche Firmware `cableCurrentLimit` liefert, und die Annahme „nur Flex-Geräte“ belegen oder widerlegen; die Doku und die Changelogs sagen dazu nichts. Der Charger begrenzt einen Adapter selbst, das mindert die Auswirkung.
+Check read-only on a charger which firmware delivers `cableCurrentLimit` and prove or disprove the assumption "Flex devices only"; the documentation and changelogs say nothing about it. The charger limits an adapter itself, which reduces the impact.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Offen
+Open
 <!-- /risk:status -->
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Aus Diff gelesen, Verhalten im Test festgehalten.  
+Read from the diff, behaviour recorded in a test.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

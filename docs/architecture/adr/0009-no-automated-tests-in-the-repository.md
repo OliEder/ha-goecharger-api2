@@ -1,23 +1,23 @@
-# ADR-0009: Keine automatisierten Tests im Repository
+# ADR-0009: No automated tests in the repository
 
 ## Status
 
-Ersetzt durch ADR-0011
+Superseded by ADR-0011
 
-## Kontext und Begründung
+## Context and reasoning
 
-Aufwand/Haltung des Autors
+Effort/attitude of the author
 
-## Entscheidung
+## Decision
 
-Keine automatisierten Tests im Repo
+No automated tests in the repo
 
-## Konsequenzen
+## Consequences
 
-Vorher fielen Regressionen erst bei Nutzern auf; jetzt prüft die Suite jede Änderung gegen den Vertrag zur offiziellen API
+Regressions used to show up only with users; now the suite checks every change against the contract with the official API
 
-## Herkunft dieses Eintrags
+## Origin of this entry
 
-Rekonstruiert aus Code und Kommentaren [Schluss]. Der Autor führt keine Entscheidungsprotokolle; die Begründung ist abgeleitet, nicht belegt.
+Reconstructed from code and comments [Inference]. The author keeps no decision records; the reasoning is inferred, not proven.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Index](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the index](README.md)

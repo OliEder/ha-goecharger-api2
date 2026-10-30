@@ -11,49 +11,49 @@ status: superseded
 owner:
 review: release
 ---
-# R13: Keine automatisierten Tests im Repository
+# R13: No automated tests in the repository
 
-## Risikobeschreibung
+## Risk description
 
-Wenn Code geändert oder umgebaut wird, dann fehlt eine automatische Prüfung, was dazu führt, dass Regressionen erst bei Nutzern auffallen.
+If code is changed or restructured, then an automatic check is missing, which means regressions are noticed only by users.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** Keine Tests im Repo (überholt: seit PR #178 liegen sie in `tests/integration`).
+**Finding.** No tests in the repo (superseded: since PR #178 they are in `tests/integration`).
 
-**Wirkung.** Regressionen werden erst von Nutzern gefunden.
+**Effect.** Regressions are found only by users.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 4 | 3 | 12 | mittel |
-| Restrisiko nach der Gegenmaßnahme | 2 | 3 | 6 | mittel |
+| Assessment | 4 | 3 | 12 | medium |
+| Residual risk after the countermeasure | 2 | 3 | 6 | medium |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Die Regressionstests liegen seit PR #178 im Repository und laufen seit PR #179 bei Push und Pull Request (ADR-0011). Sie prüfen mit Attrappen, nicht am Gerät; deshalb bleibt ein Restrisiko.
+The regression tests have been in the repository since PR #178 and have run on push and pull request since PR #179 (ADR-0011). They check with fakes, not on the device, so a residual risk remains.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Geschlossen (überholt)
+Closed (superseded)
 <!-- /risk:status -->
 
-PR #178 und #179.
+PR #178, #179.
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Repo-Inhalt.  
+Repo content.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

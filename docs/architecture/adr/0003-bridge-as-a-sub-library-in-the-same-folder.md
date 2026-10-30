@@ -1,23 +1,23 @@
-# ADR-0003: Bridge als Teilbibliothek im selben Ordner
+# ADR-0003: Bridge as a sub-library in the same folder
 
 ## Status
 
-Akzeptiert (rekonstruiert, Datum unbekannt)
+Accepted (reconstructed, date unknown)
 
-## Kontext und Begründung
+## Context and reasoning
 
-Trennung von Protokoll und HA
+Separation of protocol and HA
 
-## Entscheidung
+## Decision
 
-Eine Bridge-Teilbibliothek im selben Ordner
+One bridge sub-library in the same folder
 
-## Konsequenzen
+## Consequences
 
-Nicht separat veröffentlicht; Abhängigkeiten nicht im Manifest vollständig
+Not published separately; dependencies not complete in the manifest
 
-## Herkunft dieses Eintrags
+## Origin of this entry
 
-Rekonstruiert aus Code und Kommentaren [Schluss]. Der Autor führt keine Entscheidungsprotokolle; die Begründung ist abgeleitet, nicht belegt.
+Reconstructed from code and comments [Inference]. The author keeps no decision records; the reasoning is inferred, not proven.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Index](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the index](README.md)

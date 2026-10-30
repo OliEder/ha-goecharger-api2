@@ -11,47 +11,47 @@ status: open
 owner:
 review: release
 ---
-# R12: `CustomFriendlyNameEntity` überschreibt eine private HA-Methode
+# R12: `CustomFriendlyNameEntity` overrides a private HA method
 
-## Risikobeschreibung
+## Risk description
 
-Wenn Home Assistant die private Methode `_Entity__async_calculate_state` ändert, dann greift die Überschreibung ins Leere oder wirft einen Fehler, was dazu führt, dass Anzeigenamen falsch sind oder Entitäten ausfallen.
+If Home Assistant changes the private method `_Entity__async_calculate_state`, then the override misses or raises an error, which means display names are wrong or entities fail.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** `CustomFriendlyNameEntity` überschreibt eine private HA-Methode.
+**Finding.** `CustomFriendlyNameEntity` overrides a private HA method.
 
-**Wirkung.** Bricht bei HA-Änderungen.
+**Effect.** Breaks with HA changes.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 3 | 2 | 6 | mittel |
-| Restrisiko nach der Gegenmaßnahme | 2 | 2 | 4 | niedrig |
+| Assessment | 3 | 2 | 6 | medium |
+| Residual risk after the countermeasure | 2 | 2 | 4 | low |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Die Tests gegen neue Home-Assistant-Versionen laufen lassen, um Brüche früh zu sehen (die Version des Test-Frameworks steht in `requirements_dev.txt`). Eine eigene Absicherung der Überschreibung gibt es nicht.
+Run the tests against new Home Assistant versions to see breaks early (the version of the test framework is set in `requirements_dev.txt`). The override has no safeguard of its own.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Offen
+Open
 <!-- /risk:status -->
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Aus Code gelesen.  
+Read from the code.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)

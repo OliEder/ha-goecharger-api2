@@ -11,47 +11,47 @@ status: open
 owner:
 review: release
 ---
-# R16: WebSocket-Schnittstelle ist nicht offiziell dokumentiert
+# R16: WebSocket interface is not officially documented
 
-## Risikobeschreibung
+## Risk description
 
-Wenn go-e Firmware oder Cloud ändert, dann bricht die nachgebaute WebSocket-Anmeldung oder das Nachrichtenformat ohne Vorwarnung, was dazu führt, dass alle Nutzer im bevorzugten Betrieb (mit Passwort) keine Daten mehr erhalten.
+If go-e changes firmware or cloud, then the reverse-engineered WebSocket login or message format breaks without warning, which means all users in the preferred mode (with password) no longer receive data.
 
-## Befund im Detail
+## Finding in detail
 
-**Befund.** Der bevorzugte Datenpfad (WebSocket) ist nicht offiziell dokumentiert; Anmeldeverfahren und Nachrichten sind nachgebaut.
+**Finding.** The preferred data path (WebSocket) is not officially documented; login procedure and messages are reverse engineered.
 
-**Wirkung.** Eine Firmware- oder Cloud-Änderung von go-e kann ihn ohne Vorwarnung brechen. Das README erwähnt das schon für Firmware 60.2 und 60.4.
+**Effect.** A firmware or cloud change by go-e can break it without warning. The README already mentions this for firmware 60.2 and 60.4.
 
-## Bewertung
+## Assessment
 
 <!-- risk:assessment -->
 | | W | A | Score (W × A) | |
 |---|---|---|---|---|
-| Bewertung | 3 | 4 | 12 | mittel |
-| Restrisiko nach der Gegenmaßnahme | 2 | 3 | 6 | mittel |
+| Assessment | 3 | 4 | 12 | medium |
+| Residual risk after the countermeasure | 2 | 3 | 6 | medium |
 
-Risikostrategie: **Mindern**. Skala: W 1 (sehr unwahrscheinlich) bis 5 (sehr wahrscheinlich), A 1 (gering) bis 5 (schwerwiegend); Score 1 bis 5 niedrig, 6 bis 12 mittel, ab 15 hoch.
+Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 (low) to 5 (severe); score 1 to 5 low, 6 to 12 medium, 15 and above high.
 <!-- /risk:assessment -->
 
-## Gegenmaßnahme
+## Countermeasure
 
-Firmware-Änderungen von go-e beobachten, die Anmeldung mit Tests absichern (die Attrappen erkennen eine Änderung von go-e nicht) und prüfen, ob bei Fehlschlag auf HTTP zurückgefallen werden kann. Vorschlag.
+Watch firmware changes by go-e, secure the login with tests (the fakes do not detect a change by go-e) and check whether a fallback to HTTP is possible on failure. Proposal.
 
-## Status und Verlauf
+## Status and history
 
 <!-- risk:status -->
-Offen
+Open
 <!-- /risk:status -->
 
-## Beleg
+## Evidence
 
-*Beleg zum Zeitpunkt des Befundes (nicht der heutige Stand)*
+*Evidence at the time of the finding (not today's state)*
 
-Doku und README gelesen.  
+Documentation and README read.  
 
-## Hinweis zur Bewertung
+## Note on the assessment
 
-W, A, Strategie und Restrisiko sind **Einschätzungen** des Autors dieser Dokumentation (mit KI-Unterstützung) [Schluss]. Sie sind nicht gemessen und nicht mit dem Maintainer abgestimmt. Der Risk Owner soll sie bestätigen oder ändern.
+W, A, strategy and residual risk are **assessments** by the author of this documentation (with AI assistance) [Inference]. They are not measured and not agreed with the maintainer. The risk owner should confirm or change them.
 
-Architektur: [arc42](../arc42-ha-goecharger-api2.md) | [Zurück zum Register](README.md)
+Architecture: [arc42](../arc42-ha-goecharger-api2.md) | [Back to the register](README.md)
