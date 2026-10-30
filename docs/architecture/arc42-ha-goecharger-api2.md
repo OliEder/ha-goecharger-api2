@@ -431,11 +431,11 @@ Chargers only. The result is `limit_to16a`; it limits sliders and services to at
 flowchart TD
     A["read_versions"] --> B{"cll present and not empty?"}
     B -- no --> F{"Core wallbox?"}
-    F -- no --> G["adi as fallback: adapter detected = limit"]
+    F -- no --> G["adi as fallback (grid-side adapter): adapter detected = limit"]
     F -- yes --> H["no value known"]
-    B -- yes --> C{"cableCurrentLimit greater than 0?"}
-    C -- yes --> D["limit if cable limit is 16 A or less"]
-    C -- no --> E["no limit from the cable (since 98af3e0), adi is not checked"]
+    B -- yes --> C{"cableCurrentLimit (same as cbl, car-side cable [Inference]) greater than 0?"}
+    C -- yes --> D["limit if that value is 16 A or less"]
+    C -- no --> E["no limit from cll (since 98af3e0), adi and adapterCurrentLimit are not checked"]
     G --> I
     H --> J["limit active to be safe"]
     D --> I["limit_to16a = configuration 11 kW or variant 11 or cable limit"]
@@ -534,7 +534,7 @@ flowchart LR
 
 ### 8.3 Device and firmware variants
 - Core/Phoenix/Pro versus classic: different temperature sensors (`tma` index 2 to 5 versus 0 and 1), some unsupported entities, Core-only `iso2ena`, different hash type (bcrypt).
-- 16 A limit: from cable limit (`cll.cableCurrentLimit`), adapter (`adi`), variant (`var == 11`) or option; sets `native_max_value` to 16 and writes values that are too high back at start. Since `98af3e0`: if `cll` has content but no `cableCurrentLimit`, **no** limit is set and `adi` is not consulted (assumption of the author: only Flex devices deliver this key; trigger was issue #176). Before that, Core devices without this key were limited to 16 A to be safe ([R029](risks/R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md)).
+- 16 A limit: from cable limit (`cll.cableCurrentLimit`), adapter (`adi`), variant (`var == 11`) or option; sets `native_max_value` to 16 and writes values that are too high back at start. Since `98af3e0`: if `cll` has content but no `cableCurrentLimit`, **no** limit is set and `adi` is not consulted (assumption in the code comment: only Flex devices deliver this key; trigger was issue #176; a V4 with firmware 59.4 delivers it, see [R029](risks/R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md); `adapterCurrentLimit` of the same object is never read). Before that, Core devices without this key were limited to 16 A to be safe ([R029](risks/R029-without-cablecurrentlimit-there-is-no-limit-to-16-a-any.md)).
 - `cards` as an object or as 30 single keys (firmware 60.0).
 
 ### 8.4 Error and log strategy

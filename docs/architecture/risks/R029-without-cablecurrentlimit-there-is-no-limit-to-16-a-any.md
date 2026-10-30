@@ -21,7 +21,9 @@ If `cll` has content but no `cableCurrentLimit`, then since `98af3e0` the integr
 
 **Finding.** `98af3e0`: if `cableCurrentLimit` is missing in `cll`, there is no longer a limit to 16 A and `adi` is no longer checked; Core devices without the key were limited to be safe before.
 
-**Effect.** Sliders allow higher values; the charger limits an adapter itself. The assumption "only Flex has the key" is not proven.
+**What the keys mean.** [Inference] `cableCurrentLimit` has the same value as `cbl` ("cable_current_limit") and is the limit of the charging cable to the car. The adapter on the grid side (CEE, Schuko) has its own field `adapterCurrentLimit` in `cll` and the flag `adi`. The code reads `cableCurrentLimit` first, uses `adi` only when `cll` is empty or missing, and never reads `adapterCurrentLimit`.
+
+**Effect.** Sliders allow higher values. According to the manual of the Gemini flex the charger reduces the current to 16 A by itself, but only with original go-e adapters (page 5); that this holds for every model is not proven. The assumption "only Flex has the key" is disproved for one device: a `go-eCharger_V4` with firmware 59.4 delivers `cableCurrentLimit` (20), see Evidence.
 
 ## Assessment
 
@@ -36,7 +38,7 @@ Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 
 
 ## Countermeasure
 
-Check read-only on a charger which firmware delivers `cableCurrentLimit` and prove or disprove the assumption "Flex devices only"; the documentation and changelogs say nothing about it. The charger limits an adapter itself, which reduces the impact.
+Check read-only on more chargers which model and firmware deliver `cableCurrentLimit` (one V4 with 59.4 does, the V5 in #176 does not). Decide with the maintainer whether `adapterCurrentLimit` should be read for the 16 A limit; this is a change in the integration code and not ours to make. The charger limiting the current itself (with original adapters) reduces the impact.
 
 ## Status and history
 
@@ -48,7 +50,9 @@ Open
 
 *Evidence at the time of the finding (not today's state)*
 
-Read from the diff, behaviour recorded in a test.  
+Read from the diff, behaviour recorded in a test.
+
+Added 2026-10-30, raw answer of a real device (read-only request, run by Claude for Oliver; also posted in [Discussion #184](https://github.com/marq24/ha-goecharger-api2/discussions/184#discussioncomment-19297118)): `go-eCharger_V4`, `var` 11, firmware 59.4, `cll` = `{"adapterCurrentLimit":16,"cableCurrentLimit":20,"currentLimitMax":16,"requestedCurrent":16,"temperatureCurrentLimit":32,"unsymetryCurrentLimit":32}`, `adi` true, `cbl` 20. Not known: the cable that was plugged in and whether a car was connected. One device, one moment. The assessment is unchanged: the V5 of #176 shows that the case without the key exists.
 
 ## Note on the assessment
 

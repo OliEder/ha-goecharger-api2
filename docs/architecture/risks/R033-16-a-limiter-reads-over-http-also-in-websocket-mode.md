@@ -21,7 +21,7 @@ If a charger can only be reached over WebSocket, then the 16 A limiter reads its
 
 **Finding.** `check_and_write_to_16a` calls `bridge._read_filtered_data` (`__init__.py`, line 265), the HTTP path. The other callers use `_read_filtered_data_from_ws_source` when the WebSocket mode is active. The README (line 138) says that for some wallboxes, for example the Fronius Wattpilot, WebSocket is the only way.
 
-**Effect.** [Inference] On such a charger the limiter read fails and is only logged; the limiter then neither detects a 16 A cable nor writes a limit. Not tried on a device.
+**Effect.** [Inference] On such a charger the limiter read fails and is only logged; the limiter then neither detects the 16 A limit nor writes a limit. Not tried on a device.
 
 ## Assessment
 
