@@ -7,7 +7,7 @@ impact: 3
 residual_probability: 1
 residual_impact: 3
 strategy: mitigate
-status: open
+status: settled
 owner:
 review: release
 ---
@@ -19,9 +19,9 @@ If the integration is installed on an older Home Assistant or without an availab
 
 ## Finding in detail
 
-**Finding.** Missing dependency in the manifest (`bcrypt`), minimum HA version unclear (`hacs.json` 2023.8.0 versus newer APIs used).
+**Finding.** Two parts. (1) `bcrypt` is imported (`pygoecharger_ha/__init__.py`, line 15) but not named in the manifest. (2) `hacs.json` names Home Assistant 2023.8.0 as the minimum, but the config flow calls `self._get_reconfigure_entry()` (`config_flow.py`, lines 156 and 226).
 
-**Effect.** Installation errors on older systems possible.
+**Effect.** (1) None: Home Assistant itself requires `bcrypt` (the version installed for the tests pins `bcrypt==5.0.0` and uses it in its own auth provider), and the maintainer removed it from the manifest because Home Assistant complained that it was declared (review of this pull request, 2026-10-30). (2) [Inference] Reconfiguring an entry fails with an `AttributeError` on Home Assistant older than 2024.11.0, because `_get_reconfigure_entry` is missing in 2024.10.4 and present in 2024.11.0 (checked in the released packages). Not run on an old system.
 
 ## Assessment
 
@@ -36,19 +36,21 @@ Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 
 
 ## Countermeasure
 
-Add `bcrypt` to the manifest, check the minimum version and adjust `hacs.json`. Proposal, not implemented. The tests run with the newest version only.
+Part 1 is obsolete: nothing to add to the manifest. Part 2: raise the minimum in `hacs.json` to 2024.11.0, or guard the call. Proposal for the maintainer, not implemented. The tests run with the newest version only. Other newer APIs were not checked one by one.
 
 ## Status and history
 
 <!-- risk:status -->
-Open
+Closed (settled, not a defect)
 <!-- /risk:status -->
+
+Settled on 2026-10-30 after the review of the maintainer: the `bcrypt` part is not a defect. The original assessment (W 3, A 3) is kept. Residual risk: the minimum version in `hacs.json` is too low for the reconfigure flow (W 3, A 1 [Inference]: only reconfiguring is affected). It is recorded here and accepted until the maintainer decides about `hacs.json`.
 
 ## Evidence
 
 *Evidence at the time of the finding (not today's state)*
 
-Read from code and manifest. I did not check whether `bcrypt` is supplied by HA.  
+[Code] `manifest.json` (`requirements`: only `msgpack`), `pygoecharger_ha/__init__.py` line 15, `config_flow.py` lines 156 and 226. [Docs] The Home Assistant package installed for the tests requires `bcrypt==5.0.0` (package metadata) and imports it in `auth/providers/homeassistant.py`. [Code] `config_entries.py` of the released packages 2024.10.4 (no `_get_reconfigure_entry`) and 2024.11.0 (present). Not tried on an old Home Assistant.  
 
 ## Note on the assessment
 

@@ -48,7 +48,7 @@ Open
 
 *Evidence at the time of the finding (not today's state)*
 
-[Code] `__init__.py` line 265 and the callers of `_read_filtered_data_from_ws_source` read; README line 138. [Inference] The effect on a WebSocket-only charger was not tried.
+[Code] `__init__.py` line 265 and the callers of `_read_filtered_data_from_ws_source` read; README line 138. Checked on 2026-10-30: README line 138 says that for some wallboxes (for example the Fronius Wattpilot) WebSocket is the only local way because the firmware has no HTTP v2 API, and the other read paths (`read_system`, `read_versions`, `read_idle_states`, `read_all_states`, `read_all_config`) use `_read_filtered_data_from_ws_source` in WebSocket mode. [Inference] The effect on a real WebSocket-only charger was not tried; the red test uses a fake bridge.
 
 ## Note on the assessment
 

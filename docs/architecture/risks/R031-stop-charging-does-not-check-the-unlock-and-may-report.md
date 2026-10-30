@@ -23,7 +23,7 @@ If the unlock write (`frc=0`) after the five minute lock fails or is not confirm
 
 [R001](R001-stop-charging-locks-the-charger-after-a-write-error.md) (fixed) covers the flag `_stop_in_progress`, which a `finally` resets; the unlock itself is this risk.
 
-**Effect.** The user may not be able to charge after a stop request, and the automation that called the service is told that all went well. [Inference] If Home Assistant cancels the service call during the 300 s sleep, the unlock is skipped as well.
+**Effect.** The user may not be able to charge after a stop request, and the automation that called the service is told that all went well. If the service call is cancelled during the 300 s sleep, the unlock is skipped as well: `asyncio.CancelledError` is not caught by `except (ValueError, TypeError)`, and the `finally` only resets `_stop_in_progress`. Shown on 2026-10-30 with a fake coordinator: after `task.cancel()` the only write was `('frc', 1)`. [Inference] Home Assistant cancels a running service call when an automation or script is stopped or reloaded, or when Home Assistant restarts within the five minutes; not run in Home Assistant. Whether the charger resets `frc` by itself is open; the API documentation names no time limit for `frc`.
 
 ## Assessment
 
@@ -50,7 +50,7 @@ Open
 
 *Evidence at the time of the finding (not today's state)*
 
-[Code] Read from `service.py` at `main` (`e6ee0c3`) by an independent review and checked again. No test covers a failed or unconfirmed unlock: the tests for `stop_charging` check that the flag is reset, not that `frc` is set back. Not tried on a real charger.
+[Code] Read from `service.py` at `main` (`e6ee0c3`) by an independent review and checked again. No test covers a failed or unconfirmed unlock: the tests for `stop_charging` check that the flag is reset, not that `frc` is set back. Cancellation shown with a throw-away test and fakes (2026-10-30), not added to the test suite. Not tried on a real charger. A search of the Home Assistant of the author of this documentation and its history (24 to 30 October 2026) found no use of `stop_charging` and `frc` always at 0.
 
 ## Note on the assessment
 

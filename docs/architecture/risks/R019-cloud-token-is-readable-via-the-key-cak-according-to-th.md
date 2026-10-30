@@ -21,7 +21,7 @@ If the key `cak` is readable locally without login, then anyone on the network c
 
 **Finding.** The cloud API documentation (`cloudapi-en.md`, lines 13 and 15) says the cloud token is readable via the key `cak`. The key also appears in the WebSocket data (debug log in issue #176).
 
-**Effect.** A measure of the integration to protect the token only in the config entry would then be only partly effective. I did not check whether `cak` is readable locally without login.
+**Effect.** A measure of the integration to protect the token only in the config entry would then be only partly effective. Checked on one device on 2026-10-30 (go-eCharger V4, firmware 59.4): the local HTTP API does not deliver `cak`; `GET /api/status?filter=cak` returns an empty object and the full status (264 keys) has no `cak`. Other models and firmware 60.x, the WebSocket and the cloud were not checked.
 
 ## Assessment
 
@@ -36,7 +36,7 @@ Risk strategy: **Mitigate**. Scale: W 1 (very unlikely) to 5 (very likely), A 1 
 
 ## Countermeasure
 
-Check whether `cak` is readable locally without login (read-only, on the device); depending on the result document it or advise the user to protect local access. Not checked.
+Check whether `cak` is readable locally without login (read-only, on the device); depending on the result document it or advise the user to protect local access. Done for one device (V4, 59.4: not readable); other models and firmware are open.
 
 ## Status and history
 
@@ -48,7 +48,7 @@ Open
 
 *Evidence at the time of the finding (not today's state)*
 
-[Docs] `cloudapi-en.md` lines 13 and 15; `cak` is not listed in `apikeys-en.md`. [Code] The integration does not request `cak` itself. Not checked on a device.
+[Docs] `cloudapi-en.md` lines 13 and 15; `cak` is not listed in `apikeys-en.md`. [Code] The integration does not request `cak` itself. Checked on 2026-10-30 on a V4 with firmware 59.4: not delivered locally (read-only requests; the value was not displayed or stored). Other devices not checked.
 
 ## Note on the assessment
 
