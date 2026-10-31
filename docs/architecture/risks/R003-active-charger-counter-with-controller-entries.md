@@ -50,7 +50,7 @@ Closed (fixed)
 
 *Evidence at the time of the finding (not today's state)*
 
-Read from the code (`__init__.py:148`ff, `194`ff). **Not replayed.**  
+[Code] `__init__.py` lines 150 to 211. [Test] The finding is replayed by the test suite, green on `main` (`e6ee0c3`) on 2026-10-30: `test_controller_does_not_register_charger_services` (setting up a controller leaves no counter), `test_unloading_a_controller_keeps_the_charger_services` (a controller unload does not lower the counter of a loaded charger) and `test_unloading_a_controller_without_any_charger_does_not_raise`. The fakes replace platform loading, polling and the WebSocket start; the original `KeyError` was not run in a real Home Assistant.  
 
 ## Note on the assessment
 

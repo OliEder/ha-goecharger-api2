@@ -19,7 +19,7 @@ If Home Assistant changes the private method `_Entity__async_calculate_state`, t
 
 ## Finding in detail
 
-**Finding.** `CustomFriendlyNameEntity` overrides the private method `_Entity__async_calculate_state` of Home Assistant. The override is only used with Home Assistant 2026.2.0 or newer.
+**Finding.** `CustomFriendlyNameEntity` overrides the private method `_Entity__async_calculate_state` of Home Assistant. Home Assistant calls the override whenever the private method exists: the method is absent in Home Assistant 2023.8.0 (the minimum in `hacs.json`) and present in 2024.11.0, 2025.12.0 and 2026.10.4 (`helpers/entity.py` of the released packages; the first version that has it was not determined). The override always calls the private base method first; only the change of the friendly name is limited to Home Assistant 2026.2.0 or newer (`USE_NEW_FRIENDLY_NAME`, `entity.py` line 7).
 
 **Effect.** If Home Assistant renames the method, the override is silently never called and entity names fall back to the default. It fails with an error only if the signature or the return value changes. No test refers to the override.
 
@@ -50,7 +50,7 @@ Assessment reviewed on 2026-10-30 after the independent review and kept: the rev
 
 *Evidence at the time of the finding (not today's state)*
 
-[Code] Read from the entity base class; searched the tests for the method name and the class (no hit).
+[Code] Read from `entity.py`; searched the tests for the method name and the class (no hit). [Code] The private method exists in the released Home Assistant packages 2024.11.0, 2025.12.0 and 2026.10.4 and not in 2023.8.0. Not run in Home Assistant.
 
 ## Note on the assessment
 

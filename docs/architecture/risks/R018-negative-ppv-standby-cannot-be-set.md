@@ -21,7 +21,7 @@ If a user wants to report the standby state of the PV system via `set_pv_data`, 
 
 **Finding.** Officially `pPv < 0` means "standby". The service `set_pv_data` is registered without a schema; the UI selector limits `ppv` to values from 0, but a negative value passes through a direct service call. If `ppv` is omitted, the service sends `pPv=0` and `pAkku=0`.
 
-**Effect.** Standby cannot be set through the UI. Whether this is intended is unclear.
+**Effect.** Standby cannot be set through the UI. The service code itself does not limit the range: `set_pv_data` checks `ppv` only for finiteness and sends `float(ppv)` (`service.py`, lines 59 to 72). The official text of `ids` reads "pPv < 0 ==> standby" (`apikeys-en.md`). Whether the limit of the selector (minimum 0) is intended is unclear and for the maintainer to say.
 
 ## Assessment
 
@@ -48,7 +48,7 @@ Open
 
 *Evidence at the time of the finding (not today's state)*
 
-Documentation and `services.yaml` read.  
+[Code] `service.py` lines 59 to 72 and `services.yaml` (`ppv`: selector minimum 0). [Docs] `apikeys-en.md`, key `ids`. No test sends a negative `ppv`. Not tried on a charger.  
 
 ## Note on the assessment
 
